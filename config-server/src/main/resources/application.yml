@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: CONFIG-SERVER
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://gitlab.com/ramesh_fadatare/config-server-repo.git
+          clone-on-start: true
+          default-label: main
+eureka:
+  instance:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+server:
+  port: 8888
