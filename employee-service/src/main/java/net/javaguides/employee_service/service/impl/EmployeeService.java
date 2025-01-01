@@ -42,8 +42,7 @@ public class EmployeeService implements IEmployeeService {
         if (employee == null) {
             return null;
         }
-
-
+        
         ResDepartmentDto department = apiClient.getDepartmentByCode(employee.getDepartmentCode());
         if (department == null) {
             return null;
