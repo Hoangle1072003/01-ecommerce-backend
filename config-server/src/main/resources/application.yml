@@ -5,7 +5,7 @@ spring:
     config:
       server:
         git:
-          uri: https://gitlab.com/ramesh_fadatare/config-server-repo.git
+          uri: https://gitlab.com/software_architecture_for_microservices/config-server-repo.git
           clone-on-start: true
           default-label: main
 eureka:

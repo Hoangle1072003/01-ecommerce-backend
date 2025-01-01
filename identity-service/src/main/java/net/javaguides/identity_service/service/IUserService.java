@@ -1,8 +1,5 @@
 package net.javaguides.identity_service.service;
 
-import net.javaguides.identity_service.entity.request.ReqUserDto;
-import net.javaguides.identity_service.entity.response.ResUserDto;
-
 import java.util.UUID;
 
 /**
@@ -16,7 +13,5 @@ import java.util.UUID;
  */
 
 public interface IUserService {
-    ReqUserDto createUser(ReqUserDto reqUserDto);
-
-    ResUserDto getUserById(UUID id);
+   
 }

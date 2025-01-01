@@ -34,6 +34,10 @@ dependencyManagement {
     }
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("bootBuildImage") {
+    imageName.set("paketobuildpacks/${project.name}:v1")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
