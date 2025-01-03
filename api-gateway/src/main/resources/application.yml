@@ -1,6 +1,8 @@
 spring:
   application:
     name: API-GATEWAY
+  main:
+    allow-circular-references: true
 
   cloud:
     gateway:
@@ -18,6 +20,7 @@ spring:
       #            - name: Path
       #              args:
       #                pattern: /api/department-service/**
+      excluded-url-pattern: "/employee-service/**"
       discovery:
         locator:
           enabled: true
