@@ -57,7 +57,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             return unauthorized(exchange.getResponse());
         }
 
-        String token = authHeader.get(0);
+        String token = authHeader.get(0).substring(7);
         log.info("Token: {}", token);
         return checkToken(token)
                 .flatMap(isValid -> {
@@ -73,7 +73,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         return webClientBuilder.build()
                 .post()
                 .uri("http://localhost:8082/api/v1/auth/introspect")
-                .header(HttpHeaders.AUTHORIZATION, token)
+                .bodyValue(new TokenIntrospectionRequest(token))
                 .retrieve()
                 .bodyToMono(TokenIntrospectionResponse.class)
                 .map(response -> response.getData())

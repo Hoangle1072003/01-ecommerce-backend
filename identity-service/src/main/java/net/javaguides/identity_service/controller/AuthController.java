@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.identity_service.entity.User;
 import net.javaguides.identity_service.entity.request.ReqLoginDTO;
+import net.javaguides.identity_service.entity.request.TokenIntrospectionRequest;
 import net.javaguides.identity_service.entity.response.ResLoginDTO;
 import net.javaguides.identity_service.mapper.IUserCreateMapper;
 import net.javaguides.identity_service.mapper.IUserMapper;
@@ -47,10 +48,10 @@ public class AuthController {
 
 
     @PostMapping("/introspect")
-    public ResponseEntity<Boolean> introspect(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<Boolean> introspect(@RequestBody TokenIntrospectionRequest token) {
 
         try {
-            securityUtil.checkValidJWTAccessToken(token);
+            securityUtil.checkValidJWTAccessToken(token.getToken());
             return ResponseEntity.ok(true);
         } catch (Exception e) {
             return ResponseEntity.ok(false);
