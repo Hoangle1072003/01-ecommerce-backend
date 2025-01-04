@@ -3,8 +3,8 @@ package net.javaguides.identity_service.service;
 import net.javaguides.identity_service.domain.User;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
+import org.springframework.data.domain.Pageable;
 
-import java.awt.print.Pageable;
 import java.util.List;
 import java.util.UUID;
 
