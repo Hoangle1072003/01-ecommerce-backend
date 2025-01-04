@@ -27,8 +27,6 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     compileOnly("org.projectlombok:lombok:1.18.36")
     annotationProcessor("org.projectlombok:lombok:1.18.36")
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 }
 
 dependencyManagement {
