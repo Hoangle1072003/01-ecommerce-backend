@@ -1,4 +1,4 @@
-package net.javaguides.identity_service.entity;
+package net.javaguides.identity_service.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

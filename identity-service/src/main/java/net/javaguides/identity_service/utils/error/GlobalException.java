@@ -1,6 +1,6 @@
 package net.javaguides.identity_service.utils.error;
 
-import net.javaguides.identity_service.entity.response.RestResponse;
+import net.javaguides.identity_service.domain.response.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

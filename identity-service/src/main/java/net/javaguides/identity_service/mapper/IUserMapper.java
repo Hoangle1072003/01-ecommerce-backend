@@ -1,8 +1,8 @@
 package net.javaguides.identity_service.mapper;
 
-import net.javaguides.identity_service.entity.User;
-import net.javaguides.identity_service.entity.response.ResCreateUserDTO;
-import net.javaguides.identity_service.entity.response.ResUserDTO;
+import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
+import net.javaguides.identity_service.domain.response.ResUserDTO;
 import org.mapstruct.*;
 
 /**

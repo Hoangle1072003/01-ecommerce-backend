@@ -1,4 +1,4 @@
-package net.javaguides.identity_service.entity.request;
+package net.javaguides.identity_service.domain.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

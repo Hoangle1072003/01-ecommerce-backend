@@ -1,14 +1,10 @@
 package net.javaguides.employee_service.service;
 
-import net.javaguides.employee_service.entity.request.ReqEmployeeDto;
 import net.javaguides.employee_service.entity.response.ResDepartmentDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.UUID;
 
 /**
  * File: null.java

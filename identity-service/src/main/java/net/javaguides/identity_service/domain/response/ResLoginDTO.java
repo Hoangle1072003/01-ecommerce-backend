@@ -1,10 +1,10 @@
-package net.javaguides.identity_service.entity.response;
+package net.javaguides.identity_service.domain.response;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.javaguides.identity_service.entity.Role;
+import net.javaguides.identity_service.domain.Role;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 
 import java.util.UUID;

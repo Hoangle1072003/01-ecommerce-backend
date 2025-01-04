@@ -1,9 +1,9 @@
 package net.javaguides.identity_service.config;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.identity_service.entity.Permission;
-import net.javaguides.identity_service.entity.Role;
-import net.javaguides.identity_service.entity.User;
+import net.javaguides.identity_service.domain.Permission;
+import net.javaguides.identity_service.domain.Role;
+import net.javaguides.identity_service.domain.User;
 import net.javaguides.identity_service.repository.IPermissionRepository;
 import net.javaguides.identity_service.repository.IRoleRepository;
 import net.javaguides.identity_service.repository.IUserRepository;

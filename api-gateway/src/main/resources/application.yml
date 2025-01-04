@@ -1,6 +1,8 @@
 spring:
   application:
     name: API-GATEWAY
+  main:
+    allow-circular-references: true
 
   cloud:
     gateway:
@@ -18,6 +20,24 @@ spring:
       #            - name: Path
       #              args:
       #                pattern: /api/department-service/**
+      #      excluded-url-pattern: "/employee-service/**"
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://localhost:3001"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+            maxAge: 3600
       discovery:
         locator:
           enabled: true

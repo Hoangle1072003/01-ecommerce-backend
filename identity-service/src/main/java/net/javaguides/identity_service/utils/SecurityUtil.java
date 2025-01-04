@@ -3,7 +3,7 @@ package net.javaguides.identity_service.utils;
 import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.javaguides.identity_service.entity.response.ResLoginDTO;
+import net.javaguides.identity_service.domain.response.ResLoginDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -114,6 +114,20 @@ public class SecurityUtil {
 
         return null;
     }
+
+    public Jwt checkValidJWTAccessToken(String token) {
+        JwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
+                getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
+        try {
+            log.info(">>> Access Token is valid");
+            return jwtDecoder.decode(token);
+        } catch (Exception e) {
+            log.error(">>> Access Token Error: " + e.getMessage());
+            System.out.println(">>> Access Token Error: " + e.getMessage());
+            throw e;
+        }
+    }
+
     public Jwt checkVaildJWTREfreshToken(String token) {
         JwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
                 getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
@@ -126,6 +140,8 @@ public class SecurityUtil {
             throw e;
         }
     }
+
+
     private SecretKey getSecretKey() {
         byte[] keyBytes = Base64.from(jwtSecret).decode();
         return new SecretKeySpec(keyBytes, 0, keyBytes.length,
