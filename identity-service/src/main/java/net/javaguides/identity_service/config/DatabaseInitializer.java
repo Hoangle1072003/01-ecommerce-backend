@@ -12,6 +12,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,6 +53,34 @@ public class DatabaseInitializer implements CommandLineRunner {
         long roleCount = roleRepository.count();
         long permissionCount = permissionRepository.count();
 
+        if (permissionCount == 0) {
+            System.out.println("=====>DatabaseInitializer.run: Insert permission");
+            ArrayList<Permission> arrPermissions = new ArrayList<>();
+            arrPermissions.add(new Permission("Create a permission", "/api/v1/permissions", "POST", "PERMISSIONS"));
+            arrPermissions.add(new Permission("Update a permission", "/api/v1/permissions", "PUT", "PERMISSIONS"));
+            arrPermissions.add(new Permission("Delete a permission", "/api/v1/permissions/{id}", "DELETE", "PERMISSIONS"));
+            arrPermissions.add(new Permission("Get all permissions", "/api/v1/permissions", "GET", "PERMISSIONS"));
+            arrPermissions.add(new Permission("Get all list permission", "/api/v1/permissions/list", "GET", "PERMISSIONS"));
+            arrPermissions.add(new Permission("Search permission by module", "/api/v1/permissions/search", "GET", "PERMISSIONS"));
+            arrPermissions.add(new Permission("Get all module", "/api/v1/permissions/modules", "GET", "PERMISSIONS"));
+
+
+            arrPermissions.add(new Permission("Create a role", "/api/v1/roles", "POST", "ROLES"));
+            arrPermissions.add(new Permission("Update a role", "/api/v1/roles", "PUT", "ROLES"));
+            arrPermissions.add(new Permission("Delete a role", "/api/v1/roles/{id}", "DELETE", "ROLES"));
+            arrPermissions.add(new Permission("Get a role", "/api/v1/roles/{id}", "GET", "ROLES"));
+            arrPermissions.add(new Permission("Get all roles", "/api/v1/roles", "GET", "ROLES"));
+            arrPermissions.add(new Permission("Get all roles combobox", "/api/v1/roles/all", "GET", "ROLES"));
+            arrPermissions.add(new Permission("Search role by name", "/api/v1/roles/search", "GET", "ROLES"));
+
+            arrPermissions.add(new Permission("Create a user", "/api/v1/user/create", "POST", "USERS"));
+            arrPermissions.add(new Permission("Update a user", "/api/v1/user", "PUT", "USERS"));
+            arrPermissions.add(new Permission("Delete a user", "/api/v1/user/delete/{id}", "DELETE", "USERS"));
+            arrPermissions.add(new Permission("Get a user", "/api/v1/user/{id}", "GET", "USERS"));
+            arrPermissions.add(new Permission("Get all users", "/api/v1/user", "GET", "USERS"));
+            arrPermissions.add(new Permission("Search user by name", "/api/v1/user/search", "GET", "USERS"));
+            permissionRepository.saveAll(arrPermissions);
+        }
         if (roleCount == 0) {
             System.out.println("=====>DatabaseInitializer.run: Insert role");
             List<Permission> permissions = permissionRepository.findAll();
@@ -70,6 +99,7 @@ public class DatabaseInitializer implements CommandLineRunner {
             roleRepository.save(userRole);
 
         }
+
         User user = new User();
         User adminUser = new User();
         if (userCount == 0) {
@@ -89,17 +119,21 @@ public class DatabaseInitializer implements CommandLineRunner {
             user.setPhone(USER_PHONE);
             user.setAddress(USER_ADDRESS);
             user.setGender(USER_GENDER);
-//            user.setRole(roleRepository.findByName("USER"));
+            user.setRole(roleRepository.findByName("USER"));
 
 
-//            Role adminRole = roleRepository.findByName(ADMIN_ROLE);
-//            if (adminRole != null) {
-//                adminUser.setRole(adminRole);
-//            }
+            Role adminRole = roleRepository.findByName(ADMIN_ROLE);
+            if (adminRole != null) {
+                adminUser.setRole(adminRole);
+            }
             userRepository.save(adminUser);
             userRepository.save(user);
-
-
         }
+        if (permissionCount > 0 || roleCount > 0 || userCount > 0) {
+            System.out.println("=====>DatabaseInitializer.run: Database is already initialized");
+        } else {
+            System.out.println("=====>DatabaseInitializer.run: Database is initialized");
+        }
+
     }
 }
