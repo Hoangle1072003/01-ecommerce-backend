@@ -1,4 +1,4 @@
-package net.javaguides.identity_service.entity.request;
+package net.javaguides.identity_service.domain.request;
 
 /**
  * File: ReqUserCreateDto.java
@@ -15,13 +15,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import net.javaguides.identity_service.entity.Role;
+import net.javaguides.identity_service.domain.Role;
 import net.javaguides.identity_service.utils.constant.GenderEnum;
 
 import java.io.Serializable;
 
 /**
- * DTO for {@link net.javaguides.identity_service.entity.User}
+ * DTO for {@link net.javaguides.identity_service.domain.User}
  */
 @Data
 public class ReqUserCreateDto implements Serializable {

@@ -1,9 +1,9 @@
 package net.javaguides.identity_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.identity_service.entity.Permission;
-import net.javaguides.identity_service.entity.response.ResMeta;
-import net.javaguides.identity_service.entity.response.ResResultPaginationDTO;
+import net.javaguides.identity_service.domain.Permission;
+import net.javaguides.identity_service.domain.response.ResMeta;
+import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.repository.IPermissionRepository;
 import net.javaguides.identity_service.service.IPermissionService;
 import org.springframework.data.domain.Page;

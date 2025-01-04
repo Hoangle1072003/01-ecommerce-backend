@@ -1,7 +1,7 @@
 package net.javaguides.identity_service.service;
 
-import net.javaguides.identity_service.entity.User;
-import net.javaguides.identity_service.entity.response.ResResultPaginationDTO;
+import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 
 import java.awt.print.Pageable;

@@ -1,4 +1,4 @@
-package net.javaguides.identity_service.entity.request;
+package net.javaguides.identity_service.domain.request;
 
 /**
  * File: TokenIntrospectionRequest.java

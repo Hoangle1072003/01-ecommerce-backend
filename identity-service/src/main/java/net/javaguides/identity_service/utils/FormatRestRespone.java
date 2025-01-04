@@ -1,7 +1,7 @@
 package net.javaguides.identity_service.utils;
 
 import jakarta.servlet.http.HttpServletResponse;
-import net.javaguides.identity_service.entity.response.RestResponse;
+import net.javaguides.identity_service.domain.response.RestResponse;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;

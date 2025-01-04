@@ -1,4 +1,4 @@
-package net.javaguides.identity_service.entity.response;
+package net.javaguides.identity_service.domain.response;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Value;
@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * DTO for {@link net.javaguides.identity_service.entity.Permission}
+ * DTO for {@link net.javaguides.identity_service.domain.Permission}
  */
 @Value
 public class ResPermissionDTO implements Serializable {

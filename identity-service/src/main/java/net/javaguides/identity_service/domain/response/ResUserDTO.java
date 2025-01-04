@@ -1,4 +1,4 @@
-package net.javaguides.identity_service.entity.response;
+package net.javaguides.identity_service.domain.response;
 
 /**
  * File: ResUserDTO.java

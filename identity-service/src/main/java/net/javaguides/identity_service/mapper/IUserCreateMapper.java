@@ -1,7 +1,7 @@
 package net.javaguides.identity_service.mapper;
 
-import net.javaguides.identity_service.entity.User;
-import net.javaguides.identity_service.entity.request.ReqUserCreateDto;
+import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.domain.request.ReqUserCreateDto;
 import org.mapstruct.*;
 
 /**

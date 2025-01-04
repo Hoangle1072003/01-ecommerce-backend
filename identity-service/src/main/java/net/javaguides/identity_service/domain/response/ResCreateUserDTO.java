@@ -1,4 +1,4 @@
-package net.javaguides.identity_service.entity.response;
+package net.javaguides.identity_service.domain.response;
 
 /**
  * File: ResCreateUserDTO.java
@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 /**
- * DTO for {@link net.javaguides.identity_service.entity.User}
+ * DTO for {@link net.javaguides.identity_service.domain.User}
  */
 @Value
 public class ResCreateUserDTO implements Serializable {

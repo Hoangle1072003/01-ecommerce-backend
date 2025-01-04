@@ -1,6 +1,6 @@
 package net.javaguides.identity_service.repository;
 
-import net.javaguides.identity_service.entity.User;
+import net.javaguides.identity_service.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

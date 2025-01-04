@@ -1,7 +1,7 @@
 package net.javaguides.identity_service.mapper;
 
-import net.javaguides.identity_service.entity.Permission;
-import net.javaguides.identity_service.entity.response.ResPermissionDTO;
+import net.javaguides.identity_service.domain.Permission;
+import net.javaguides.identity_service.domain.response.ResPermissionDTO;
 import org.mapstruct.*;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING)

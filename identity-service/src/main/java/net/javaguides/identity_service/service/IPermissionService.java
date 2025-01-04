@@ -1,7 +1,7 @@
 package net.javaguides.identity_service.service;
 
-import net.javaguides.identity_service.entity.Permission;
-import net.javaguides.identity_service.entity.response.ResResultPaginationDTO;
+import net.javaguides.identity_service.domain.Permission;
+import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

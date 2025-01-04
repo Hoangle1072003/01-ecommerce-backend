@@ -1,9 +1,9 @@
 package net.javaguides.identity_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.identity_service.entity.User;
+import net.javaguides.identity_service.domain.User;
 
-import net.javaguides.identity_service.entity.response.ResResultPaginationDTO;
+import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.repository.IUserRepository;
 import net.javaguides.identity_service.service.IUserService;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
