@@ -8,6 +8,7 @@ import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.domain.response.ResUserDTO;
 import net.javaguides.identity_service.mapper.IUserMapper;
+import net.javaguides.identity_service.service.IExcelService;
 import net.javaguides.identity_service.service.IUserService;
 import net.javaguides.identity_service.utils.annotation.ApiMessage;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,6 +40,7 @@ public class UserController {
     private final IUserService userService;
     private final PasswordEncoder passwordEncoder;
     private final IUserMapper userMapper;
+    private final IExcelService excelService;
 
     @PostMapping("/create")
     @ApiMessage("Create new user")
@@ -66,7 +69,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body("User with id " + id + " has been deleted");
     }
 
-    @GetMapping("")
+    @GetMapping
     @ApiMessage("Get all users")
     public ResponseEntity<ResResultPaginationDTO> getAllUsers(
             @RequestParam("current") String current,
@@ -90,7 +93,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(userService.getAllUsersIsNull(pageable));
     }
 
-    @PutMapping("")
+    @PutMapping
     public ResponseEntity<User> updateUser(@RequestBody User user) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.handleUpdateUser(user));
     }
@@ -131,6 +134,21 @@ public class UserController {
         List<User> users = userService.findByUserIsNullNameOrEmail(keyword);
         return ResponseEntity.status(HttpStatus.OK).body(users);
     }
+
+    @PostMapping("/upload")
+    @ApiMessage("Upload user")
+    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file) {
+        try {
+            if (!file.getOriginalFilename().endsWith(".xlsx") && !file.getOriginalFilename().endsWith(".xls")) {
+                return ResponseEntity.badRequest().body("File is not excel file");
+            }
+            excelService.processFile(file);
+            return ResponseEntity.ok("File has been uploaded successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Could not upload the file: " + file.getOriginalFilename() + "!");
+        }
+    }
+
 
 //    @GetMapping("/get-user-detail-is-null/{id}")
 //    @ApiMessage("Get user detail is null by user id")

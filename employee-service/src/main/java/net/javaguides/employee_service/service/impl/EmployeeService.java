@@ -1,5 +1,7 @@
 package net.javaguides.employee_service.service.impl;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.employee_service.entity.Employee;
 import net.javaguides.employee_service.entity.request.ReqEmployeeDto;
@@ -36,13 +38,16 @@ public class EmployeeService implements IEmployeeService {
         return employeeMapper.toDto(employeeRepository.save(employeeMapper.toEntity(reqEmployeeDto)));
     }
 
+    //    @CircuitBreaker(name = "${spring.application.name}", fallbackMethod = "getDefaultDepartment")
+    @Retry(name = "${spring.application.name}", fallbackMethod = "getDefaultDepartment")
     @Override
     public ResAPIDto findById(UUID id) {
+        System.out.println("EmployeeService.findById");
         Employee employee = employeeRepository.findById(id).orElse(null);
         if (employee == null) {
             return null;
         }
-        
+
         ResDepartmentDto department = apiClient.getDepartmentByCode(employee.getDepartmentCode());
         if (department == null) {
             return null;
@@ -50,6 +55,17 @@ public class EmployeeService implements IEmployeeService {
         ResAPIDto resAPIDto = new ResAPIDto();
         resAPIDto.setEmployee(employeeMapper.toDto(employee));
         resAPIDto.setDepartment(department);
+        return resAPIDto;
+    }
+
+    public ResAPIDto getDefaultDepartment(UUID id, Throwable throwable) {
+        System.out.println("EmployeeService.getDefaultDepartment");
+        Employee employee = employeeRepository.findById(id).orElse(null);
+        if (employee == null) {
+            return null;
+        }
+        ResAPIDto resAPIDto = new ResAPIDto();
+        resAPIDto.setEmployee(employeeMapper.toDto(employee));
         return resAPIDto;
     }
 }

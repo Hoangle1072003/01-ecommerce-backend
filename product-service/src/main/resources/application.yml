@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: PRODUCT-SERVICE
+  boot:
+    message: Hello , Employee Service
+  cloud:
+    config:
+      enabled: false
+  data:
+    mongodb:
+      uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      database: product-service
+eureka:
+  instance:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+server:
+  port: 8083
+
+# password nosql: 8OWQ2rzxntvKxflL
