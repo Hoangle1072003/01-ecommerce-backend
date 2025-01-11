@@ -11,7 +11,7 @@ spring:
   data:
     mongodb:
       uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-      database: product-service
+      database: cart-service
   eureka:
     instance:
       service-url:
