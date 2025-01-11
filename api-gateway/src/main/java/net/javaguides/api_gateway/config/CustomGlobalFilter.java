@@ -37,9 +37,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
     private final WebClient.Builder webClientBuilder;
     private final String[] publicEndpoints = {
-            "/identity-service/.*"
+            "/identity-service/.*",
     };
-    
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
