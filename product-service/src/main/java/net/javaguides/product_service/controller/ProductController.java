@@ -53,7 +53,7 @@ public class ProductController {
         product1.setBrand("Brand A");
         product1.setDescription("A comfortable cotton T-shirt for men.");
         product1.setShortDescription("Comfortable cotton material, ideal for daily wear.");
-        product1.setReleaseDate(new Date());
+        product1.setReleaseDate(new Date().toInstant());
         product1.setWeightInGrams(200.0);
         product1.setSpecs(Arrays.asList(
                 new Product.Spec("Size", "M", "cm"),
@@ -70,7 +70,7 @@ public class ProductController {
         product2.setBrand("Tech Books");
         product2.setDescription("A comprehensive guide to Java programming.");
         product2.setShortDescription("A complete guide for mastering Java programming language.");
-        product2.setReleaseDate(new Date());
+        product2.setReleaseDate(new Date().toInstant());
         product2.setWeightInGrams(500.0);
         product2.setSpecs(Arrays.asList(
                 new Product.Spec("Author", "John Doe", "String"),

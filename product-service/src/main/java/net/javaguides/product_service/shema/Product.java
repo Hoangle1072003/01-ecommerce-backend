@@ -7,6 +7,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class Product extends AbstractMappedEntity {
     private String code;
 
     private String name;
-    
+
     private String brand;
 
     private String description;
@@ -40,7 +41,7 @@ public class Product extends AbstractMappedEntity {
     private String ShortDescription;
 
     @Field("release_date")
-    private Date releaseDate;
+    private Instant releaseDate;
 
 
     @Field("weight_g")

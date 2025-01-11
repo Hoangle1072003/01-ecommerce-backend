@@ -17,4 +17,5 @@ eureka:
 server:
   port: 8083
 
+
 # password nosql: 8OWQ2rzxntvKxflL
