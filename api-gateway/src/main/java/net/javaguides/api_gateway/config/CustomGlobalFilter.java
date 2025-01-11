@@ -38,6 +38,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private final WebClient.Builder webClientBuilder;
     private final String[] publicEndpoints = {
             "/identity-service/.*",
+            "/product-service/.*",
     };
 
     @Override

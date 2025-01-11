@@ -1,13 +1,11 @@
 spring:
   application:
     name: IDENTITY-SERVICE
-  config:
-    import: optional:configserver:http://localhost:8888
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
   security:
     authentication:
       jwt:
@@ -15,9 +13,41 @@ spring:
         base64-secret: YTwQoI5e3OjbPsvbRgXFdbGAz3ML2jTezUQTD0CO82VOl/ZrzSyJvQ5b6t1YyS9bqiT4jA1bny2MhHn4RNcu9A==
         access-token-validity-in-seconds: 86400 # 1 day
         refresh-token-validity-in-seconds: 86400 # 1 day
+  api:
+    version: /api/v1
+  boot:
+    message: Hello , IDENTITY-SERVICE
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/identity_db
+    username: root
+    password: sapassword
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 30
+        order_inserts: true
+        order_updates: true
+eureka:
+  instance:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    prefer-ip-address: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 management:
   endpoints:
     web:
       exposure:
         include: "*"
+server:
+  port: 8082
 

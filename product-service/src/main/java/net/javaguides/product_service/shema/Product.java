@@ -48,7 +48,11 @@ public class Product extends AbstractMappedEntity {
     private double weightInGrams;
 
 
+    @Field("category_id")
+    private String categoryID;
+
     private List<Spec> specs;
+
     private List<Product_varient> varients;
 
     @Data
