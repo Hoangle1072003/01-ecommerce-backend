@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.javaguides.identity_service.utils.SecurityUtil;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -48,30 +49,23 @@ public class Role {
     private Instant createdAt;
     private Instant updatedAt;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = {"roles"})
-    @JoinTable(
-            name = "permission_role",
-            joinColumns = @JoinColumn(name = "role_id"),
-            inverseJoinColumns = @JoinColumn(name = "permission_id")
-    )
-    private List<Permission> permissions;
+
 
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<User> users;
 
-//    @PrePersist
-//    public void handleBeforeCreate() {
-//        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
-//        this.createdAt = Instant.now();
-//    }
-//
-//    @PreUpdate
-//    public void handleBeforeUpdate() {
-//        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
-//        this.updatedAt = Instant.now();
-//    }
+    @PrePersist
+    public void handleBeforeCreate() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void handleBeforeUpdate() {
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
+        this.updatedAt = Instant.now();
+    }
 
 
 }

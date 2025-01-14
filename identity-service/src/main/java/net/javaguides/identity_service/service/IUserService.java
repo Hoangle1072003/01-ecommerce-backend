@@ -23,6 +23,7 @@ public interface IUserService {
 
     void deleteUser(UUID id);
 
+    // con dung dc
     ResResultPaginationDTO getAllUsers(Pageable pageable);
 
     ResResultPaginationDTO getAllUsersIsNull(Pageable pageable);

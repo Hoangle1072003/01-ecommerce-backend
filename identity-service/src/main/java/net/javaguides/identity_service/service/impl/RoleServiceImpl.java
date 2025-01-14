@@ -1,11 +1,9 @@
 package net.javaguides.identity_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.identity_service.domain.Permission;
 import net.javaguides.identity_service.domain.Role;
 import net.javaguides.identity_service.domain.response.ResMeta;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
-import net.javaguides.identity_service.repository.IPermissionRepository;
 import net.javaguides.identity_service.repository.IRoleRepository;
 import net.javaguides.identity_service.service.IRoleService;
 import org.springframework.data.domain.Page;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * File: IRoleServiceImpl.java
@@ -30,8 +27,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RoleServiceImpl implements IRoleService {
     private final IRoleRepository roleRepository;
-    private final IPermissionRepository permissionRepository;
-
 
     @Override
     public boolean existByName(String name) {
@@ -40,13 +35,7 @@ public class RoleServiceImpl implements IRoleService {
 
     @Override
     public Role createRole(Role role) {
-        if (role.getPermissions() != null) {
-            List<UUID> requiredPermissionIds = role.getPermissions()
-                    .stream().map(x -> x.getId())
-                    .collect(Collectors.toList());
-            List<Permission> permissions = permissionRepository.findByIdIn(requiredPermissionIds);
-            role.setPermissions(permissions);
-        }
+
         return roleRepository.save(role);
     }
 
@@ -58,18 +47,10 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public Role updateRole(Role role) {
         Role oldRole = fetchById(role.getId());
-        if (role.getPermissions() != null) {
-            List<UUID> requiredPermissionIds = role.getPermissions()
-                    .stream().map(x -> x.getId())
-                    .collect(Collectors.toList());
-            List<Permission> permissions = permissionRepository.findByIdIn(requiredPermissionIds);
-            oldRole.setPermissions(permissions);
-        }
         if (oldRole != null) {
             oldRole.setName(role.getName());
             oldRole.setDescription(role.getDescription());
             oldRole.setActive(role.getActive());
-            oldRole.setPermissions(role.getPermissions());
             return roleRepository.save(oldRole);
         }
         return null;

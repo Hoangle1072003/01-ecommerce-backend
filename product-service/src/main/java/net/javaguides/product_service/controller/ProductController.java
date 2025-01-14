@@ -8,8 +8,12 @@ import net.javaguides.product_service.shema.Product;
 import net.javaguides.product_service.shema.response.ResProductDetailsDto;
 import net.javaguides.product_service.shema.response.ResProductDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Arrays;
 import java.util.Date;

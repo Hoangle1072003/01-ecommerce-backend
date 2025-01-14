@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.javaguides.identity_service.utils.SecurityUtil;
 import net.javaguides.identity_service.utils.constant.GenderEnum;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -60,15 +61,15 @@ public class User {
     private Role role;
 
 
-//    @PrePersist
-//    public void handleBeforeCreate() {
-//        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
-//        this.createdAt = Instant.now();
-//    }
-//
-//    @PreUpdate
-//    public void handleBeforeUpdate() {
-//        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
-//        this.updatedAt = Instant.now();
-//    }
+    @PrePersist
+    public void handleBeforeCreate() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
+        this.createdAt = Instant.now();
+    }
+
+    @PreUpdate
+    public void handleBeforeUpdate() {
+        this.updatedBy = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
+        this.updatedAt = Instant.now();
+    }
 }

@@ -17,6 +17,11 @@ spring:
     mongodb:
       uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
       database: product-service
+  security:
+    authentication:
+      jwt:
+        # openssl rand -base64 64
+        base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
 eureka:
   instance:
     service-url:

@@ -2,6 +2,7 @@ package net.javaguides.cart_service.utils;
 
 import jakarta.servlet.http.HttpServletResponse;
 import net.javaguides.cart_service.schema.response.RestResponse;
+import net.javaguides.cart_service.utils.annotation.ApiMessage;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
@@ -40,7 +41,9 @@ public class FormatRestRespone implements ResponseBodyAdvice {
             return body;
         } else {
             restResponse.setData(body);
-            restResponse.setMessage("CALL API SUCCESS");
+            ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
+            restResponse.setMessage(apiMessage != null ? apiMessage.value() : "CALL API SUCCESS");
+
         }
         return restResponse;
     }

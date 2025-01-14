@@ -1,14 +1,19 @@
 package net.javaguides.api_gateway.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javaguides.api_gateway.dtos.ApiResponse;
 import net.javaguides.api_gateway.dtos.request.RequestTokenIntrospection;
 import net.javaguides.api_gateway.dtos.response.ResponseTokenIntrospection;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -34,19 +39,35 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class CustomGlobalFilter implements GlobalFilter, Ordered {
-
+    private final ObjectMapper objectMapper;
     private final WebClient.Builder webClientBuilder;
     private final String[] publicEndpoints = {
-            "/identity-service/.*",
-            "/product-service/.*",
+            "/identity-service/api/v1/auth/.*",
     };
+
+    private final String[] endpointsMethodGet = {
+//            "/product-service/api/v1/products",
+    };
+    private boolean isPublicEndpoint(ServerWebExchange exchange) {
+        String path = exchange.getRequest().getURI().getPath();
+        HttpMethod method = exchange.getRequest().getMethod();
+
+        if (HttpMethod.GET.equals(method)) {
+            return Arrays.stream(endpointsMethodGet)
+                    .anyMatch(s -> path.matches(s));
+        }
+
+        return Arrays.stream(publicEndpoints)
+                .anyMatch(s -> path.matches(s));
+    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
+        HttpMethod method = exchange.getRequest().getMethod();
         log.info("Request path: {}", path);
 
-        if (isPublicEndpoint(exchange.getRequest())) {
+        if (isPublicEndpoint(exchange)) {
             return chain.filter(exchange);
         }
 
@@ -72,6 +93,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                 .post()
                 .uri("http://localhost:8082/api/v1/auth/introspect")
                 .bodyValue(new RequestTokenIntrospection(token))
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .retrieve()
                 .bodyToMono(ResponseTokenIntrospection.class)
                 .map(response -> response.getData())
@@ -108,8 +130,22 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
 
     Mono<Void> unauthorized(ServerHttpResponse response) {
-        String message = "Unauthorized";
+        ApiResponse<?> apiResponse = ApiResponse.builder()
+                .code(HttpStatus.UNAUTHORIZED.value())
+                .message("Unauthenticated")
+                .build();
+
+        String body = null;
+        try {
+            body = objectMapper.writeValueAsString(apiResponse);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
-        return response.writeWith(Mono.just(response.bufferFactory().wrap(message.getBytes())));
+        response.getHeaders().add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+
+        return response.writeWith(
+                Mono.just(response.bufferFactory().wrap(body.getBytes())));
     }
 }

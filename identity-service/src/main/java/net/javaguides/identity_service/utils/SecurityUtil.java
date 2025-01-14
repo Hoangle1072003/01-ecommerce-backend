@@ -18,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,12 +52,12 @@ public class SecurityUtil {
         userInsideToken.setEmail(email);
         userInsideToken.setName(resLoginDTO.getUser().getUsername());
         userInsideToken.setEmail(resLoginDTO.getUser().getEmail());
+        userInsideToken.setRole(resLoginDTO.getUser().getRole().getName());
+
         Instant now = Instant.now();
         Instant validity = now.plus(accessTokenExpiration, ChronoUnit.SECONDS);
 
-        List<String> listAuthorities = new ArrayList<>();
-        listAuthorities.add("ROLE_USER_CREATE");
-        listAuthorities.add("ROLE_ADMIN_UPDATE");
+
 
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -64,7 +65,7 @@ public class SecurityUtil {
                 .expiresAt(validity)
                 .subject(email)
                 .claim("user", userInsideToken)
-                .claim("permissions", listAuthorities)
+                .claim("roles", Collections.singletonList(resLoginDTO.getUser().getRole().getName()))
                 .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,

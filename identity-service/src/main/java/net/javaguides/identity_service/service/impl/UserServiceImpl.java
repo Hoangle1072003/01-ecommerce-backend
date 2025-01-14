@@ -67,7 +67,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public ResResultPaginationDTO getAllUsers(Pageable pageable) {
-        Page<User> pageUsers = userRepository.findAllByRole_NameNot("USER", pageable);
+        Page<User> pageUsers = userRepository.findAll(pageable);
         return new ResResultPaginationDTO(
                 new ResMeta(
                         pageUsers.getNumber() + 1,

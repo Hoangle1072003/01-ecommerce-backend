@@ -31,7 +31,6 @@ public interface IUserRepository extends JpaRepository<User, UUID> {
 
     User findByRefreshTokenAndEmail(String token, String email);
 
-    Page<User> findAllByRole_NameNot(String roleName, Pageable pageable);
 
 
     public Page<User> findAllByRoleName(Pageable pageable, String roleName);
