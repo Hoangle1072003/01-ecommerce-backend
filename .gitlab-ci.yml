@@ -24,6 +24,19 @@ build_identity_service:
     - docker push ashleynguci1072003/01-ecommerce-backend:identity-service-$CI_COMMIT_SHA
   only:
     - staging
+    
+build_cart_service:
+  stage: build
+  script:
+    - echo "Building cart-service with Buildpacks..."
+    - cd cart-service
+    - pack build integrationninjas/cart-service:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/cart-service:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/cart-service:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend:cart-service-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend:cart-service-$CI_COMMIT_SHA
+  only:
+    - staging
+
 
 deploy_job:
   stage: deploy
