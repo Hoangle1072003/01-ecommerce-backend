@@ -1,126 +1,34 @@
-variables:
-  DOCKER_REGISTRY: docker.io
-  IMAGE_NAME: ashleynguci1072003/01-ecommerce-backend
-  IMAGE_TAG: v1.0.0
+image: docker:24.0.5
+
+services:
+  - docker:24.0.5-dind
+
+before_script:
+  - docker info
+  - apk add --no-cache curl
+  - curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.36.0/pack-v0.36.0-linux.tgz" |  tar -C /usr/local/bin/ --no-same-owner -xzv pack
+  - docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
 
 stages:
-  - test
   - build
   - deploy
 
-before_script:
-  - docker --version
-  - pack --version
-  - docker login -u $REGISTRY_USER -p $REGISTRY_PASS
-
-after_script:
-  - docker logout
-
-run-tests-identity-service:
-  stage: test
+build_identity_service:
+  stage: build
   script:
+    - echo "Building identity-service with Buildpacks..."
     - cd identity-service
-    - ./gradlew test
+    - pack build integrationninjas/identity-service:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/identity-service:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/identity-service:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend:identity-service-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend:identity-service-$CI_COMMIT_SHA
   only:
-    - feature/auth
+    - staging
 
-run-tests-product-service:
-  stage: test
-  script:
-    - cd product-service
-    - ./gradlew test
-  only:
-    - feature/auth
-
-run-tests-cart-service:
-  stage: test
-  script:
-    - cd cart-service
-    - ./gradlew test
-  only:
-    - feature/auth
-
-run-tests-gateway:
-  stage: test
-  script:
-    - cd gateway
-    - ./gradlew test
-  only:
-    - feature/auth
-
-run-tests-server-registry:
-  stage: test
-  script:
-    - cd server-registry
-    - ./gradlew test
-  only:
-    - feature/auth
-
-run-tests-config-server:
-  stage: test
-  script:
-    - cd config-server
-    - ./gradlew test
-  only:
-    - feature/auth
-
-build-identity-service:
-  stage: build
-  script:
-    - cd identity-service
-    - pack build $DOCKER_REGISTRY/$IMAGE_NAME/identity-service:$IMAGE_TAG --path . --builder paketobuildpacks/builder:full
-    - docker push $DOCKER_REGISTRY/$IMAGE_NAME/identity-service:$IMAGE_TAG
-  only:
-    - feature/auth
-
-build-product-service:
-  stage: build
-  script:
-    - cd product-service
-    - pack build $DOCKER_REGISTRY/$IMAGE_NAME/product-service:$IMAGE_TAG --path . --builder paketobuildpacks/builder:full
-    - docker push $DOCKER_REGISTRY/$IMAGE_NAME/product-service:$IMAGE_TAG
-  only:
-    - feature/auth
-
-build-cart-service:
-  stage: build
-  script:
-    - cd cart-service
-    - pack build $DOCKER_REGISTRY/$IMAGE_NAME/cart-service:$IMAGE_TAG --path . --builder paketobuildpacks/builder:full
-    - docker push $DOCKER_REGISTRY/$IMAGE_NAME/cart-service:$IMAGE_TAG
-  only:
-    - feature/auth
-
-build-gateway:
-  stage: build
-  script:
-    - cd gateway
-    - pack build $DOCKER_REGISTRY/$IMAGE_NAME/gateway:$IMAGE_TAG --path . --builder paketobuildpacks/builder:full
-    - docker push $DOCKER_REGISTRY/$IMAGE_NAME/gateway:$IMAGE_TAG
-  only:
-    - feature/auth
-
-build-server-registry:
-  stage: build
-  script:
-    - cd server-registry
-    - pack build $DOCKER_REGISTRY/$IMAGE_NAME/server-registry:$IMAGE_TAG --path . --builder paketobuildpacks/builder:full
-    - docker push $DOCKER_REGISTRY/$IMAGE_NAME/server-registry:$IMAGE_TAG
-  only:
-    - feature/auth
-
-build-config-server:
-  stage: build
-  script:
-    - cd config-server
-    - pack build $DOCKER_REGISTRY/$IMAGE_NAME/config-server:$IMAGE_TAG --path . --builder paketobuildpacks/builder:full
-    - docker push $DOCKER_REGISTRY/$IMAGE_NAME/config-server:$IMAGE_TAG
-  only:
-    - feature/auth
-
-deploy:
+deploy_job:
   stage: deploy
   script:
-    - echo "Deploying all services"
+    - echo "Deploying identity-service..."
   only:
-    - feature/auth
+    - staging
+
