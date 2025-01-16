@@ -15,8 +15,6 @@ stages:
 
 build_identity_service:
   stage: build
-  tags:
-    - shared
   script:
     - echo "Building identity-service with Buildpacks..."
     - cd identity-service
@@ -29,8 +27,6 @@ build_identity_service:
 
 build_cart_service:
   stage: build
-  tags:
-    - shared
   script:
     - echo "Building cart-service with Buildpacks..."
     - cd cart-service
