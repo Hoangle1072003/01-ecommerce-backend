@@ -48,32 +48,29 @@ public class CartServiceImpl implements ICartService {
             newCart = existingCart;
         }
 
-        System.out.println(reqCartDto.getUserId());
         ResUserDTO user = identityServiceClient.getUserById(reqCartDto.getUserId());
-
         System.out.println(user);
         if (user == null) {
             return null;
         }
-//        System.out.println(reqCartDto.getProductVariantId());
-//
-//        ResProductVarientDto productVarient = productServiceClient.getProductVarient(reqCartDto.getProductVariantId());
-//        System.out.println(productVarient);
 
-//        if (productVarient != null && productVarient.getVarients() != null && !productVarient.getVarients().isEmpty()) {
-//            ResProductVarientDto.VarientDto selectedVarient = productVarient.getVarients().get(0);
-//
-//            CartItem cartItem = new CartItem();
-//            cartItem.setCartId(newCart.getId());
-//            cartItem.setProductId(selectedVarient.getId());
-//            cartItem.setVariantId(selectedVarient.getId());
-//            cartItem.setPrice(selectedVarient.getPrice());
-//            cartItem.setQuantity(reqCartDto.getQuantity());
-//
-//            newCart.setTotal(newCart.getTotal() + selectedVarient.getPrice() * reqCartDto.getQuantity());
-//
-//            cartItemRepository.save(cartItem);
-//        }
+        ResProductVarientDto productVarient = productServiceClient.getProductVarient(reqCartDto.getProductVariantId());
+        System.out.println(productVarient);
+
+        if (productVarient != null && productVarient.getVarients() != null && !productVarient.getVarients().isEmpty()) {
+            ResProductVarientDto.VarientDto selectedVarient = productVarient.getVarients().get(0);
+
+            CartItem cartItem = new CartItem();
+            cartItem.setCartId(newCart.getId());
+            cartItem.setProductId(productVarient.getId());
+            cartItem.setVariantId(selectedVarient.getId());
+            cartItem.setPrice(selectedVarient.getPrice());
+            cartItem.setQuantity(reqCartDto.getQuantity());
+
+            newCart.setTotal(newCart.getTotal() + selectedVarient.getPrice() * reqCartDto.getQuantity());
+
+            cartItemRepository.save(cartItem);
+        }
 
         return cartRepository.save(newCart);
     }
