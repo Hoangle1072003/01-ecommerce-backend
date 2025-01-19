@@ -1,17 +1,17 @@
 package net.javaguides.cart_service.schema;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.javaguides.cart_service.utils.constant.CartStatusEnum;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -28,6 +28,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Cart extends AbstractMappedEntity implements Serializable {
     private static final long serialVersionUID = -1486934856014993488L;
     @Id
@@ -35,7 +36,7 @@ public class Cart extends AbstractMappedEntity implements Serializable {
     @Field("user_id")
     private UUID userId;
     private CartStatusEnum status;
+    @LastModifiedDate
     private Instant modifiedOn;
     private Double total;
-
 }

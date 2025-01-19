@@ -64,13 +64,19 @@ public class UserController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable("id") UUID id) throws Exception {
+    public ResponseEntity<String> deleteUser(@PathVariable("id") UUID id) {
         if (id == null) {
-            throw new Exception("Id is invalid");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Id is invalid");
         }
-        userService.deleteUser(id);
-        return ResponseEntity.status(HttpStatus.OK).body("User with id " + id + " has been deleted");
+
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.status(HttpStatus.OK).body("User with id " + id + " has been deleted");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        }
     }
+
 
     @GetMapping
     @ApiMessage("Get all users")
@@ -114,6 +120,7 @@ public class UserController {
         } else {
             log.info("User with id {} has been found", id);
             ResUserDTO resUserDto = userMapper.toDto1(user);
+            System.out.println(resUserDto);
             return ResponseEntity.status(HttpStatus.OK).body(resUserDto);
         }
     }

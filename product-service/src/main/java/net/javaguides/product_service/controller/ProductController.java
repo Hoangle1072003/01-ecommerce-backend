@@ -7,6 +7,7 @@ import net.javaguides.product_service.service.IProductService;
 import net.javaguides.product_service.shema.Product;
 import net.javaguides.product_service.shema.response.ResProductDetailsDto;
 import net.javaguides.product_service.shema.response.ResProductDto;
+import net.javaguides.product_service.shema.response.ResProductVarientDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -105,4 +106,31 @@ public class ProductController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/varient/{id}")
+    public ResponseEntity<ResProductVarientDto> getProductVarient(@PathVariable String id) {
+        Product product_varient = productService.findProductVarientById(id);
+        if (product_varient != null) {
+            ResProductVarientDto resProductVarientDto = new ResProductVarientDto();
+            resProductVarientDto.setId(product_varient.getId());
+            resProductVarientDto.setName(product_varient.getName());
+            System.out.println("Product Varients: " + product_varient.getVarients());
+            List<ResProductVarientDto.VarientDto> varientDtos = product_varient.getVarients().stream()
+                    .filter(varient -> varient.getId().equals(id))
+                    .map(varient -> {
+                        ResProductVarientDto.VarientDto varientDto = new ResProductVarientDto.VarientDto();
+                        varientDto.setId(varient.getId());
+                        varientDto.setName(varient.getName());
+                        varientDto.setPrice(varient.getPrice());
+                        varientDto.setImage(varient.getImage());
+                        varientDto.setStock(varient.getStock());
+                        varientDto.setAvailable(varient.isAvailable());
+                        return varientDto;
+                    })
+                    .collect(Collectors.toList());
+            resProductVarientDto.setVarients(varientDtos);
+            System.out.println("Varient: " + resProductVarientDto);
+            return ResponseEntity.ok(resProductVarientDto);
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

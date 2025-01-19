@@ -1,8 +1,11 @@
 package net.javaguides.cart_service.repository;
 
 import net.javaguides.cart_service.schema.Cart;
+import net.javaguides.cart_service.utils.constant.CartStatusEnum;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
 
 /**
  * File: ICartRepository.java
@@ -16,4 +19,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ICartRepository extends MongoRepository<Cart, String> {
+    Cart findByUserIdAndStatus(UUID userId, CartStatusEnum status);
 }
