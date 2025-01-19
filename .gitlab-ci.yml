@@ -37,6 +37,39 @@ build_cart_service:
   only:
     - staging
 
+build_api_gateway:
+  stage: build
+  script:
+    - echo "Building api-gateway with Buildpacks..."
+    - cd api-gateway
+    - pack build integrationninjas/api-gateway:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/api-gateway:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/api-gateway:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-$CI_COMMIT_SHA
+  only:
+    - staging
+build_service_registry:
+  stage: build
+  script:
+    - echo "Building service-registry with Buildpacks..."
+    - cd service-registry
+    - pack build integrationninjas/service-registry:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/service-registry:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/service-registry:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-$CI_COMMIT_SHA
+  only:
+    - staging
+build_product_service:
+  stage: build
+  script:
+    - echo "Building product-service with Buildpacks..."
+    - cd product-service
+    - pack build integrationninjas/product-service:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/product-service:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/product-service:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-product-service:product-service-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend-product-service:product-service-$CI_COMMIT_SHA
+  only:
+    - staging
 
 deploy_job:
   stage: deploy
