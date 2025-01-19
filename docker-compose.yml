@@ -25,6 +25,8 @@ services:
       - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - backend
 
   rabbitmq:
     image: 'rabbitmq:4.0.5'
@@ -39,26 +41,52 @@ services:
       - backend
 
   identity-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-1c933d873861e644b8b62d9c76062af3e8fb68d1'
+    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
     container_name: identity-service
     ports:
       - '8082:8082'
     environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_NAME: identity_db
-      DB_USER: root
-      DB_PASSWORD: sapassword
+      - SPRING_DATASOURCE_URL= jdbc:mysql://mysql:3306/identity_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME= root
+      - SPRING_DATASOURCE_PASSWORD= sapassword
     depends_on:
       - mysql
     networks:
       - backend
 
   cart-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-1c933d873861e644b8b62d9c76062af3e8fb68d1'
+    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
     container_name: cart-service
     ports:
       - '8084:8084'
+    networks:
+      - backend
+
+  service-registry:
+    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: service-registry
+    ports:
+      - '8761:8761'
+    networks:
+      - backend
+
+  api-gateway:
+    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: api-gateway
+    ports:
+      - '9191:9191'
+    networks:
+      - backend
+    depends_on:
+      - identity-service
+      - cart-service
+      - product-service
+
+  product-service:
+    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: product-service
+    ports:
+      - '8083:8083'
     networks:
       - backend
 
@@ -68,3 +96,4 @@ volumes:
 networks:
   backend:
     driver: bridge
+
