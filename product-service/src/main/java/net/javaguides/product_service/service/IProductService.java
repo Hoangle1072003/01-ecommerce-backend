@@ -16,4 +16,5 @@ import java.util.Optional;
 
 public interface IProductService {
     Optional<Product> findById(String id);
+    Product findProductVarientById(String id);
 }

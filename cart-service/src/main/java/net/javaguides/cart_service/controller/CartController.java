@@ -1,12 +1,12 @@
 package net.javaguides.cart_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.javaguides.cart_service.schema.Cart;
+import net.javaguides.cart_service.schema.request.ReqCartDto;
 import net.javaguides.cart_service.service.ICartService;
 import net.javaguides.cart_service.utils.annotation.ApiMessage;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * File: CartController.java
@@ -24,10 +24,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartController {
     private final ICartService cartService;
 
-    @GetMapping
-    @ApiMessage("Cart Service")
-    public ResponseEntity<String> getCart() {
-        return ResponseEntity.ok("Cart Service");
+    @PostMapping()
+    @ApiMessage("Create new cart")
+    public ResponseEntity<Cart> createCart(@RequestBody ReqCartDto reqCartDto)  {
+        return ResponseEntity.ok(cartService.save(reqCartDto));
     }
 
 }

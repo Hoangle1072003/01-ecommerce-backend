@@ -37,31 +37,24 @@ public class UserServiceImpl implements IUserService {
     private final IRoleService roleService;
     private final PasswordEncoder passwordEncoder;
 
-    //    public User handleUser(User user) {
-//        if (user.getRole() != null) {
-//            Role role = roleService.fetchById(user.getRole().getId());
-//            user.setRole(role != null ? role : null);
-//        }
-//        return userRepository.save(user);
-//    }
-
     @Override
     public User handleUser(User user) {
-        // Kiểm tra nếu người dùng không có vai trò, nếu không có thì gán vai trò mặc định "USER".
-        if (user.getRole() == null) {
-            // Lấy vai trò mặc định "USER" từ cơ sở dữ liệu.
-            Role defaultRole = roleService.findByNameRole("USER");
-            user.setRole(defaultRole);
-        } else {
-            // Nếu người dùng có vai trò, lấy vai trò từ ID.
+        if (user.getRole() != null) {
             Role role = roleService.fetchById(user.getRole().getId());
             user.setRole(role != null ? role : null);
         }
         return userRepository.save(user);
     }
 
+
     @Override
     public void deleteUser(UUID id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        if ("admin@gmail.com".equals(user.getEmail())) {
+            throw new RuntimeException("Cannot delete admin user");
+        }
+
         userRepository.deleteById(id);
     }
 

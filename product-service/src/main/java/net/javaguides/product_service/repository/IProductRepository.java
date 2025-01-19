@@ -2,6 +2,7 @@ package net.javaguides.product_service.repository;
 
 import net.javaguides.product_service.shema.Product;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -17,4 +18,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface IProductRepository extends MongoRepository<Product, String> {
+    @Query("{ 'varients.id' : ?0 }")
+    Product findProductByVarientId(String varientId);
 }

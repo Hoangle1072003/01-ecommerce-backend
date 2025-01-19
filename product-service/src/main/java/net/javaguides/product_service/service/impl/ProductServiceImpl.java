@@ -26,4 +26,9 @@ public class ProductServiceImpl implements IProductService {
     public Optional<Product> findById(String id) {
         return productRepository.findById(id);
     }
+
+    @Override
+    public Product findProductVarientById(String id) {
+        return productRepository.findProductByVarientId(id);
+    }
 }

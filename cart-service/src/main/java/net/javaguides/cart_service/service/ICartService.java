@@ -1,6 +1,7 @@
 package net.javaguides.cart_service.service;
 
 import net.javaguides.cart_service.schema.Cart;
+import net.javaguides.cart_service.schema.request.ReqCartDto;
 
 /**
  * File: ICartService.java
@@ -13,5 +14,7 @@ import net.javaguides.cart_service.schema.Cart;
  */
 
 public interface ICartService {
-    Cart save(Cart cart);
+    Cart save(ReqCartDto reqCartDto);
+    Cart findById(String id);
+
 }

@@ -22,11 +22,9 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * DTO for {@link vn.iuh.fit.se.app.domain.User}
- */
+
 @Value
-public class ResUserDTO implements Serializable {
+public class ResUserDTO {
     UUID id;
     String name;
     @NotBlank(message = "Email is required")
