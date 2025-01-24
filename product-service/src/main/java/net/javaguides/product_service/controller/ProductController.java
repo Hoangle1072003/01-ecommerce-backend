@@ -11,6 +11,7 @@ import net.javaguides.product_service.shema.response.ResProductVarientDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -133,4 +134,5 @@ public class ProductController {
         }
         return ResponseEntity.notFound().build();
     }
+
 }

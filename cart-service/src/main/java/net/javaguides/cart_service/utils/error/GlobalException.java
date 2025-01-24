@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalException {
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<RestResponse<Object>> handleAllException(Exception ex) {
         RestResponse<Object> res = new RestResponse<Object>();
@@ -45,6 +46,15 @@ public class GlobalException {
         List<String> errors = fieldErrors.stream().map(f -> f.getDefaultMessage()).collect(Collectors.toList());
         res.setMessage(errors.size() > 1 ? errors.toString() : errors.get(0));
 
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<RestResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setMessage(ex.getMessage());
+        res.setError("Bad Request");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 

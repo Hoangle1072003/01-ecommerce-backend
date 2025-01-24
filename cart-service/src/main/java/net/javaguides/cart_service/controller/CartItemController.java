@@ -1,0 +1,41 @@
+package net.javaguides.cart_service.controller;
+
+import lombok.RequiredArgsConstructor;
+import net.javaguides.cart_service.schema.response.ResCartItemDeleteDto;
+import net.javaguides.cart_service.schema.response.ResCartItemDto;
+import net.javaguides.cart_service.service.ICartItemService;
+import net.javaguides.cart_service.utils.annotation.ApiMessage;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+/**
+ * File: CartItem.java
+ * Author: Le Van Hoang
+ * Date: 21/01/2025
+ * Time: 15:43
+ * Version: 1.0
+ * <p>
+ * Copyright © 2025 Le Van Hoang. All rights reserved.
+ */
+
+@RestController
+@RequestMapping("/api/v1/cart-item")
+@RequiredArgsConstructor
+public class CartItemController {
+    private final ICartItemService cartItemService;
+
+    @GetMapping("{id}")
+    @ApiMessage("Get cart item by user id")
+    public ResponseEntity<ResCartItemDto> getCartItemByUserId(@PathVariable("id") UUID id) throws Exception {
+        return ResponseEntity.ok(cartItemService.getCartItemByUserId(id));
+    }
+
+    @DeleteMapping
+    @ApiMessage("Delete cart item")
+    public ResponseEntity<Void> deleteCartItem(@RequestBody ResCartItemDeleteDto resCartItemDelete) throws Exception {
+        cartItemService.deleteCartItem(resCartItemDelete);
+        return ResponseEntity.ok().build();
+    }
+}

@@ -43,33 +43,40 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private final WebClient.Builder webClientBuilder;
     private final String[] publicEndpoints = {
             "/identity-service/api/v1/auth/.*",
+            "/product-service/api/v1/products/.*",
+            "/product-service/api/v1/products",
+            "/product-service/api/v1/category",
     };
 
-    private final String[] endpointsMethodGet = {
-//            "/product-service/api/v1/products",
-    };
-    private boolean isPublicEndpoint(ServerWebExchange exchange) {
-        String path = exchange.getRequest().getURI().getPath();
-        HttpMethod method = exchange.getRequest().getMethod();
-
-        if (HttpMethod.GET.equals(method)) {
-            return Arrays.stream(endpointsMethodGet)
-                    .anyMatch(s -> path.matches(s));
-        }
-
-        return Arrays.stream(publicEndpoints)
-                .anyMatch(s -> path.matches(s));
-    }
+//    private final String[] endpointsMethodGet = {
+//            "/product-service/api/v1/category",
+//            "/product-service/api/v1/products/.*",
+//
+//    };
+//    private boolean isPublicEndpoint(ServerWebExchange exchange) {
+//        String path = exchange.getRequest().getURI().getPath();
+//        HttpMethod method = exchange.getRequest().getMethod();
+//        if (HttpMethod.GET.equals(method)) {
+//            return Arrays.stream(endpointsMethodGet)
+//                    .anyMatch(s -> path.matches(s));
+//        }
+//
+//        return Arrays.stream(publicEndpoints)
+//                .anyMatch(s -> path.matches(s));
+//    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
-        HttpMethod method = exchange.getRequest().getMethod();
         log.info("Request path: {}", path);
 
-        if (isPublicEndpoint(exchange)) {
+//        if (isPublicEndpoint(exchange)) {
+//            return chain.filter(exchange);
+//        }
+
+        if (isPublicEndpoint(exchange.getRequest()))
             return chain.filter(exchange);
-        }
+
 
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
         if (CollectionUtils.isEmpty(authHeader)) {
