@@ -1,6 +1,7 @@
 package net.javaguides.payment_service.schemas;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.javaguides.payment_service.utils.constant.PaymentMethod;
@@ -23,6 +24,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Payment extends AbstractMappedEntity{
     @Id
     private String id;
@@ -34,5 +36,6 @@ public class Payment extends AbstractMappedEntity{
     private PaymentMethod paymentMethod;
     @Field("payment_status")
     private PaymentStatus paymentStatus;
+    private String paymentUrl;
 
 }

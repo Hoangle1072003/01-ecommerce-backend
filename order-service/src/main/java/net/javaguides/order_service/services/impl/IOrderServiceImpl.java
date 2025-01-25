@@ -1,6 +1,7 @@
     package net.javaguides.order_service.services.impl;
 
     import lombok.RequiredArgsConstructor;
+    import net.javaguides.event.dto.PaymentEvent;
     import net.javaguides.order_service.mappers.IOrderMapper;
     import net.javaguides.order_service.repositories.IOrderRepository;
     import net.javaguides.order_service.services.IOrderService;
@@ -11,6 +12,7 @@
     import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
     import net.javaguides.order_service.utils.constants.PaymentMethod;
     import net.javaguides.order_service.utils.constants.PaymentStatus;
+    import org.springframework.kafka.core.KafkaTemplate;
     import org.springframework.stereotype.Service;
 
     /**
@@ -29,7 +31,8 @@
         private final IOrderRepository orderRepository;
         private final IOrderMapper orderMapper;
         private final ICartServiceClient cartServiceClient;
-
+        private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
+        private static final String PAYMENT_TOPIC = "payment-topic";
         @Override
         public ResCreateOrderDto createOrder(ReqCreateOrderDto reqCreateOrderDto) throws Exception {
             Order existingOrder = orderRepository.findByUserIdAndCartId(reqCreateOrderDto.getUserId(), reqCreateOrderDto.getCartId());
@@ -49,6 +52,16 @@
             order.setPaymentStatus(PaymentStatus.PENDING);
             order.setTotalAmount(cart.getTotal());
             Order savedOrder = orderRepository.save(order);
+
+            PaymentEvent paymentEvent = new PaymentEvent(
+                    savedOrder.getId(),
+                    reqCreateOrderDto.getUserId(),
+                    reqCreateOrderDto.getPaymentMethod(),
+                    PaymentStatus.PENDING,
+                    cart.getTotal()
+            );
+
+            kafkaTemplate.send(PAYMENT_TOPIC, paymentEvent);
             return orderMapper.toResCreateOrderDto(savedOrder);
         }
     }
