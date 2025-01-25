@@ -26,5 +26,4 @@ public class ReqCreateOrderDto {
     private String shipping;
     private PaymentMethod paymentMethod;
     private String paymentId;
-    private double totalAmount;
 }

@@ -4,8 +4,10 @@
     import net.javaguides.order_service.mappers.IOrderMapper;
     import net.javaguides.order_service.repositories.IOrderRepository;
     import net.javaguides.order_service.services.IOrderService;
+    import net.javaguides.order_service.services.httpClient.ICartServiceClient;
     import net.javaguides.order_service.shemas.Order;
     import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
+    import net.javaguides.order_service.shemas.response.ResCartClientDto;
     import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
     import net.javaguides.order_service.utils.constants.PaymentMethod;
     import net.javaguides.order_service.utils.constants.PaymentStatus;
@@ -26,6 +28,7 @@
     public class IOrderServiceImpl implements IOrderService {
         private final IOrderRepository orderRepository;
         private final IOrderMapper orderMapper;
+        private final ICartServiceClient cartServiceClient;
 
         @Override
         public ResCreateOrderDto createOrder(ReqCreateOrderDto reqCreateOrderDto) throws Exception {
@@ -34,9 +37,17 @@
             if (existingOrder != null) {
                 throw new Exception("Order already exists");
             }
+
+            ResCartClientDto cart = cartServiceClient.getCartById(reqCreateOrderDto.getCartId());
+
+            if (cart == null) {
+                throw new Exception("Cart not found");
+            }
+
             Order order = orderMapper.toOrder(reqCreateOrderDto);
             order.setPaymentId(null);
             order.setPaymentStatus(PaymentStatus.PENDING);
+            order.setTotalAmount(cart.getTotal());
             Order savedOrder = orderRepository.save(order);
             return orderMapper.toResCreateOrderDto(savedOrder);
         }

@@ -29,6 +29,5 @@ public class ResCreateOrderDto {
     private String shipping;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
-    private String paymentId;
     private double totalAmount;
 }
