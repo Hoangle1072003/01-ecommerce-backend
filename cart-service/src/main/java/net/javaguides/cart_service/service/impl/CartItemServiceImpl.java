@@ -1,14 +1,12 @@
 package net.javaguides.cart_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import net.javaguides.cart_service.mapper.IMapperCartItem;
 import net.javaguides.cart_service.repository.ICartItemRepository;
 import net.javaguides.cart_service.repository.ICartRepository;
 import net.javaguides.cart_service.schema.Cart;
 import net.javaguides.cart_service.schema.CartItem;
-import net.javaguides.cart_service.schema.response.ResCartItemDeleteDto;
-import net.javaguides.cart_service.schema.response.ResCartItemDto;
-import net.javaguides.cart_service.schema.response.ResProductVarientDto;
-import net.javaguides.cart_service.schema.response.ResUserDTO;
+import net.javaguides.cart_service.schema.response.*;
 import net.javaguides.cart_service.service.ICartItemService;
 import net.javaguides.cart_service.service.httpClient.IIdentityServiceClient;
 import net.javaguides.cart_service.service.httpClient.IProductServiceClient;
@@ -38,6 +36,8 @@ public class CartItemServiceImpl implements ICartItemService {
     private final ICartRepository cartRepository;
     private final IIdentityServiceClient identityServiceClient;
     private final IProductServiceClient productServiceClient;
+    private final IMapperCartItem mapperCartItem;
+
     @Override
     public ResCartItemDto getCartItemByUserId(UUID id) throws Exception {
         ResUserDTO user = identityServiceClient.getUserById(id);
@@ -50,7 +50,7 @@ public class CartItemServiceImpl implements ICartItemService {
             throw new Exception("Cart not found");
         }
 
-        if(cart.getStatus() == CartStatusEnum.ACTIVE){
+        if (cart.getStatus() == CartStatusEnum.ACTIVE) {
             List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
             if (cartItems != null && !cartItems.isEmpty()) {
                 List<ResCartItemDto.ProductDto> productDtos = new ArrayList<>();
@@ -96,7 +96,7 @@ public class CartItemServiceImpl implements ICartItemService {
         if (cart == null) {
             throw new Exception("Cart not found");
         }
-        if(cart.getStatus() == CartStatusEnum.ACTIVE){
+        if (cart.getStatus() == CartStatusEnum.ACTIVE) {
             List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
             if (cartItems != null && !cartItems.isEmpty()) {
                 List<CartItem> cartItemsDelete = cartItems.stream().filter(cartItem -> resCartItemDelete.getVariantId().contains(cartItem.getVariantId())).collect(Collectors.toList());
@@ -115,5 +115,15 @@ public class CartItemServiceImpl implements ICartItemService {
         return null;
     }
 
+    @Override
+    public List<ResGetCartItemDto> getCartItemByCartId(String id) throws Exception {
+        List<CartItem> cartItems = cartItemRepository.findCartItemByCartId(id);
+        if (cartItems == null || cartItems.isEmpty()) {
+            throw new Exception("Cart item not found");
+        }
 
+        return cartItems.stream()
+                .map(mapperCartItem::toResGetCartItemDto)
+                .toList();
+    }
 }

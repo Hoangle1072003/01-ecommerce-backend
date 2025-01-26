@@ -1,9 +1,12 @@
 package net.javaguides.order_service.services.httpClient;
 
 import net.javaguides.order_service.shemas.response.ResCartClientDto;
+import net.javaguides.event.dto.CartItemClientEvent;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
 
 /**
  * File: ICartServiceClient.java
@@ -19,4 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ICartServiceClient {
     @GetMapping("/api/v1/cart/{id}")
     ResCartClientDto getCartById(@PathVariable String id);
+
+    @GetMapping("/api/v1/cart-item/cart/{id}")
+    List<CartItemClientEvent> getCartItemByCartId(@PathVariable("id") String id);
 }

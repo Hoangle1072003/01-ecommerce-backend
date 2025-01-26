@@ -1,4 +1,4 @@
-package net.javaguides.order_service.configs;
+package net.javaguides.product_service.config;
 
 
 import feign.RequestInterceptor;

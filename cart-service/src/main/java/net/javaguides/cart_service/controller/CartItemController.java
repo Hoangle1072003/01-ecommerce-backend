@@ -3,11 +3,13 @@ package net.javaguides.cart_service.controller;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.cart_service.schema.response.ResCartItemDeleteDto;
 import net.javaguides.cart_service.schema.response.ResCartItemDto;
+import net.javaguides.cart_service.schema.response.ResGetCartItemDto;
 import net.javaguides.cart_service.service.ICartItemService;
 import net.javaguides.cart_service.utils.annotation.ApiMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -37,5 +39,12 @@ public class CartItemController {
     public ResponseEntity<Void> deleteCartItem(@RequestBody ResCartItemDeleteDto resCartItemDelete) throws Exception {
         cartItemService.deleteCartItem(resCartItemDelete);
         return ResponseEntity.ok().build();
+    }
+
+    // get cart item by cart id
+    @GetMapping("/cart/{id}")
+    @ApiMessage("Get cart item by cart id")
+    public ResponseEntity<List<ResGetCartItemDto>> getCartItemByCartId(@PathVariable("id") String id) throws Exception {
+        return ResponseEntity.ok(cartItemService.getCartItemByCartId(id));
     }
 }

@@ -2,7 +2,9 @@ package net.javaguides.cart_service.service;
 
 import net.javaguides.cart_service.schema.response.ResCartItemDeleteDto;
 import net.javaguides.cart_service.schema.response.ResCartItemDto;
+import net.javaguides.cart_service.schema.response.ResGetCartItemDto;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -17,5 +19,8 @@ import java.util.UUID;
 
 public interface ICartItemService {
     ResCartItemDto getCartItemByUserId(UUID id) throws Exception;
+
     Void deleteCartItem(ResCartItemDeleteDto resCartItemDelete) throws Exception;
+
+    List<ResGetCartItemDto> getCartItemByCartId(String id) throws Exception;
 }

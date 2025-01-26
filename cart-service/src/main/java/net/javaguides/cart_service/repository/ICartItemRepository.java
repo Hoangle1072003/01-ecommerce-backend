@@ -22,5 +22,8 @@ import java.util.List;
 public interface ICartItemRepository extends MongoRepository<CartItem, String> {
     @Query("{ 'cart_id': ?0, 'variant_id': ?1 }")
     List<CartItem> findByCartIdAndVariantId(String cartId, String variantId);
+
     List<CartItem> findByCartId(String cartId);
+
+    List<CartItem> findCartItemByCartId(String cartId);
 }

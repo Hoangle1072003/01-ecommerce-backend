@@ -1,6 +1,7 @@
 package net.javaguides.product_service.controller;
 
 import lombok.RequiredArgsConstructor;
+import net.javaguides.event.dto.CartItemClientEvent;
 import net.javaguides.product_service.mapper.IProductMapper;
 import net.javaguides.product_service.repository.IProductRepository;
 import net.javaguides.product_service.service.IProductService;
@@ -134,5 +135,6 @@ public class ProductController {
         }
         return ResponseEntity.notFound().build();
     }
+
 
 }
