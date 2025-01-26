@@ -4,12 +4,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
 import net.javaguides.payment_service.services.IPaymentService;
+import net.javaguides.payment_service.utils.constant.PaymentStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -35,13 +38,40 @@ public class PaymentController {
 
     @GetMapping("/vn-pay-callback")
     public ResponseEntity<String> payCallbackHandler(HttpServletRequest request) {
-        String status = request.getParameter("vnp_ResponseCode");
-        System.out.println("Payment status: " + status);
-        if (status.equals("00")) {
+        String vnpResponseCode = request.getParameter("vnp_ResponseCode");
+        String vnpTxnRef = request.getParameter("vnp_TxnRef");
+
+        System.out.println("Payment status: " + vnpResponseCode);
+
+        Map<String, String> paymentDetails = new HashMap<>();
+        paymentDetails.put("vnp_TxnRef", vnpTxnRef);
+
+        if ("00".equals(vnpResponseCode)) {
             System.out.println("Payment success");
-        } else {
+
+            paymentDetails.put("status", PaymentStatus.SUCCESS.name());
+            paymentService.updatePaymentStatus(paymentDetails);
+
+            return ResponseEntity.ok("Payment success");
+        } else if ("01".equals(vnpResponseCode)) {
             System.out.println("Payment failed");
+
+            paymentDetails.put("status", PaymentStatus.FAILED.name());
+            paymentService.updatePaymentStatus(paymentDetails);
+
+            return ResponseEntity.ok("Payment failed");
+        } else if ("02".equals(vnpResponseCode)) {
+            System.out.println("Payment refunded");
+
+            paymentDetails.put("status", PaymentStatus.REFUNDED.name());
+            paymentService.updatePaymentStatus(paymentDetails);
+
+            return ResponseEntity.ok("Payment refunded");
+        } else {
+            System.out.println("Unknown payment status");
+            return ResponseEntity.badRequest().body("Unknown payment status");
         }
-        return ResponseEntity.ok("Payment status: " + status);
     }
+
+
 }

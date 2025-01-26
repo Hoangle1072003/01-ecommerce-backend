@@ -42,7 +42,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         String[] whiteList = {
-//                "/api/v1/products",
+                "/api/v1/payment/vn-pay-callback"
         };
         http
                 .csrf(csrf -> csrf.disable())

@@ -18,5 +18,6 @@ import java.util.Map;
 
 public interface IPaymentService {
     Payment processPaymentEvent(PaymentEvent paymentEvent);
-    void processSuccessfulPayment(Map paymentDetails);
+    void processSuccessfulPayment(Map<String, String> paymentDetails);
+    void updatePaymentStatus(Map<String, String> paymentDetails);
 }
