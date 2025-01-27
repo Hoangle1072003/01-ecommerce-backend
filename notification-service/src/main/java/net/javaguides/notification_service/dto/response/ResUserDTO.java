@@ -32,13 +32,10 @@ public class ResUserDTO {
     String phone;
     GenderEnum gender;
     StatusEnum status;
-
     String createdBy;
     String updatedBy;
     Instant createdAt;
     Instant updatedAt;
-
-
     RoleUser role;
 
     @Data

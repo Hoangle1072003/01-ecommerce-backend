@@ -34,7 +34,7 @@ public class EmailController {
     @PostMapping
     public ResponseEntity<String> sendEmail(@RequestBody ReqEmailSimpleDto reqEmailSimpleDto) {
         try {
-            emailService.sendOrderConfirmationEmail(reqEmailSimpleDto.getName(), reqEmailSimpleDto.getTo(), reqEmailSimpleDto.getResUserDTO());
+            emailService.sendOrderConfirmationEmail(reqEmailSimpleDto.getName(), reqEmailSimpleDto.getTo(), reqEmailSimpleDto.getResUserDTO(), reqEmailSimpleDto.getResCartByIdDto(), reqEmailSimpleDto.getResOrderByIdDto(), reqEmailSimpleDto.getResCartItemByIdDto());
             return ResponseEntity.ok("Email sent successfully");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to send email: " + e.getMessage());

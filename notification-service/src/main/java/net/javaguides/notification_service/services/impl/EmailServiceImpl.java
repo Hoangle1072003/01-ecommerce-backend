@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
+import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
 import net.javaguides.notification_service.dto.response.ResUserDTO;
 import net.javaguides.notification_service.services.IEmailService;
 import net.javaguides.notification_service.services.httpClient.IUserServiceClient;
@@ -80,7 +81,7 @@ public class EmailServiceImpl implements IEmailService {
     }
 
     @Override
-    public void sendOrderConfirmationEmail(String name, String to, ResUserDTO resUserDTO) {
+    public void sendOrderConfirmationEmail(String name, String to, ResUserDTO resUserDTO, ResCartByIdDto resCartByIdDto, ResOrderByIdDto resOrderByIdDto, ResCartItemByIdDto resCartItemByIdDto) {
         try {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
@@ -93,8 +94,9 @@ public class EmailServiceImpl implements IEmailService {
             Context context = new Context();
             context.setVariable("name", name);
             context.setVariable("resUserDTO", resUserDTO);
-//            context.setVariable("resCartByIdDto", resCartByIdDto);
-//            context.setVariable("resCartItemByIdDto", resCartItemByIdDto);
+            context.setVariable("resCartByIdDto", resCartByIdDto);
+            context.setVariable("resOrderByIdDto", resOrderByIdDto);
+            context.setVariable("resCartItemByIdDto", resCartItemByIdDto);
             String content = templateEngine.process(EMAIL_ORDER_CONFIRMATION_TEMPLATE, context);
 
             messageHelper.setText(content, true);

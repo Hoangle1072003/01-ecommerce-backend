@@ -20,7 +20,7 @@ public interface IEmailService {
 
     void sendThankYouEmail(String name, String to);
 
-    void sendOrderConfirmationEmail(String name, String to, ResUserDTO resUserDTO);
+    void sendOrderConfirmationEmail(String name, String to, ResUserDTO resUserDTO, ResCartByIdDto resCartByIdDto, ResOrderByIdDto resOrderByIdDto, ResCartItemByIdDto resCartItemByIdDto);
 
 
 }

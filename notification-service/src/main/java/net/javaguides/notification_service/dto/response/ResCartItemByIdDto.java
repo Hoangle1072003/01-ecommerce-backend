@@ -24,7 +24,6 @@ public class ResCartItemByIdDto {
     private UUID userId;
     private List<ProductDto> products;
 
-
     @Data
     @AllArgsConstructor
     @NoArgsConstructor

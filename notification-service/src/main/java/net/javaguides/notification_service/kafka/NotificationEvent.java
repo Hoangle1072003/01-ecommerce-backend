@@ -54,7 +54,7 @@ public class NotificationEvent {
             System.out.println("User email: " + userEmail);
             System.out.println("User name: " + userName);
             emailService.sendThankYouEmail(userName, userEmail);
-            emailService.sendOrderConfirmationEmail(userName, userEmail, user);
+            emailService.sendOrderConfirmationEmail(userName, userEmail, user, cart, order, cartItem);
         } catch (Exception e) {
             System.err.println("Error handling payment success event: " + e.getMessage());
             e.printStackTrace();
