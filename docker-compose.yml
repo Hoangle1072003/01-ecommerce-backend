@@ -56,7 +56,7 @@ services:
       - backend
 
   identity-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
     container_name: identity-service
     ports:
       - '8082:8082'
@@ -70,7 +70,7 @@ services:
       - backend
 
   cart-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
     container_name: cart-service
     ports:
       - '8084:8084'
@@ -118,7 +118,7 @@ services:
       - backend
 
   service-registry:
-    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
     container_name: service-registry
     ports:
       - '8761:8761'
@@ -126,7 +126,7 @@ services:
       - backend
 
   api-gateway:
-    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
     container_name: api-gateway
     ports:
       - '9191:9191'
@@ -136,11 +136,12 @@ services:
       - service-registry
       - config-server
       - identity-service
-      - cart-service
       - product-service
       - order-service
       - payment-service
       - notification-service
+      - cart-service
+
 
 volumes:
   mysql_data:
@@ -148,4 +149,5 @@ volumes:
 networks:
   backend:
     driver: bridge
+
 
