@@ -48,6 +48,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             "/product-service/api/v1/category",
             "/payment-service/api/v1/payment/vn-pay-callback",
             "/notification-service/api/v1/.*",
+            "/identity-service/api/v1/user/.*",
     };
 
 //    private final String[] endpointsMethodGet = {

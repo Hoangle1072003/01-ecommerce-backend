@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import net.javaguides.order_service.services.IOrderService;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
+import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * File: OrderController.java
@@ -29,5 +27,10 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<ResCreateOrderDto> createOrder(@RequestBody ReqCreateOrderDto reqCreateOrderDto) throws Exception {
         return ResponseEntity.ok(orderService.createOrder(reqCreateOrderDto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResOrderByIdDto> getOrder(@PathVariable String id) {
+        return ResponseEntity.ok(orderService.getOrderById(id));
     }
 }

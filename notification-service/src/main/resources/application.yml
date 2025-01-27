@@ -11,7 +11,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:9094
     consumer:
-      group-id: payment-group
+      group-id: notification-group
       auto-offset-reset: earliest
       enable-auto-commit: true
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer

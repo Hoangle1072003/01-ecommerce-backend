@@ -3,6 +3,7 @@ package net.javaguides.order_service.mappers;
 import net.javaguides.order_service.shemas.Order;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
+import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
 import org.mapstruct.Mapper;
 
 /**
@@ -18,6 +19,10 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface IOrderMapper {
     ReqCreateOrderDto toReqCreateOrderDto(Order order);
+
     Order toOrder(ReqCreateOrderDto reqCreateOrderDto);
+
     ResCreateOrderDto toResCreateOrderDto(Order order);
+    
+    ResOrderByIdDto toResOrderByIdDto(Order order);
 }

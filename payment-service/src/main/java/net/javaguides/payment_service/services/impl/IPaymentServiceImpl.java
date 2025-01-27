@@ -11,6 +11,7 @@ import net.javaguides.payment_service.services.IPaymentService;
 import net.javaguides.payment_service.utils.VNPayUtil;
 import net.javaguides.payment_service.utils.constant.PaymentStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +35,7 @@ public class IPaymentServiceImpl implements IPaymentService {
     private final PaymentEventProducer paymentEventProducer;
 
     @Override
+    @Transactional
     public Payment processPaymentEvent(PaymentEvent paymentEvent) {
         Map<String, String> vnpParams = new HashMap<>(vnPayConfig.getVNPayConfig());
         vnpParams.put("vnp_Amount", String.valueOf((int) (paymentEvent.getTotalAmount() * 100)));
@@ -58,11 +60,13 @@ public class IPaymentServiceImpl implements IPaymentService {
         payment.setUserId(paymentEvent.getUserId());
         payment.setPaymentMethod(paymentEvent.getPaymentMethod());
         payment.setPaymentUrl(paymentUrl);
+        payment.setTotalAmount(paymentEvent.getTotalAmount());
         paymentRepository.save(payment);
         return payment;
     }
 
     @Override
+    @Transactional
     public void processSuccessfulPayment(Map<String, String> paymentDetails) {
         String orderId = paymentDetails.get("vnp_TxnRef");
         Optional<Payment> paymentOptional = paymentRepository.findByOrderId(orderId);
@@ -83,6 +87,7 @@ public class IPaymentServiceImpl implements IPaymentService {
     }
 
     @Override
+    @Transactional
     public void updatePaymentStatus(Map<String, String> paymentDetails) {
         String orderId = paymentDetails.get("vnp_TxnRef");
         String newStatus = paymentDetails.get("status");
@@ -105,6 +110,7 @@ public class IPaymentServiceImpl implements IPaymentService {
                         payment.getTotalAmount()
                 );
                 paymentEventProducer.sendPaymentEvent(paymentEvent);
+                paymentEventProducer.sendNotificationEvent(paymentEvent);
             } else {
                 System.out.println("Payment status already " + updatedStatus + " for orderId: " + orderId);
             }

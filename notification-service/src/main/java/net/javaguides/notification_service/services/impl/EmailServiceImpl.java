@@ -3,7 +3,11 @@ package net.javaguides.notification_service.services.impl;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import net.javaguides.notification_service.dto.response.ResCartByIdDto;
+import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
+import net.javaguides.notification_service.dto.response.ResUserDTO;
 import net.javaguides.notification_service.services.IEmailService;
+import net.javaguides.notification_service.services.httpClient.IUserServiceClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -35,7 +39,8 @@ public class EmailServiceImpl implements IEmailService {
     private final TemplateEngine templateEngine;
     public static final String UTF_8_ENCODING = "UTF-8";
     public static final String EMAIL_TEMPLATE = "email-thanks";
-    public static final String TEXT_HTML_ENCONDING = "text/html";
+    private static final String EMAIL_ORDER_CONFIRMATION_TEMPLATE = "email-bill";
+
 
     @Override
     public void sendSimpleMailMessage(String name, String to) {
@@ -65,6 +70,32 @@ public class EmailServiceImpl implements IEmailService {
             Context context = new Context();
             context.setVariable("name", name);
             String content = templateEngine.process(EMAIL_TEMPLATE, context);
+
+            messageHelper.setText(content, true);
+
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendOrderConfirmationEmail(String name, String to, ResUserDTO resUserDTO) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+            var messageHelper = new MimeMessageHelper(mimeMessage, true, UTF_8_ENCODING);
+
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(to);
+            messageHelper.setSubject("Đơn Hàng Của Bạn Đã Được Xác Nhận");
+
+            Context context = new Context();
+            context.setVariable("name", name);
+            context.setVariable("resUserDTO", resUserDTO);
+//            context.setVariable("resCartByIdDto", resCartByIdDto);
+//            context.setVariable("resCartItemByIdDto", resCartItemByIdDto);
+            String content = templateEngine.process(EMAIL_ORDER_CONFIRMATION_TEMPLATE, context);
 
             messageHelper.setText(content, true);
 

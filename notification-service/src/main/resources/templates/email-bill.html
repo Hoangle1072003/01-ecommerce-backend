@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Nhận Đơn Hàng Thành Công - Cảm ơn Quý Khách!</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fb;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 30px;
+        }
+
+        .header img {
+            max-width: 120px;
+            height: auto;
+        }
+
+        .header h1 {
+            color: #1e76d2;
+            font-size: 34px;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        .header p {
+            font-size: 16px;
+            color: #777;
+            line-height: 1.5;
+        }
+
+        .section-title {
+            color: #1e76d2;
+            font-size: 22px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #1e76d2;
+            padding-bottom: 5px;
+        }
+
+        .order-summary p, .customer-info p, .product-details p {
+            font-size: 16px;
+            color: #555;
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+
+        .order-summary p strong, .customer-info p strong, .product-details p strong {
+            color: #333;
+            font-weight: bold;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+        }
+
+        table td img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .total-amount {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: right;
+            margin-top: 30px;
+            color: #333;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            margin-top: 40px;
+            line-height: 1.5;
+        }
+
+        .footer p {
+            margin: 10px 0;
+        }
+
+        .footer a {
+            color: #1e76d2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .button {
+            display: inline-block;
+            background-color: #1e76d2;
+            color: #fff;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-top: 20px;
+            font-weight: 600;
+        }
+
+        .button:hover {
+            background-color: #176fa4;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <img src="https://salt.tikicdn.com/ts/upload/0e/07/78/ee828743c9afa9792cf20d75995e134e.png" alt="Logo">
+        <h1>Xác Nhận Đơn Hàng Thành Công</h1>
+        <p>Cảm ơn bạn đã mua sắm tại cửa hàng của chúng tôi! Đơn hàng của bạn đã được xác nhận và đang được xử lý. Dưới
+            đây là thông tin chi tiết về đơn hàng.</p>
+    </div>
+
+    <!-- Reusable Order Summary Section -->
+    <!--    <div class="order-summary">-->
+    <!--        <h2 class="section-title">Thông Tin Đơn Hàng</h2>-->
+    <!--        <p><strong>Mã đơn hàng:</strong> <span th:text="${order.id}"></span></p>-->
+    <!--        <p><strong>Ngày đặt hàng:</strong> <span th:text="${order.createdDate}"></span></p>-->
+    <!--        <p><strong>Phương thức thanh toán:</strong> <span th:text="${order.paymentMethod}"></span></p>-->
+    <!--        <p><strong>Tình trạng thanh toán:</strong> <span th:text="${order.paymentStatus}"></span></p>-->
+    <!--        <p><strong>Tổng giá trị đơn hàng:</strong> <span th:text="${order.totalAmount}"></span></p>-->
+    <!--        <p><strong>Trạng thái đơn hàng:</strong> <span th:text="${order.status}"></span></p>-->
+    <!--    </div>-->
+
+    Reusable Customer Info Section
+    <div class="customer-info">
+        <h2 class="section-title">Thông Tin Người Mua</h2>
+        <p><strong>Họ và tên:</strong> <span th:text="${user.name}"></span></p>
+        <p><strong>Email:</strong> <span th:text="${user.email}"></span></p>
+        <p><strong>Địa chỉ giao hàng:</strong> <span th:text="${user.address}"></span></p>
+        <p><strong>Số điện thoại:</strong> <span th:text="${user.phone}"></span></p>
+    </div>
+
+    <!--    <div class="product-details">-->
+    <!--        <h2 class="section-title">Chi Tiết Sản Phẩm</h2>-->
+
+    <!--        &lt;!&ndash; Product details table &ndash;&gt;-->
+    <!--        <table>-->
+    <!--            <thead>-->
+    <!--            <tr>-->
+    <!--                <th>Hình Ảnh</th>-->
+    <!--                <th>Tên Sản Phẩm</th>-->
+    <!--                <th>Biến Thể</th>-->
+    <!--                <th>Giá</th>-->
+    <!--                <th>Số Lượng</th>-->
+    <!--                <th>Tổng Tiền</th>-->
+    <!--            </tr>-->
+    <!--            </thead>-->
+    <!--            <tbody>-->
+    <!--            <tr th:each="product : ${order.products}">-->
+    <!--                <td><img th:src="${product.variant_img != null ? product.variant_img : 'default-product-image.jpg'}"-->
+    <!--                         alt="product image"></td>-->
+    <!--                <td><span-->
+    <!--                        th:text="${product.productName != null ? product.productName : 'Không có tên sản phẩm'}"></span>-->
+    <!--                </td>-->
+    <!--                <td><span th:text="${product.variantName != null ? product.variantName : 'Không có biến thể'}"></span>-->
+    <!--                </td>-->
+    <!--                <td><span th:text="${product.variantPrice != null ? product.variantPrice : 'Chưa có giá'}"></span></td>-->
+    <!--                <td><span th:text="${product.quantity != null ? product.quantity : 0}"></span></td>-->
+    <!--                <td><span th:text="${product.total != null ? product.total : 0}"></span></td>-->
+    <!--            </tr>-->
+    <!--            </tbody>-->
+    <!--        </table>-->
+    <!--    </div>-->
+
+    <div class="total-amount">
+        <p><strong>Tổng giá trị đơn hàng:</strong> <span th:text="${order.totalAmount}"></span></p>
+    </div>
+
+    <div class="footer">
+        <p>Cảm ơn bạn đã tin tưởng và lựa chọn sản phẩm của chúng tôi!</p>
+        <p>Đơn hàng của bạn sẽ được giao trong thời gian sớm nhất. Nếu có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng
+            tôi qua email hoặc điện thoại.</p>
+        <a href="mailto:{{user.email}}"
+           style="background-color: #1e76d2; color: #fff; padding: 12px 24px; text-align: center; text-decoration: none; border-radius: 6px; font-size: 16px; font-weight: 600; transition: background-color 0.3s ease;"
+           onmouseover="this.style.backgroundColor='#176fa4';"
+           onmouseout="this.style.backgroundColor='#1e76d2';">Liên Hệ Chúng Tôi</a>
+    </div>
+
+</div>
+
+</body>
+</html>

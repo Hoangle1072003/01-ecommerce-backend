@@ -21,9 +21,16 @@ public class PaymentEventProducer {
 
     private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
     private static final String ORDER_TOPIC = "order-topic";
+    private static final String NOTIFICATION_TOPIC = "notification-successful-payment-topic";
 
     public void sendPaymentEvent(PaymentEvent paymentEvent) {
         kafkaTemplate.send(ORDER_TOPIC, paymentEvent);
         System.out.println("Payment event sent to topic: " + ORDER_TOPIC);
     }
+
+    public void sendNotificationEvent(PaymentEvent paymentEvent) {
+        kafkaTemplate.send(NOTIFICATION_TOPIC, paymentEvent);
+        System.out.println("Notification event sent to topic: " + NOTIFICATION_TOPIC);
+    }
+
 }

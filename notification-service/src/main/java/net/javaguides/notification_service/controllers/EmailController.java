@@ -21,10 +21,20 @@ import org.springframework.web.bind.annotation.*;
 public class EmailController {
     private final IEmailService emailService;
 
+//    @PostMapping
+//    public ResponseEntity<String> sendEmail(@RequestBody ReqEmailSimpleDto reqEmailSimpleDto) {
+//        try {
+//            emailService.sendThankYouEmail(reqEmailSimpleDto.getName(), reqEmailSimpleDto.getTo());
+//            return ResponseEntity.ok("Email sent successfully");
+//        } catch (Exception e) {
+//            return ResponseEntity.status(500).body("Failed to send email: " + e.getMessage());
+//        }
+//    }
+
     @PostMapping
     public ResponseEntity<String> sendEmail(@RequestBody ReqEmailSimpleDto reqEmailSimpleDto) {
         try {
-            emailService.sendThankYouEmail(reqEmailSimpleDto.getName(), reqEmailSimpleDto.getTo());
+            emailService.sendOrderConfirmationEmail(reqEmailSimpleDto.getName(), reqEmailSimpleDto.getTo(), reqEmailSimpleDto.getResUserDTO());
             return ResponseEntity.ok("Email sent successfully");
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Failed to send email: " + e.getMessage());
