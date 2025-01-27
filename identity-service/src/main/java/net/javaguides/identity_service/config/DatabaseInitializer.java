@@ -27,6 +27,10 @@ public class DatabaseInitializer implements CommandLineRunner {
     private static final String ADMIN_NAME = "I'm super admin";
     private static final String ADMIN_ROLE = "ADMIN";
 
+    private static final String ADMIN_TEST_EMAIL = "clientassist.office@gmail.com";
+    private static final String ADMIN_TEST_PASSWORD = "123456";
+    private static final String ADMIN_TEST_NAME = "I'm admin test";
+
     private static final String USER_NAME = "I'm user";
     private static final String USER_EMAIL = "user@gmail.com";
     private static final String USER_PASSWORD = "123456";
@@ -35,6 +39,7 @@ public class DatabaseInitializer implements CommandLineRunner {
     private static final String USER_ADDRESS = "HCM";
     private static final GenderEnum USER_GENDER = GenderEnum.MALE;
     private static final String USER_ROLE = "USER";
+
 
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
@@ -67,6 +72,7 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         User user = new User();
         User adminUser = new User();
+        User adminTest = new User();
         if (userCount == 0) {
 
             adminUser.setName(ADMIN_NAME);
@@ -86,12 +92,21 @@ public class DatabaseInitializer implements CommandLineRunner {
             user.setGender(USER_GENDER);
             user.setRole(roleRepository.findByName(USER_ROLE));
 
+            adminTest.setName(ADMIN_TEST_NAME);
+            adminTest.setEmail(ADMIN_TEST_EMAIL);
+            adminTest.setPassword(passwordEncoder.encode(ADMIN_TEST_PASSWORD));
+            adminTest.setAge(20);
+            adminUser.setGender(GenderEnum.MALE);
+            adminUser.setAddress("HCM");
+
 
             Role adminRole = roleRepository.findByName(ADMIN_ROLE);
             if (adminRole != null) {
                 adminUser.setRole(adminRole);
+                adminTest.setRole(adminRole);
             }
             userRepository.save(adminUser);
+            userRepository.save(adminTest);
             userRepository.save(user);
         }
         if (roleCount > 0 || userCount > 0) {

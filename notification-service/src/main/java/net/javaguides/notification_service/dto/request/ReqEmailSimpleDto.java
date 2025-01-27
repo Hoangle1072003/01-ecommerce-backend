@@ -1,4 +1,4 @@
-package net.javaguides.notification_service.dto;
+package net.javaguides.notification_service.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

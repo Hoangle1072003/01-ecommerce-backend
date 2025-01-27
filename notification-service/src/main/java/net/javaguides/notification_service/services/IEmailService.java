@@ -12,4 +12,6 @@ package net.javaguides.notification_service.services;
 
 public interface IEmailService {
     void sendSimpleMailMessage(String name, String to);
+
+    void sendThankYouEmail(String name, String to);
 }
