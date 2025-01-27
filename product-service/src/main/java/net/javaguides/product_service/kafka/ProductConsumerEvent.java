@@ -23,6 +23,7 @@ public class ProductConsumerEvent {
 
     @KafkaListener(topics = "stock-update-topic")
     public void listenStockUpdate(CartItemClientEvent cartItemClientEvent) {
+        System.out.println("Received stock update event: " + cartItemClientEvent);
         productService.updateProductStock(cartItemClientEvent.getProductId(), cartItemClientEvent.getVariantId(), cartItemClientEvent.getQuantity());
     }
 }
