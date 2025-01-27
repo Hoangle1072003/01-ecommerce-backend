@@ -14,6 +14,8 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    networks:
+      - backend
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
@@ -27,6 +29,7 @@ services:
       - kafka
     networks:
       - backend
+
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -58,7 +61,7 @@ services:
     ports:
       - '8082:8082'
     environment:
-      - SPRING_DATASOURCE_URL= jdbc:mysql://mysql:3306/identity_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_URL= jdbc:mysql://mysql:3306/identity_db
       - SPRING_DATASOURCE_USERNAME= root
       - SPRING_DATASOURCE_PASSWORD= sapassword
     depends_on:
@@ -71,6 +74,46 @@ services:
     container_name: cart-service
     ports:
       - '8084:8084'
+    networks:
+      - backend
+
+  product-service:
+    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: product-service
+    ports:
+      - '8083:8083'
+    networks:
+      - backend
+
+  order-service:
+    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: order-service
+    ports:
+      - '8085:8085'
+    networks:
+      - backend
+
+  payment-service:
+    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: payment-service
+    ports:
+      - '8086:8086'
+    networks:
+      - backend
+
+  notification-service:
+    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: notification-service
+    ports:
+      - '8087:8087'
+    networks:
+      - backend
+
+  config-server:
+    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    container_name: config-server
+    ports:
+      - '8888:8888'
     networks:
       - backend
 
@@ -90,21 +133,17 @@ services:
     networks:
       - backend
     depends_on:
+      - service-registry
+      - config-server
       - identity-service
       - cart-service
       - product-service
-
-  product-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
-    container_name: product-service
-    ports:
-      - '8083:8083'
-    networks:
-      - backend
+      - order-service
+      - payment-service
+      - notification-service
 
 volumes:
   mysql_data:
-
 
 networks:
   backend:

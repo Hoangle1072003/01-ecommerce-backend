@@ -13,7 +13,7 @@ spring:
         # openssl rand -base64 64
         base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
   kafka:
-    bootstrap-servers: localhost:9094
+    bootstrap-servers: kafka:9094
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -28,7 +28,7 @@ spring:
 eureka:
   instance:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: http://service-registry:8761/eureka
     prefer-ip-address: true
 server:
   port: 8085
