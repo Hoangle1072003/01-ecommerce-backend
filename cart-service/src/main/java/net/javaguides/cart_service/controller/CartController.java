@@ -30,4 +30,10 @@ public class CartController {
         return ResponseEntity.ok(cartService.save(reqCartDto));
     }
 
+    @GetMapping("/{id}")
+    @ApiMessage("Get cart by id")
+    public ResponseEntity<Cart> getCartById(@PathVariable String id) {
+        return ResponseEntity.ok(cartService.findById(id));
+    }
+
 }

@@ -20,4 +20,6 @@ import java.util.UUID;
 @Repository
 public interface ICartRepository extends MongoRepository<Cart, String> {
     Cart findByUserIdAndStatus(UUID userId, CartStatusEnum status);
+
+    Cart findCartByUserId(UUID userId);
 }

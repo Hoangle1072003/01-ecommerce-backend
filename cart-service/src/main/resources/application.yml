@@ -8,6 +8,12 @@ spring:
 #    password: guest
   boot:
     message: Hello , Welcome to Cart Service
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
   data:
     mongodb:
       uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"

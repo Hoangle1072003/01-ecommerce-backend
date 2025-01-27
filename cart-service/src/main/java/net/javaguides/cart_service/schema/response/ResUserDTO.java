@@ -38,8 +38,6 @@ public class ResUserDTO  {
     private String updatedBy;
     private Instant createdAt;
     private Instant updatedAt;
-
-
     private RoleUser role;
 
     @Data

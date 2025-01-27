@@ -12,14 +12,18 @@ import net.javaguides.cart_service.service.ICartService;
 import net.javaguides.cart_service.service.httpClient.IIdentityServiceClient;
 import net.javaguides.cart_service.service.httpClient.IProductServiceClient;
 import net.javaguides.cart_service.utils.constant.CartStatusEnum;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * File: CartServiceImpl.java
  * Author: Le Van Hoang
  * Date: 12/01/2025
  * Time: 00:48
- * Version: 1.0
+ * Version: 1.1
  * <p>
  * Copyright © 2025 Le Van Hoang. All rights reserved.
  */
@@ -31,54 +35,72 @@ public class CartServiceImpl implements ICartService {
     private final IIdentityServiceClient identityServiceClient;
     private final IProductServiceClient productServiceClient;
     private final ICartItemRepository cartItemRepository;
-
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     @Override
     public Cart save(ReqCartDto reqCartDto) {
-        Cart existingCart = cartRepository.findByUserIdAndStatus(reqCartDto.getUserId(), CartStatusEnum.ACTIVE);
-        Cart newCart = null;
-
-        if (existingCart == null) {
-            newCart = new Cart();
-            newCart.setUserId(reqCartDto.getUserId());
-            newCart.setStatus(CartStatusEnum.ACTIVE);
-            newCart.setTotal(0.0);
-
-            newCart = cartRepository.save(newCart);
-        } else {
-            newCart = existingCart;
-        }
-
-        System.out.println(reqCartDto.getUserId());
         ResUserDTO user = identityServiceClient.getUserById(reqCartDto.getUserId());
-
-        System.out.println(user);
         if (user == null) {
-            return null;
+            throw new IllegalArgumentException("Người dùng không tồn tại.");
         }
-//        System.out.println(reqCartDto.getProductVariantId());
-//
-//        ResProductVarientDto productVarient = productServiceClient.getProductVarient(reqCartDto.getProductVariantId());
-//        System.out.println(productVarient);
 
-//        if (productVarient != null && productVarient.getVarients() != null && !productVarient.getVarients().isEmpty()) {
-//            ResProductVarientDto.VarientDto selectedVarient = productVarient.getVarients().get(0);
-//
-//            CartItem cartItem = new CartItem();
-//            cartItem.setCartId(newCart.getId());
-//            cartItem.setProductId(selectedVarient.getId());
-//            cartItem.setVariantId(selectedVarient.getId());
-//            cartItem.setPrice(selectedVarient.getPrice());
-//            cartItem.setQuantity(reqCartDto.getQuantity());
-//
-//            newCart.setTotal(newCart.getTotal() + selectedVarient.getPrice() * reqCartDto.getQuantity());
-//
-//            cartItemRepository.save(cartItem);
-//        }
+        Cart cart = cartRepository.findByUserIdAndStatus(reqCartDto.getUserId(), CartStatusEnum.ACTIVE);
+        if (cart == null) {
+            cart = createNewCart(reqCartDto.getUserId());
+        }
 
+        ResProductVarientDto productVarient = productServiceClient.getProductVarient(reqCartDto.getProductVariantId());
+        if (productVarient == null || productVarient.getVarients().isEmpty()) {
+            throw new IllegalArgumentException("Product variant không tồn tại hoặc không có biến thể.");
+        }
+
+        ResProductVarientDto.VarientDto selectedVarient = productVarient.getVarients().get(0);
+
+        int totalQuantityInCart = cartItemRepository.findByCartIdAndVariantId(cart.getId(), selectedVarient.getId())
+                .stream()
+                .mapToInt(CartItem::getQuantity)
+                .sum();
+
+        if (totalQuantityInCart + reqCartDto.getQuantity() > selectedVarient.getStock()) {
+            throw new IllegalArgumentException("Số lượng sản phẩm không đủ. Đã có "
+                    + totalQuantityInCart + " trong giỏ hàng. Chỉ còn lại "
+                    + (selectedVarient.getStock() - totalQuantityInCart) + " sản phẩm.");
+        }
+
+        processCartItem(cart, reqCartDto, productVarient.getId(), selectedVarient);
+
+        cart.setTotal(cart.getTotal() + selectedVarient.getPrice() * reqCartDto.getQuantity());
+        return cartRepository.save(cart);
+
+    }
+
+    @Override
+    public Cart createNewCart(UUID userId) {
+        Cart newCart = new Cart();
+        newCart.setUserId(userId);
+        newCart.setStatus(CartStatusEnum.ACTIVE);
+        newCart.setTotal(0.0);
         return cartRepository.save(newCart);
     }
 
 
+    @Override
+    public void processCartItem(Cart cart, ReqCartDto reqCartDto, String productId, ResProductVarientDto.VarientDto varient) {
+        List<CartItem> existingCartItems = cartItemRepository.findByCartIdAndVariantId(cart.getId(), varient.getId());
+        if (!existingCartItems.isEmpty()) {
+            CartItem existingCartItem = existingCartItems.get(0);
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + reqCartDto.getQuantity());
+            existingCartItem.setPrice(varient.getPrice());
+            cartItemRepository.save(existingCartItem);
+        } else {
+            CartItem cartItem = new CartItem();
+            cartItem.setCartId(cart.getId());
+            cartItem.setProductId(productId);
+            cartItem.setVariantId(varient.getId());
+            cartItem.setPrice(varient.getPrice());
+            cartItem.setQuantity(reqCartDto.getQuantity());
+            cartItemRepository.save(cartItem);
+        }
+    }
 
     @Override
     public Cart findById(String id) {

@@ -15,5 +15,4 @@ public enum CartStatusEnum {
     EXPIRED,
     COMPLETED,
     CANCELLED
-
 }

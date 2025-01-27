@@ -64,6 +64,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(whiteList).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
                         .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/introspect").permitAll()

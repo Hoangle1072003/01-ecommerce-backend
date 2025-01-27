@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cảm Ơn Bạn Đã Chọn Chúng Tôi</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7fb;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 40px;
+            border-bottom: 3px solid #f0f0f0;
+        }
+
+        .header img {
+            max-width: 180px;
+        }
+
+        .title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4a4a4a;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .greeting {
+            font-size: 20px;
+            color: #555;
+            margin-top: 40px;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.7;
+            margin-top: 20px;
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #1e76d2;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-top: 40px;
+            border-top: 2px solid #f0f0f0;
+            padding-top: 20px;
+        }
+
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <img src="https://salt.tikicdn.com/ts/upload/0e/07/78/ee828743c9afa9792cf20d75995e134e.png"
+             alt="Logo của công ty">
+        <div class="title">Cảm Ơn Bạn Đã Chọn Chúng Tôi
+    </div>
+    <div class="greeting">
+        <p>Kính gửi Quý khách <span class="highlight" th:text="${name}">[Tên Khách Hàng]</span>,</p>
+    </div>
+    <div class="message">
+        <p>Chúng tôi xin chân thành cảm ơn Quý khách đã tin tưởng và lựa chọn dịch vụ của <span class="highlight">[Tên Công Ty]</span>.
+            Đây là niềm vinh hạnh lớn đối với chúng tôi khi được phục vụ Quý khách.</p>
+
+        <p>Chúng tôi hiểu rằng việc lựa chọn một dịch vụ uy tín và chất lượng là điều vô cùng quan trọng, và chúng tôi
+            cam kết sẽ luôn đồng hành cùng Quý khách, mang đến những sản phẩm và dịch vụ vượt trội nhất.</p>
+
+        <p>Đội ngũ của chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ Quý khách mọi lúc, mọi nơi, để Quý khách có những
+            trải nghiệm tuyệt vời. Nếu có bất kỳ câu hỏi nào hoặc cần sự trợ giúp, Quý khách có thể liên hệ ngay với
+            chúng tôi qua email <a href="mailto:helpcenter.teamconnect@gmail.com">
+                helpcenter.teamconnect@gmail.com</a> hoặc gọi tới
+            số điện thoại
+            hỗ trợ của chúng tôi: [
+            000-000-0000
+            ].</p>
+
+        <p>Chúng tôi mong muốn được phục vụ Quý khách lâu dài và cam kết mang đến những trải nghiệm tốt nhất cho Quý
+            khách trong suốt hành trình sử dụng dịch vụ của chúng tôi.</p>
+
+        <p>Xin chân thành cảm ơn Quý khách một lần nữa. Đội ngũ của chúng tôi luôn ở đây để hỗ trợ và giúp Quý khách đạt
+            được những giá trị tốt nhất.</p>
+    </div>
+    <div class="footer">
+        <p>Trân trọng,<br>Đội ngũ chăm sóc khách hàng<br><a href="mailto:helpcenter.teamconnect@gmail.com">
+            helpcenter.teamconnect@gmail.com</a>
+        </p>
+        <p>Để biết thêm thông tin chi tiết về các sản phẩm và dịch vụ của chúng tôi, vui lòng truy cập <a
+                href="https://www.example.com">www.example.com</a>.</p>
+    </div>
+</div>
+</body>
+
+</html>

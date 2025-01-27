@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: NOTIFICATION-SERVICE
+  boot:
+    messages: "Hello from Notification Service"
+  security:
+    authentication:
+      jwt:
+        # openssl rand -base64 64
+        base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
+  kafka:
+    bootstrap-servers: localhost:9094
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "helpcenter.teamconnect@gmail.com"
+    password: "bsds dumc xvtw hzcz"
+    default-encoding: UTF-8
+    properties:
+      mail:
+        mime:
+          charset: UTF
+        smtp:
+          writetimeout: 10000
+          connectiontimeout: 10000
+          timeout: 10000
+          auth: true
+          starttls:
+            enable: true
+            required: true
+eureka:
+  instance:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    prefer-ip-address: true
+server:
+  port: 8087

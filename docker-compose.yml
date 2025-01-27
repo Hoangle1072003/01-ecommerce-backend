@@ -15,6 +15,18 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
+    ports:
+      - "9089:8080"
+    depends_on:
+      - kafka
+    networks:
+      - backend
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -92,6 +104,7 @@ services:
 
 volumes:
   mysql_data:
+
 
 networks:
   backend:
