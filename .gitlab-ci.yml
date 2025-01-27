@@ -48,6 +48,19 @@ build_api_gateway:
     - docker push ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-$CI_COMMIT_SHA
   only:
     - staging
+
+build_config_server:
+  stage: build
+  script:
+    - echo "Building config-server with Buildpacks..."
+    - cd config-server
+    - pack build integrationninjas/config-server:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/config-server:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/config-server:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-config-server:config-server-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend-config-server:config-server-$CI_COMMIT_SHA
+  only:
+    - staging
+
 build_service_registry:
   stage: build
   script:
@@ -68,6 +81,42 @@ build_product_service:
     - docker images
     - docker tag integrationninjas/product-service:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-product-service:product-service-$CI_COMMIT_SHA
     - docker push ashleynguci1072003/01-ecommerce-backend-product-service:product-service-$CI_COMMIT_SHA
+  only:
+    - staging
+
+build_order_service:
+  stage: build
+  script:
+    - echo "Building order-service with Buildpacks..."
+    - cd order-service
+    - pack build integrationninjas/order-service:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/order-service:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/order-service:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-order-service:order-service-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend-order-service:order-service-$CI_COMMIT_SHA
+  only:
+    - staging
+
+build_payment_service:
+  stage: build
+  script:
+    - echo "Building payment-service with Buildpacks..."
+    - cd payment-service
+    - pack build integrationninjas/payment-service:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/payment-service:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/payment-service:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-$CI_COMMIT_SHA
+  only:
+    - staging
+
+build_notification_service:
+  stage: build
+  script:
+    - echo "Building notification-service with Buildpacks..."
+    - cd notification-service
+    - pack build integrationninjas/notification-service:$CI_COMMIT_SHA --path . --builder paketobuildpacks/builder:base --tag integrationninjas/notification-service:$CI_COMMIT_SHA
+    - docker images
+    - docker tag integrationninjas/notification-service:$CI_COMMIT_SHA ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-$CI_COMMIT_SHA
+    - docker push ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-$CI_COMMIT_SHA
   only:
     - staging
 
