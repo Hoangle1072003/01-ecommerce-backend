@@ -18,11 +18,10 @@ spring:
     mongodb:
       uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
       database: cart-service
-  eureka:
-    instance:
-      service-url:
-        defaultZone: http://service-registry:8761/eureka
-      prefer-ip-address: true
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka
 server:
   port: 8084
 

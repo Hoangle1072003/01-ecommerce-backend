@@ -47,13 +47,13 @@ logging:
   level:
     org.springframework.cloud.gateway.handler.RoutePredicateHandlerMapping: DEBUG
 eureka:
-  instance:
+  client:
     service-url:
-      defaultZone: http://service-registry:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
 management:
   endpoints:
     web:
       exposure:
         include: "*"
 server:
-  port: 9191
+  port: ${API_GATEWAY_PORT}

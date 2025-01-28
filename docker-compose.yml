@@ -2,10 +2,10 @@ version: '3.8'
 services:
   kafka:
     image: 'bitnami/kafka:3.7.0'
-    container_name: kafka
-    hostname: kafka
+    container_name: ${KAFKA_DEFAULT_HOST}
+    hostname: ${KAFKA_DEFAULT_HOST}
     ports:
-      - '9094:9094'
+      - '${KAFKA_DEFAULT_PORT}:9094'
     environment:
       - KAFKA_CFG_NODE_ID=0
       - KAFKA_CFG_PROCESS_ROLES=controller,broker
@@ -19,25 +19,25 @@ services:
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
-    container_name: kafka-ui
+    container_name: ${KAFKA_UI_HOST}
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_DEFAULT_HOST}:9094
     ports:
-      - "9089:8080"
+      - "${KAFKA_UI_PORT}:8080"
     depends_on:
       - kafka
     networks:
       - backend
 
   mysql:
-    image: mysql:8.0
-    container_name: mysql
+    image: mysql:9.1.0
+    container_name: ${MYSQL_HOST}
     environment:
-      MYSQL_ROOT_PASSWORD: sapassword
-      MYSQL_DATABASE: identity_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
-      - '3306:3306'
+      - '${MYSQL_PORT}:3306'
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -45,32 +45,38 @@ services:
 
   rabbitmq:
     image: 'rabbitmq:4.0.5'
-    container_name: rabbitmq
+    container_name: ${RABBITMQ_DEFAULT_HOST}
     ports:
-      - '5672:5672'
-      - '15672:15672'
+      - '${RABBITMQ_DEFAULT_PORT}:5672'
+      - '${RABBITMQ_DEFAULT_PORT_MANAGEMENT}:15672'
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     networks:
       - backend
 
   identity-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
-    container_name: identity-service
+    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
+    container_name: ${IDENTITY_SERVICE_HOST}
     ports:
-      - '8082:8082'
+      - '${IDENTITY_SERVICE_PORT}:8082'
     environment:
-      - SPRING_DATASOURCE_URL= jdbc:mysql://mysql:3306/identity_db
-      - SPRING_DATASOURCE_USERNAME= root
-      - SPRING_DATASOURCE_PASSWORD= sapassword
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - IDENTITY_SERVICE_PORT= ${IDENTITY_SERVICE_PORT}
+      - EUREKA_CLIENT_SERVICE_URL= ${EUREKA_CLIENT_SERVICE_URL}
+      - RABBITMQ_DEFAULT_HOST=${RABBITMQ_DEFAULT_HOST}
+      - RABBITMQ_DEFAULT_PORT=${RABBITMQ_DEFAULT_PORT}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     depends_on:
       - mysql
     networks:
       - backend
 
   cart-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
+    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
     container_name: cart-service
     ports:
       - '8084:8084'
@@ -78,15 +84,28 @@ services:
       - backend
 
   product-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
-    container_name: product-service
+    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
+    container_name: ${PRODUCT_SERVICE_HOST}
     ports:
-      - '8083:8083'
+      - '${PRODUCT_SERVICE_PORT}:8083'
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL=${EUREKA_CLIENT_SERVICE_URL}
+      - RABBITMQ_DEFAULT_HOST=${RABBITMQ_DEFAULT_HOST}
+      - RABBITMQ_DEFAULT_PORT=${RABBITMQ_DEFAULT_PORT}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_DEFAULT_HOST}
+      - KAFKA_GROUP_ID=${KAFKA_PRODUCT_GROUP_ID}
+      - PRODUCT_MONGO_DB_NAME=${PRODUCT_MONGO_DB_NAME}
+      - MONGO_URL=${MONGO_URL}
+    depends_on:
+      - kafka
+      - service-registry
     networks:
       - backend
 
   order-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
     container_name: order-service
     ports:
       - '8085:8085'
@@ -94,7 +113,7 @@ services:
       - backend
 
   payment-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
     container_name: payment-service
     ports:
       - '8086:8086'
@@ -102,7 +121,7 @@ services:
       - backend
 
   notification-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
     container_name: notification-service
     ports:
       - '8087:8087'
@@ -110,7 +129,7 @@ services:
       - backend
 
   config-server:
-    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-9f727f5b5e5e7b90e06586ddafbcd0b4fb11d4cd'
+    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
     container_name: config-server
     ports:
       - '8888:8888'
@@ -118,18 +137,23 @@ services:
       - backend
 
   service-registry:
-    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
-    container_name: service-registry
+    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
+    container_name: ${SERVICE_REGISTRY_HOST}
     ports:
-      - '8761:8761'
+      - '${SERVICE_REGISTRY_PORT}:8761'
+    environment:
+      - SERVICE_REGISTRY_PORT=${SERVICE_REGISTRY_PORT}
     networks:
       - backend
 
   api-gateway:
-    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-41a1557be61e6dec2a6a6e7ee3e93a6cf041b5be'
-    container_name: api-gateway
+    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-ebe5385ad12bdaa4b67bd7120b2ba6c39ea3da0b'
+    container_name: ${API_GATEWAY_HOST}
     ports:
-      - '9191:9191'
+      - '${API_GATEWAY_PORT}:9191'
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL=${EUREKA_CLIENT_SERVICE_URL}
+      - API_GATEWAY_PORT=${API_GATEWAY_PORT}
     networks:
       - backend
     depends_on:
@@ -141,7 +165,6 @@ services:
       - payment-service
       - notification-service
       - cart-service
-
 
 volumes:
   mysql_data:

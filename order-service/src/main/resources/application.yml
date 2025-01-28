@@ -26,10 +26,9 @@ spring:
       properties:
         spring.json.trusted.packages: '*'
 eureka:
-  instance:
+  client:
     service-url:
       defaultZone: http://service-registry:8761/eureka
-    prefer-ip-address: true
 server:
   port: 8085
 

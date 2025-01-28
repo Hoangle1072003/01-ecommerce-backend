@@ -2,9 +2,9 @@ spring:
   application:
     name: SERVICE-REGISTRY
 server:
-  port: 8761
+  port: ${SERVICE_REGISTRY_PORT}
 eureka:
   client:
-    register-with-eureka: true
-    fetch-registry: true
-#bsds dumc xvtw hzcz
+    register-with-eureka: false
+    fetch-registry: false
+#password google: bsds dumc xvtw hzcz
