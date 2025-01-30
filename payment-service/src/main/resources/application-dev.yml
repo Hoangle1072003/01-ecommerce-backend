@@ -1,12 +1,12 @@
 spring:
   application:
-    name: ORDER-SERVICE
+    name: PAYMENT-SERVICE
   boot:
-    message: Hello World from Order Service
+    message: Hello from Payment Service
   data:
     mongodb:
       uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-      database: order-service
+      database: payment-service
   security:
     authentication:
       jwt:
@@ -18,21 +18,28 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
     consumer:
-      group-id: order-group
+      group-id: payment-group
       auto-offset-reset: earliest
       enable-auto-commit: true
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: '*'
+payment:
+  vnPay:
+    url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+    tmnCode: "F90IELCW"
+    secretKey: "KEK75W0MSYY3JTELC76V6OVRLXSYR5MO"
+    returnUrl: "http://localhost:9191/payment-service/api/v1/payment/vn-pay-callback"
+    version: "2.1.0"
+    command: "pay"
+    orderType: "other"
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
 server:
-  port: 8085
-
-
+  port: 8086
 
 
 # password nosql: 8OWQ2rzxntvKxflL
