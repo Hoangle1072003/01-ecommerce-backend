@@ -10,18 +10,18 @@ spring:
     authentication:
       jwt:
         # openssl rand -base64 64
-        base64-secret: ${SPRING_SECURITY_JWT_SECRET}
-        access-token-validity-in-seconds: ${SPRING_SECURITY_JWT_EXPIRATION}
-        refresh-token-validity-in-seconds: ${SPRING_SECURITY_JWT_EXPIRATION}
+        base64-secret: YTwQoI5e3OjbPsvbRgXFdbGAz3ML2jTezUQTD0CO82VOl/ZrzSyJvQ5b6t1YyS9bqiT4jA1bny2MhHn4RNcu9A==
+        access-token-validity-in-seconds: 86400
+        refresh-token-validity-in-seconds: 86400
   api:
     version: /api/v1
   boot:
     message: Hello , IDENTITY-SERVICE
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: jdbc:mysql://sql12.freesqldatabase.com:3306/sql12760287
+    username: sql12760287
+    password: fF756YjrfP
   jpa:
     hibernate:
       ddl-auto: update
@@ -34,19 +34,20 @@ spring:
         order_inserts: true
         order_updates: true
   rabbitmq:
-    host: ${RABBITMQ_DEFAULT_HOST}
-    port: ${RABBITMQ_DEFAULT_PORT}
-    username: ${RABBITMQ_DEFAULT_USER}
-    password: ${RABBITMQ_DEFAULT_PASS}
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
+      defaultZone: http://localhost:8761/eureka
 management:
   endpoints:
     web:
       exposure:
         include: "*"
 server:
-  port: ${IDENTITY_SERVICE_PORT}
+  port: 8082
 

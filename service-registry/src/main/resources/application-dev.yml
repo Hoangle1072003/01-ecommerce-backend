@@ -2,9 +2,9 @@ spring:
   application:
     name: SERVICE-REGISTRY
   boot:
-    message: Hello , SERVICE-REGISTRY from staging
+    message: Hello , SERVICE-REGISTRY from dev
 server:
-  port: ${SERVICE_REGISTRY_PORT}
+  port: 8761
 eureka:
   client:
     register-with-eureka: false
