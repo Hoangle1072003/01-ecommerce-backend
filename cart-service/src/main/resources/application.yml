@@ -9,21 +9,21 @@ spring:
   boot:
     message: Hello , Welcome to Cart Service
   kafka:
-    bootstrap-servers: kafka:9094
+    bootstrap-servers: ${KAFKA_DEFAULT_HOST}:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
   data:
     mongodb:
-      uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      uri: ${MONGO_URL}
       database: cart-service
 eureka:
   client:
     service-url:
-      defaultZone: http://service-registry:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
 server:
-  port: 8084
+  port: ${CART_SERVICE_PORT}
 
 
 # password nosql: 8OWQ2rzxntvKxflL

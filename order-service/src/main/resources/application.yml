@@ -5,7 +5,7 @@ spring:
     message: Hello World from Order Service
   data:
     mongodb:
-      uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      uri: ${MONGO_URL}
       database: order-service
   security:
     authentication:
@@ -13,7 +13,7 @@ spring:
         # openssl rand -base64 64
         base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
   kafka:
-    bootstrap-servers: kafka:9094
+    bootstrap-servers: ${KAFKA_DEFAULT_HOST}:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -28,9 +28,9 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://service-registry:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
 server:
-  port: 8085
+  port: ${ORDER_SERVICE_PORT}
 
 
 

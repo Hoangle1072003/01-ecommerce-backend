@@ -5,7 +5,7 @@ spring:
     message: Hello from Payment Service
   data:
     mongodb:
-      uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      uri: ${MONGO_URL}
       database: payment-service
   security:
     authentication:
@@ -13,7 +13,7 @@ spring:
         # openssl rand -base64 64
         base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
   kafka:
-    bootstrap-servers: kafka:9094
+    bootstrap-servers: ${KAFKA_DEFAULT_HOST}:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -27,19 +27,19 @@ spring:
         spring.json.trusted.packages: '*'
 payment:
   vnPay:
-    url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-    tmnCode: "F90IELCW"
-    secretKey: "KEK75W0MSYY3JTELC76V6OVRLXSYR5MO"
-    returnUrl: "http://localhost:9191/payment-service/api/v1/payment/vn-pay-callback"
-    version: "2.1.0"
-    command: "pay"
-    orderType: "other"
+    url: ${VN_PAY_URL}
+    tmnCode: ${VN_PAY_TMN_CODE}
+    secretKey: ${VN_PAY_HASH_SECRET}
+    returnUrl: ${VN_PAY_RETURN_URL}
+    version: ${VN_PAY_VERSION}
+    command: ${VN_PAY_COMMAND}
+    orderType: ${VN_PAY_ORDER_TYPE}
 eureka:
   client:
     service-url:
-      defaultZone: http://service-registry:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
 server:
-  port: 8086
+  port: ${PAYMENT_SERVICE_PORT}
 
 
 # password nosql: 8OWQ2rzxntvKxflL

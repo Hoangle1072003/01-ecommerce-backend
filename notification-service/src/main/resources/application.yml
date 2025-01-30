@@ -9,7 +9,7 @@ spring:
         # openssl rand -base64 64
         base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
   kafka:
-    bootstrap-servers: kafka:9094
+    bootstrap-servers: ${KAFKA_DEFAULT_HOST}:9092
     consumer:
       group-id: notification-group
       auto-offset-reset: earliest
@@ -19,10 +19,10 @@ spring:
       properties:
         spring.json.trusted.packages: '*'
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: "helpcenter.teamconnect@gmail.com"
-    password: "bsds dumc xvtw hzcz"
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     default-encoding: UTF-8
     properties:
       mail:
@@ -39,6 +39,6 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://service-registry:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
 server:
-  port: 8087
+  port: ${NOTIFICATION_SERVICE_PORT}

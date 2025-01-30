@@ -7,4 +7,5 @@ eureka:
   client:
     register-with-eureka: false
     fetch-registry: false
+
 #password google: bsds dumc xvtw hzcz
