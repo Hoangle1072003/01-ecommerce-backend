@@ -55,7 +55,7 @@ services:
       - backend
 
   identity-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${IDENTITY_SERVICE_HOST}
     ports:
       - '${IDENTITY_SERVICE_PORT}:8082'
@@ -70,12 +70,12 @@ services:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
-      - SPRING_SECURITY_JWT_EXPIRATION={SPRING_SECURITY_JWT_EXPIRATION}
+      - SPRING_SECURITY_JWT_EXPIRATION=${SPRING_SECURITY_JWT_EXPIRATION}
     networks:
       - backend
 
   cart-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${CART_SERVICE_HOST}
     ports:
       - '${CART_SERVICE_PORT}:8084'
@@ -87,7 +87,7 @@ services:
       - backend
 
   product-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${PRODUCT_SERVICE_HOST}
     ports:
       - '${PRODUCT_SERVICE_PORT}:8083'
@@ -109,7 +109,7 @@ services:
       - backend
 
   order-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${ORDER_SERVICE_HOST}
     ports:
       - '${ORDER_SERVICE_PORT}:8085'
@@ -122,7 +122,7 @@ services:
       - backend
 
   payment-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${PAYMENT_SERVICE_HOST}
     ports:
       - '${PAYMENT_SERVICE_PORT}:8086'
@@ -142,7 +142,7 @@ services:
       - backend
 
   notification-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${NOTIFICATION_SERVICE_HOST}
     ports:
       - '${NOTIFICATION_SERVICE_PORT}:8087'
@@ -159,7 +159,7 @@ services:
       - backend
 
   config-server:
-    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${CONFIG_SERVER_HOST}
     ports:
       - '${CONFIG_SERVER_PORT}:8888'
@@ -171,7 +171,7 @@ services:
       - backend
 
   service-registry:
-    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${SERVICE_REGISTRY_HOST}
     ports:
       - '${SERVICE_REGISTRY_PORT}:8761'
@@ -181,7 +181,7 @@ services:
       - backend
 
   api-gateway:
-    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-aae4780ecd203d93759159c7e0e4d22b439dc2a8'
+    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-c073d300b9c4285ca84377b355efa13719f0b77b'
     container_name: ${API_GATEWAY_HOST}
     ports:
       - '${API_GATEWAY_PORT}:9191'
