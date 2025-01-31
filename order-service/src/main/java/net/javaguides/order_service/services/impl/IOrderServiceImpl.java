@@ -12,6 +12,7 @@ import net.javaguides.order_service.shemas.response.ResCartClientDto;
 import net.javaguides.event.dto.CartItemClientEvent;
 import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
+import net.javaguides.order_service.shemas.response.ResPaymentMethod;
 import net.javaguides.order_service.utils.constants.CartStatusEnum;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -77,6 +78,12 @@ public class IOrderServiceImpl implements IOrderService {
     public ResOrderByIdDto getOrderById(String id) {
         Optional<Order> orderOptional = orderRepository.findById(id);
         return orderOptional.map(orderMapper::toResOrderByIdDto).orElse(null);
+    }
+
+    @Override
+    public List<ResPaymentMethod> getAllPaymentMethod() {
+        List<Order> paymentMethods = orderRepository.findAll();
+        return orderMapper.toResPaymentMethod(paymentMethods);
     }
 
     @KafkaListener(topics = "order-topic")

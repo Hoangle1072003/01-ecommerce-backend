@@ -3,6 +3,9 @@ package net.javaguides.order_service.services;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
+import net.javaguides.order_service.shemas.response.ResPaymentMethod;
+
+import java.util.List;
 
 /**
  * File: IOrderService.java
@@ -18,4 +21,6 @@ public interface IOrderService {
     ResCreateOrderDto createOrder(ReqCreateOrderDto reqCreateOrderDto) throws Exception;
 
     ResOrderByIdDto getOrderById(String id);
+
+    List<ResPaymentMethod> getAllPaymentMethod();
 }

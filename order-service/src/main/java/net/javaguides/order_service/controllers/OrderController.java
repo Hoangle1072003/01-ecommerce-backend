@@ -5,8 +5,12 @@ import net.javaguides.order_service.services.IOrderService;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
+import net.javaguides.order_service.shemas.response.ResPaymentMethod;
+import net.javaguides.order_service.utils.annotation.ApiMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * File: OrderController.java
@@ -32,5 +36,11 @@ public class OrderController {
     @GetMapping("/{id}")
     public ResponseEntity<ResOrderByIdDto> getOrder(@PathVariable String id) {
         return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/methods")
+    @ApiMessage("Get all payment method")
+    public ResponseEntity<List<ResPaymentMethod>> getPaymentMethod() {
+        return ResponseEntity.ok(orderService.getAllPaymentMethod());
     }
 }

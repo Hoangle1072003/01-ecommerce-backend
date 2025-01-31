@@ -3,10 +3,13 @@ package net.javaguides.cart_service.controller;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.cart_service.schema.Cart;
 import net.javaguides.cart_service.schema.request.ReqCartDto;
+import net.javaguides.cart_service.schema.response.ResCartByUser;
 import net.javaguides.cart_service.service.ICartService;
 import net.javaguides.cart_service.utils.annotation.ApiMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 /**
  * File: CartController.java
@@ -26,7 +29,7 @@ public class CartController {
 
     @PostMapping()
     @ApiMessage("Create new cart")
-    public ResponseEntity<Cart> createCart(@RequestBody ReqCartDto reqCartDto)  {
+    public ResponseEntity<Cart> createCart(@RequestBody ReqCartDto reqCartDto) {
         return ResponseEntity.ok(cartService.save(reqCartDto));
     }
 
@@ -34,6 +37,12 @@ public class CartController {
     @ApiMessage("Get cart by id")
     public ResponseEntity<Cart> getCartById(@PathVariable String id) {
         return ResponseEntity.ok(cartService.findById(id));
+    }
+
+    @GetMapping("/user/{id}")
+    @ApiMessage("Get cart by user id")
+    public ResponseEntity<ResCartByUser> getCartByUserId(@PathVariable UUID id) {
+        return ResponseEntity.ok(cartService.findByUserId(id));
     }
 
 }

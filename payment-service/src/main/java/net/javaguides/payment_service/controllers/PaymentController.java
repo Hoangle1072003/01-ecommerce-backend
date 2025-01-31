@@ -3,16 +3,18 @@ package net.javaguides.payment_service.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
+import net.javaguides.payment_service.schemas.Payment;
+import net.javaguides.payment_service.schemas.request.ReqPaymentDto;
+import net.javaguides.payment_service.schemas.response.ResPaymentDto;
 import net.javaguides.payment_service.services.IPaymentService;
 import net.javaguides.payment_service.utils.constant.PaymentStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -71,6 +73,11 @@ public class PaymentController {
             System.out.println("Unknown payment status");
             return ResponseEntity.badRequest().body("Unknown payment status");
         }
+    }
+
+    @GetMapping("/find-payment-by-user-id")
+    public ResponseEntity<ResPaymentDto> findPaymentByUserId(@RequestBody ReqPaymentDto reqPaymentDto) {
+        return ResponseEntity.ok(paymentService.findPayment(reqPaymentDto));
     }
 
 

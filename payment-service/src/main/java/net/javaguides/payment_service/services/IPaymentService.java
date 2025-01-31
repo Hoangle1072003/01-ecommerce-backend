@@ -3,8 +3,11 @@ package net.javaguides.payment_service.services;
 import jakarta.servlet.http.HttpServletRequest;
 import net.javaguides.event.dto.PaymentEvent;
 import net.javaguides.payment_service.schemas.Payment;
+import net.javaguides.payment_service.schemas.request.ReqPaymentDto;
+import net.javaguides.payment_service.schemas.response.ResPaymentDto;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * File: PaymentService.java
@@ -18,6 +21,11 @@ import java.util.Map;
 
 public interface IPaymentService {
     Payment processPaymentEvent(PaymentEvent paymentEvent);
+
     void processSuccessfulPayment(Map<String, String> paymentDetails);
+
     void updatePaymentStatus(Map<String, String> paymentDetails);
+
+    ResPaymentDto findPayment(ReqPaymentDto reqPaymentDto);
+
 }

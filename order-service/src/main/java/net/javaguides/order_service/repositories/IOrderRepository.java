@@ -1,9 +1,14 @@
 package net.javaguides.order_service.repositories;
 
 import net.javaguides.order_service.shemas.Order;
+import net.javaguides.order_service.shemas.response.ResPaymentMethod;
+import net.javaguides.order_service.utils.constants.PaymentMethod;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * File: IOrderRepository.java
@@ -18,4 +23,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IOrderRepository extends MongoRepository<Order, String> {
     Order findByUserIdAndCartId(String userId, String cartId);
+
+
 }

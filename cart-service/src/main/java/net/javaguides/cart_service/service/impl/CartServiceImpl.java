@@ -1,11 +1,13 @@
 package net.javaguides.cart_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import net.javaguides.cart_service.mapper.ICartMapper;
 import net.javaguides.cart_service.repository.ICartItemRepository;
 import net.javaguides.cart_service.repository.ICartRepository;
 import net.javaguides.cart_service.schema.Cart;
 import net.javaguides.cart_service.schema.CartItem;
 import net.javaguides.cart_service.schema.request.ReqCartDto;
+import net.javaguides.cart_service.schema.response.ResCartByUser;
 import net.javaguides.cart_service.schema.response.ResProductVarientDto;
 import net.javaguides.cart_service.schema.response.ResUserDTO;
 import net.javaguides.cart_service.service.ICartService;
@@ -35,7 +37,9 @@ public class CartServiceImpl implements ICartService {
     private final IIdentityServiceClient identityServiceClient;
     private final IProductServiceClient productServiceClient;
     private final ICartItemRepository cartItemRepository;
+    private final ICartMapper cartMapper;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
     @Override
     public Cart save(ReqCartDto reqCartDto) {
         ResUserDTO user = identityServiceClient.getUserById(reqCartDto.getUserId());
@@ -100,6 +104,15 @@ public class CartServiceImpl implements ICartService {
             cartItem.setQuantity(reqCartDto.getQuantity());
             cartItemRepository.save(cartItem);
         }
+    }
+
+    @Override
+    public ResCartByUser findByUserId(UUID userId) {
+        Cart cart = cartRepository.findByUserIdAndStatus(userId, CartStatusEnum.ACTIVE);
+        if (cart == null) {
+            return null;
+        }
+        return cartMapper.toResCartByUser(cart);
     }
 
     @Override

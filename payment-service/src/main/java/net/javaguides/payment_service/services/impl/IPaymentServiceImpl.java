@@ -5,17 +5,22 @@ import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
 import net.javaguides.payment_service.configs.VNPAYConfig;
 import net.javaguides.payment_service.kafka.PaymentEventProducer;
+import net.javaguides.payment_service.mappers.IPaymentMapper;
 import net.javaguides.payment_service.repositories.IPaymentRepository;
 import net.javaguides.payment_service.schemas.Payment;
+import net.javaguides.payment_service.schemas.request.ReqPaymentDto;
+import net.javaguides.payment_service.schemas.response.ResOrderByIdDto;
+import net.javaguides.payment_service.schemas.response.ResPaymentDto;
+import net.javaguides.payment_service.schemas.response.ResUserDTO;
 import net.javaguides.payment_service.services.IPaymentService;
+import net.javaguides.payment_service.services.httpClient.IIdentityServiceClient;
+import net.javaguides.payment_service.services.httpClient.IOrderServiceClient;
 import net.javaguides.payment_service.utils.VNPayUtil;
 import net.javaguides.payment_service.utils.constant.PaymentStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * File: PaymentServiceImpl.java
@@ -33,6 +38,9 @@ public class IPaymentServiceImpl implements IPaymentService {
     private final IPaymentRepository paymentRepository;
     private final VNPAYConfig vnPayConfig;
     private final PaymentEventProducer paymentEventProducer;
+    private final IPaymentMapper paymentMapper;
+    private final IIdentityServiceClient identityServiceClient;
+    private final IOrderServiceClient orderServiceClient;
 
     @Override
     @Transactional
@@ -118,4 +126,41 @@ public class IPaymentServiceImpl implements IPaymentService {
             System.out.println("Payment not found for orderId: " + orderId);
         }
     }
+
+    @Override
+    public ResPaymentDto findPayment(ReqPaymentDto reqPaymentDto) {
+        try {
+            ResUserDTO user = identityServiceClient.getUserById(reqPaymentDto.getUserId());
+            if (user == null) {
+                throw new RuntimeException("User not found with ID: " + reqPaymentDto.getUserId());
+            }
+
+            List<Payment> payments = paymentRepository.findByUserId(reqPaymentDto.getUserId().toString());
+            if (payments.isEmpty()) {
+                throw new RuntimeException("No payment found for user with ID: " + reqPaymentDto.getUserId());
+            }
+
+            for (Payment payment : payments) {
+                if (payment.getPaymentStatus().equals(PaymentStatus.PENDING)) {
+                    ResOrderByIdDto order = orderServiceClient.getOrder(reqPaymentDto.getOrderId());
+                    if (order == null) {
+                        throw new RuntimeException("Order not found with ID: " + reqPaymentDto.getOrderId());
+                    }
+                    if (order.getId().equals(payment.getOrderId())) {
+                        if (order.getPaymentStatus().equals(PaymentStatus.PENDING)) {
+                            return paymentMapper.toResPaymentDto(payment);
+                        } else {
+                            throw new RuntimeException("Order with ID " + reqPaymentDto.getOrderId() + " has payment status: " + order.getPaymentStatus());
+                        }
+                    }
+                }
+            }
+
+            throw new RuntimeException("No PENDING payment found for user with ID: " + reqPaymentDto.getUserId());
+        } catch (Exception e) {
+            System.out.println("Error occurred while finding payment: " + e.getMessage());
+            throw new RuntimeException("Error occurred while finding payment: " + e.getMessage(), e);
+        }
+    }
+
 }
