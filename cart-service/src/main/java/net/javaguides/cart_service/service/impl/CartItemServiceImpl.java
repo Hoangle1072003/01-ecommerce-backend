@@ -45,73 +45,77 @@ public class CartItemServiceImpl implements ICartItemService {
             throw new Exception("User not found");
         }
 
-        Cart cart = cartRepository.findCartByUserId(user.getId());
-        if (cart == null) {
+        List<Cart> carts = cartRepository.findCartByUserId(user.getId());
+        if (carts == null || carts.isEmpty()) {
             throw new Exception("Cart not found");
         }
 
-        if (cart.getStatus() == CartStatusEnum.ACTIVE) {
-            List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
-            if (cartItems != null && !cartItems.isEmpty()) {
-                List<ResCartItemDto.ProductDto> productDtos = new ArrayList<>();
+        Cart activeCart = carts.stream()
+                .filter(cart -> cart.getStatus() == CartStatusEnum.ACTIVE)
+                .findFirst()
+                .orElseThrow(() -> new Exception("No active cart found"));
 
-                for (CartItem cartItem : cartItems) {
-                    ResProductVarientDto productVarientDto = productServiceClient.getProductVarient(cartItem.getVariantId());
+        List<CartItem> cartItems = cartItemRepository.findByCartId(activeCart.getId());
+        System.out.println("cartItems: " + cartItems);
 
-                    if (productVarientDto != null) {
-                        ResCartItemDto.ProductDto productDto = new ResCartItemDto.ProductDto();
-                        productDto.setProductId(cartItem.getProductId());
-                        productDto.setProductName(productVarientDto.getName());
-                        productDto.setBrandName(productVarientDto.getName());
-                        List<ResCartItemDto.VarientDto> varientDtos = new ArrayList<>();
-                        for (ResProductVarientDto.VarientDto varient : productVarientDto.getVarients()) {
-                            ResCartItemDto.VarientDto varientDto = new ResCartItemDto.VarientDto();
-                            varientDto.setVariantId(varient.getId());
-                            varientDto.setVariantName(varient.getName());
-                            varientDto.setVariant_img(varient.getImage());
-                            varientDto.setVariantPrice(varient.getPrice());
-                            varientDto.setQuantity(cartItem.getQuantity());
-                            varientDto.setTotal(varient.getPrice() * cartItem.getQuantity());
+        if (cartItems == null || cartItems.isEmpty()) {
+            return new ResCartItemDto(user.getId(), new ArrayList<>());
+        }
 
-                            varientDtos.add(varientDto);
-                        }
-                        productDto.setVarients(varientDtos);
-                        productDtos.add(productDto);
-                    }
+        List<ResCartItemDto.ProductDto> productDtos = new ArrayList<>();
+
+        for (CartItem cartItem : cartItems) {
+            ResProductVarientDto productVarientDto = productServiceClient.getProductVarient(cartItem.getVariantId());
+
+            if (productVarientDto != null) {
+                ResCartItemDto.ProductDto productDto = new ResCartItemDto.ProductDto();
+                productDto.setProductId(cartItem.getProductId());
+                productDto.setProductName(productVarientDto.getName());
+                productDto.setBrandName(productVarientDto.getName());
+
+                List<ResCartItemDto.VarientDto> varientDtos = new ArrayList<>();
+                for (ResProductVarientDto.VarientDto varient : productVarientDto.getVarients()) {
+                    ResCartItemDto.VarientDto varientDto = new ResCartItemDto.VarientDto();
+                    varientDto.setVariantId(varient.getId());
+                    varientDto.setVariantName(varient.getName());
+                    varientDto.setVariant_img(varient.getImage());
+                    varientDto.setVariantPrice(varient.getPrice());
+                    varientDto.setQuantity(cartItem.getQuantity());
+                    varientDto.setTotal(varient.getPrice() * cartItem.getQuantity());
+
+                    varientDtos.add(varientDto);
                 }
-
-                ResCartItemDto resCartItemDto = new ResCartItemDto();
-                resCartItemDto.setUserId(user.getId());
-                resCartItemDto.setProducts(productDtos);
-                return resCartItemDto;
+                productDto.setVarients(varientDtos);
+                productDtos.add(productDto);
             }
         }
 
-        return new ResCartItemDto();
+        return new ResCartItemDto(user.getId(), productDtos);
     }
+
 
     @Override
     public Void deleteCartItem(ResCartItemDeleteDto resCartItemDelete) throws Exception {
-        Cart cart = cartRepository.findCartByUserId(resCartItemDelete.getUserId());
-        if (cart == null) {
-            throw new Exception("Cart not found");
-        }
-        if (cart.getStatus() == CartStatusEnum.ACTIVE) {
-            List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
-            if (cartItems != null && !cartItems.isEmpty()) {
-                List<CartItem> cartItemsDelete = cartItems.stream().filter(cartItem -> resCartItemDelete.getVariantId().contains(cartItem.getVariantId())).collect(Collectors.toList());
-                cartItemRepository.deleteAll(cartItemsDelete);
-
-                double newTotal = cartItems.stream()
-                        .filter(cartItem -> !resCartItemDelete.getVariantId().contains(cartItem.getVariantId()))
-                        .mapToDouble(cartItem -> cartItem.getPrice() * cartItem.getQuantity())
-                        .sum();
-
-                cart.setTotal(newTotal);
-                cart.setModifiedOn(Instant.now());
-                cartRepository.save(cart);
-            }
-        }
+//        Cart cart = cartRepository.findCartByUserId(resCartItemDelete.getUserId());
+//        if (cart == null) {
+//            throw new Exception("Cart not found");
+//        }
+//        if (cart.getStatus() == CartStatusEnum.ACTIVE) {
+//            List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+//            if (cartItems != null && !cartItems.isEmpty()) {
+//                List<CartItem> cartItemsDelete = cartItems.stream().filter(cartItem -> resCartItemDelete.getVariantId().contains(cartItem.getVariantId())).collect(Collectors.toList());
+//                cartItemRepository.deleteAll(cartItemsDelete);
+//
+//                double newTotal = cartItems.stream()
+//                        .filter(cartItem -> !resCartItemDelete.getVariantId().contains(cartItem.getVariantId()))
+//                        .mapToDouble(cartItem -> cartItem.getPrice() * cartItem.getQuantity())
+//                        .sum();
+//
+//                cart.setTotal(newTotal);
+//                cart.setModifiedOn(Instant.now());
+//                cartRepository.save(cart);
+//            }
+//        }
         return null;
     }
 

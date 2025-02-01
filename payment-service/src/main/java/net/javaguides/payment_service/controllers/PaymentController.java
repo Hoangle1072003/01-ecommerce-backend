@@ -75,7 +75,7 @@ public class PaymentController {
         }
     }
 
-    @GetMapping("/find-payment-by-user-id")
+    @PostMapping("/find-payment-by-user-id")
     public ResponseEntity<ResPaymentDto> findPaymentByUserId(@RequestBody ReqPaymentDto reqPaymentDto) {
         return ResponseEntity.ok(paymentService.findPayment(reqPaymentDto));
     }

@@ -20,6 +20,6 @@ import java.util.UUID;
 
 @FeignClient(name = "IDENTITY-SERVICE")
 public interface IIdentityServiceClient {
-    @GetMapping(value = "api/v1/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/api/v1/user/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResUserDTO getUserById(@PathVariable("id") UUID id);
 }
