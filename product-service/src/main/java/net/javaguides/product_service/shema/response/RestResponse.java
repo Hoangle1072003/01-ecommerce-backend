@@ -1,5 +1,6 @@
 package net.javaguides.product_service.shema.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 /**
