@@ -1,4 +1,5 @@
 package net.javaguides.order_service.utils;
+
 import jakarta.servlet.http.HttpServletResponse;
 import net.javaguides.order_service.shemas.response.RestResponse;
 import org.springframework.core.MethodParameter;
@@ -8,6 +9,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
 /**
  * File: FormatRestRespone.java
  * Author: Le Van Hoang
@@ -33,6 +35,10 @@ public class FormatRestRespone implements ResponseBodyAdvice {
         RestResponse<Object> restResponse = new RestResponse<>();
         restResponse.setStatusCode(status);
         if (body instanceof String) {
+            return body;
+        }
+        String path = request.getURI().getPath();
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
             return body;
         }
         if (status >= 400) {

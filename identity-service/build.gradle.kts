@@ -47,6 +47,10 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     implementation("net.datafaker:datafaker:2.4.2")
     implementation("org.apache.poi:poi-ooxml:5.2.3")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4")
+    implementation("org.springframework.data:spring-data-rest-webmvc:4.4.2")
+
 
 }
 
