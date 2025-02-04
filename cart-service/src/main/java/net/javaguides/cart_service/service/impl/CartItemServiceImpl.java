@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -95,28 +96,48 @@ public class CartItemServiceImpl implements ICartItemService {
 
     @Override
     public Void deleteCartItem(ResCartItemDeleteDto resCartItemDelete) throws Exception {
-//        Cart cart = cartRepository.findCartByUserId(resCartItemDelete.getUserId());
-//        if (cart == null) {
-//            throw new Exception("Cart not found");
-//        }
-//        if (cart.getStatus() == CartStatusEnum.ACTIVE) {
-//            List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
-//            if (cartItems != null && !cartItems.isEmpty()) {
-//                List<CartItem> cartItemsDelete = cartItems.stream().filter(cartItem -> resCartItemDelete.getVariantId().contains(cartItem.getVariantId())).collect(Collectors.toList());
-//                cartItemRepository.deleteAll(cartItemsDelete);
-//
-//                double newTotal = cartItems.stream()
-//                        .filter(cartItem -> !resCartItemDelete.getVariantId().contains(cartItem.getVariantId()))
-//                        .mapToDouble(cartItem -> cartItem.getPrice() * cartItem.getQuantity())
-//                        .sum();
-//
-//                cart.setTotal(newTotal);
-//                cart.setModifiedOn(Instant.now());
-//                cartRepository.save(cart);
-//            }
-//        }
+        List<Cart> cartList = cartRepository.findCartByUserId(resCartItemDelete.getUserId());
+
+        if (cartList == null || cartList.isEmpty()) {
+            throw new Exception("Cart not found");
+        }
+
+        Cart cart = cartList.stream()
+                .filter(c -> c.getStatus() == CartStatusEnum.ACTIVE)
+                .findFirst()
+                .orElseThrow(() -> new Exception("No active cart found"));
+
+        List<CartItem> cartItems = cartItemRepository.findByCartId(cart.getId());
+        if (cartItems == null || cartItems.isEmpty()) {
+            throw new Exception("Cart is empty");
+        }
+
+        List<CartItem> itemsToDelete = cartItems.stream()
+                .filter(item -> resCartItemDelete.getVariantId().contains(item.getVariantId()))
+                .collect(Collectors.toList());
+
+        if (itemsToDelete.isEmpty()) {
+            throw new Exception("No matching cart items found to delete");
+        }
+
+        cartItemRepository.deleteAll(itemsToDelete);
+
+        double newTotal = cartItems.stream()
+                .filter(item -> !resCartItemDelete.getVariantId().contains(item.getVariantId()))
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        cart.setTotal(newTotal);
+        cart.setModifiedOn(Instant.now());
+
+        if (newTotal == 0) {
+            cart.setStatus(CartStatusEnum.CANCELLED);
+        }
+
+        cartRepository.save(cart);
         return null;
     }
+
 
     @Override
     public List<ResGetCartItemDto> getCartItemByCartId(String id) throws Exception {
@@ -128,5 +149,43 @@ public class CartItemServiceImpl implements ICartItemService {
         return cartItems.stream()
                 .map(mapperCartItem::toResGetCartItemDto)
                 .toList();
+    }
+
+    @Override
+    public ResUpdateCartItemDto updateCartItemQuantity(UUID userId, String productId, String variantId, int quantity) throws Exception {
+        ResUserDTO user = Optional.ofNullable(identityServiceClient.getUserById(userId))
+                .orElseThrow(() -> new Exception("Người dùng không tồn tại"));
+
+        Cart activeCart = cartRepository.findCartByUserId(user.getId()).stream()
+                .filter(cart -> cart.getStatus() == CartStatusEnum.ACTIVE)
+                .findFirst()
+                .orElseThrow(() -> new Exception("Không có giỏ hàng đang hoạt động"));
+
+        CartItem cartItem = cartItemRepository.findByCartId(activeCart.getId()).stream()
+                .filter(item -> item.getProductId().equals(productId) &&
+                        item.getVariantId().equals(variantId))
+                .findFirst()
+                .orElseThrow(() -> new Exception("Không tìm thấy mặt hàng trong giỏ"));
+
+        if (quantity <= 0) throw new Exception("Số lượng phải lớn hơn 0");
+
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
+
+        double total = cartItemRepository.findByCartId(activeCart.getId()).stream()
+                .mapToDouble(item -> item.getPrice() * item.getQuantity())
+                .sum();
+
+        activeCart.setTotal(total);
+        activeCart.setModifiedOn(Instant.now());
+        cartRepository.save(activeCart);
+
+        return new ResUpdateCartItemDto(
+                "Cập nhật số lượng thành công",
+                productId,
+                variantId,
+                quantity,
+                total
+        );
     }
 }

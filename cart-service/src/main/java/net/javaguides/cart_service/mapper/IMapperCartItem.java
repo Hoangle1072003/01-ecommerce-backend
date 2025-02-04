@@ -1,8 +1,10 @@
 package net.javaguides.cart_service.mapper;
 
 import net.javaguides.cart_service.schema.CartItem;
+import net.javaguides.cart_service.schema.response.ResCartItemDto;
 import net.javaguides.cart_service.schema.response.ResGetCartItemDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -18,4 +20,5 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface IMapperCartItem {
     ResGetCartItemDto toResGetCartItemDto(CartItem cartItem);
+
 }
