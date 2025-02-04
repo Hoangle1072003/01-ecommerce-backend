@@ -4,14 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.javaguides.order_service.utils.constants.CartStatusEnum;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
 import java.util.UUID;
 
 /**
- * File: ResCartClientDto.java
+ * File: Cart.java
  * Author: Le Van Hoang
  * Date: 25/01/2025
  * Time: 17:05
@@ -23,7 +21,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResCartClientDto {
+public class Cart {
     private String id;
     private UUID userId;
     private CartStatusEnum status;

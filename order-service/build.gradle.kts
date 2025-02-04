@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.2"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.eclipse.apt") version "3.37.2"
 }
 
 group = "net.javaguides"
@@ -26,7 +27,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
-//	developmentOnly("org.springframework.boot:spring-boot-devtools")
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("org.springframework.boot:spring-boot-starter-actuator")

@@ -8,7 +8,7 @@ import net.javaguides.order_service.services.IOrderService;
 import net.javaguides.order_service.services.httpClient.ICartServiceClient;
 import net.javaguides.order_service.shemas.Order;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
-import net.javaguides.order_service.shemas.response.ResCartClientDto;
+import net.javaguides.order_service.shemas.response.Cart;
 import net.javaguides.event.dto.CartItemClientEvent;
 import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
 import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
@@ -51,7 +51,7 @@ public class IOrderServiceImpl implements IOrderService {
             throw new Exception("Order already exists");
         }
 
-        ResCartClientDto cart = cartServiceClient.getCartById(reqCreateOrderDto.getCartId());
+        Cart cart = cartServiceClient.getCartById(reqCreateOrderDto.getCartId());
 
         if (cart == null) {
             throw new Exception("Cart not found");
@@ -89,7 +89,7 @@ public class IOrderServiceImpl implements IOrderService {
     @KafkaListener(topics = "order-topic")
     public void handlePaymentEvent(PaymentEvent paymentEvent) {
         Optional<Order> orderOptional = orderRepository.findById(paymentEvent.getOrderId());
-        ResCartClientDto cart = cartServiceClient.getCartById(orderOptional.get().getCartId());
+        Cart cart = cartServiceClient.getCartById(orderOptional.get().getCartId());
 
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
