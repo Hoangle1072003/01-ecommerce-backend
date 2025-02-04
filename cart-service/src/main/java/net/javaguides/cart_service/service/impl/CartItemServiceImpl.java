@@ -89,7 +89,6 @@ public class CartItemServiceImpl implements ICartItemService {
                 productDtos.add(productDto);
             }
         }
-
         return new ResCartItemDto(user.getId(), productDtos);
     }
 

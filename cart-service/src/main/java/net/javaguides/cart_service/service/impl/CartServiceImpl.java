@@ -7,7 +7,9 @@ import net.javaguides.cart_service.repository.ICartRepository;
 import net.javaguides.cart_service.schema.Cart;
 import net.javaguides.cart_service.schema.CartItem;
 import net.javaguides.cart_service.schema.request.ReqCartDto;
+import net.javaguides.cart_service.schema.request.ReqUpdateCart;
 import net.javaguides.cart_service.schema.response.ResCartByUser;
+import net.javaguides.cart_service.schema.response.ResCartUpdateDto;
 import net.javaguides.cart_service.schema.response.ResProductVarientDto;
 import net.javaguides.cart_service.schema.response.ResUserDTO;
 import net.javaguides.cart_service.service.ICartService;
@@ -113,6 +115,22 @@ public class CartServiceImpl implements ICartService {
             return null;
         }
         return cartMapper.toResCartByUser(cart);
+    }
+
+    @Override
+    public ResCartUpdateDto updateCartStatus(String cartId) {
+        System.out.println("Cart id: " + cartId);
+        Cart cart = cartRepository.findById(cartId).orElse(null);
+        System.out.println("Cart: " + cart);
+        if (cart == null) {
+            throw new IllegalArgumentException("Giỏ hàng không tồn tại.");
+        }
+        if (cart.getStatus().equals(CartStatusEnum.ACTIVE)) {
+            cart.setStatus(CartStatusEnum.COMPLETED);
+            cartRepository.save(cart);
+            return cartMapper.toResCartUpdateDto(cart);
+        }
+        return null;
     }
 
     @Override

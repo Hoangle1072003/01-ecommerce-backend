@@ -2,6 +2,7 @@ package net.javaguides.cart_service.mapper;
 
 import net.javaguides.cart_service.schema.Cart;
 import net.javaguides.cart_service.schema.response.ResCartByUser;
+import net.javaguides.cart_service.schema.response.ResCartUpdateDto;
 import org.mapstruct.Mapper;
 
 /**
@@ -16,4 +17,6 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface ICartMapper {
     ResCartByUser toResCartByUser(Cart cart);
+
+    ResCartUpdateDto toResCartUpdateDto(Cart cart);
 }

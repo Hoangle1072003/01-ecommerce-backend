@@ -3,7 +3,9 @@ package net.javaguides.cart_service.controller;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.cart_service.schema.Cart;
 import net.javaguides.cart_service.schema.request.ReqCartDto;
+import net.javaguides.cart_service.schema.request.ReqUpdateCart;
 import net.javaguides.cart_service.schema.response.ResCartByUser;
+import net.javaguides.cart_service.schema.response.ResCartUpdateDto;
 import net.javaguides.cart_service.service.ICartService;
 import net.javaguides.cart_service.utils.annotation.ApiMessage;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,12 @@ public class CartController {
     @ApiMessage("Get cart by user id")
     public ResponseEntity<ResCartByUser> getCartByUserId(@PathVariable UUID id) {
         return ResponseEntity.ok(cartService.findByUserId(id));
+    }
+
+    @PutMapping()
+    @ApiMessage("Update cart status")
+    public ResponseEntity<ResCartUpdateDto> updateCartStatus(@RequestBody ReqUpdateCart reqCartUpdateDto) {
+        return ResponseEntity.ok(cartService.updateCartStatus(reqCartUpdateDto.getId()));
     }
 
 }

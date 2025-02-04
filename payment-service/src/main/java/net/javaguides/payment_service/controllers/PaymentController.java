@@ -10,6 +10,7 @@ import net.javaguides.payment_service.services.IPaymentService;
 import net.javaguides.payment_service.utils.constant.PaymentStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -32,6 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PaymentController {
     private final IPaymentService paymentService;
+
 
     @KafkaListener(topics = "payment-topic")
     public void handlePaymentEvent(PaymentEvent paymentEvent) {
@@ -79,6 +81,4 @@ public class PaymentController {
     public ResponseEntity<ResPaymentDto> findPaymentByUserId(@RequestBody ReqPaymentDto reqPaymentDto) {
         return ResponseEntity.ok(paymentService.findPayment(reqPaymentDto));
     }
-
-
 }

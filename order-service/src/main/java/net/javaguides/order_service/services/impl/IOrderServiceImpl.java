@@ -1,6 +1,7 @@
 package net.javaguides.order_service.services.impl;
 
 import lombok.RequiredArgsConstructor;
+import net.javaguides.event.dto.CartUpdateEvent;
 import net.javaguides.event.dto.PaymentEvent;
 import net.javaguides.order_service.mappers.IOrderMapper;
 import net.javaguides.order_service.repositories.IOrderRepository;
@@ -40,8 +41,10 @@ public class IOrderServiceImpl implements IOrderService {
     private final ICartServiceClient cartServiceClient;
     private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
     private final KafkaTemplate<String, CartItemClientEvent> kafkaTemplateStockUpdate;
+    private final KafkaTemplate<String, CartUpdateEvent> kafkaTemplateCartUpdate;
     private static final String PAYMENT_TOPIC = "payment-topic";
     private static final String STOCK_UPDATE_TOPIC = "stock-update-topic";
+    private static final String CART_UPDATE_TOPIC = "CART_UPDATE_TOPIC";
 
     @Override
     public ResCreateOrderDto createOrder(ReqCreateOrderDto reqCreateOrderDto) throws Exception {
@@ -102,6 +105,8 @@ public class IOrderServiceImpl implements IOrderService {
                     return;
                 }
                 if (cart.getStatus() == CartStatusEnum.ACTIVE) {
+                    CartUpdateEvent cartUpdateEvent = new CartUpdateEvent(cart.getId());
+                    kafkaTemplateCartUpdate.send(CART_UPDATE_TOPIC, cartUpdateEvent);
                     List<CartItemClientEvent> cartItems = cartServiceClient.getCartItemByCartId(cart.getId());
                     if (cartItems != null && !cartItems.isEmpty()) {
                         for (CartItemClientEvent cartItem : cartItems) {
