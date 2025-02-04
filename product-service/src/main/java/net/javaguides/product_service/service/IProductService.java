@@ -1,7 +1,10 @@
 package net.javaguides.product_service.service;
 
 import net.javaguides.product_service.shema.Product;
+import net.javaguides.product_service.shema.response.ResProductDetailsDto;
+import net.javaguides.product_service.shema.response.ResProductPage;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,4 +23,10 @@ public interface IProductService {
     Product findProductVarientById(String id);
 
     void updateProductStock(String productId, String variantId, int quantity);
+    List<Product> getProductsByCategory(String categoryID);
+    ResProductPage getAllProductWithPageAndSorting(Integer pageNumber, Integer pageSize,
+                                                   String sortBy, String dir);
+    ResProductPage productByPrice(Integer pageNumber, Integer pageSize, String sortBy, String dir, Double minPrice, Double maxPrice);
+    Product create(ResProductDetailsDto request);
+    void deleteProduct(String id);
 }

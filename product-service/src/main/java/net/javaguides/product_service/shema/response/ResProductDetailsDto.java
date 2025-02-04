@@ -18,6 +18,7 @@ public class ResProductDetailsDto implements Serializable {
     String brand;
     String description;
     String ShortDescription;
+    String category;
     Date releaseDate;
     double weightInGrams;
     List<Product.Spec> specs;

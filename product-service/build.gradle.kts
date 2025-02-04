@@ -45,7 +45,7 @@ dependencies {
     implementation("net.datafaker:datafaker:2.4.2")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-security")
-
+    implementation("org.apache.poi:poi-ooxml:5.2.3")
     implementation("org.springframework.kafka:spring-kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
 }
