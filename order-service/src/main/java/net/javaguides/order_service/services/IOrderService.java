@@ -1,9 +1,8 @@
 package net.javaguides.order_service.services;
 
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
-import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
-import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
-import net.javaguides.order_service.shemas.response.ResPaymentMethod;
+import net.javaguides.order_service.shemas.response.*;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -23,4 +22,8 @@ public interface IOrderService {
     ResOrderByIdDto getOrderById(String id);
 
     List<ResPaymentMethod> getAllPaymentMethod();
+
+    ResResultPaginationDTO getAllOrdersByUserId(String userId, Pageable pageable);
+
+    ResOrderByUserIdDto getOrdersByOrderId(String id);
 }

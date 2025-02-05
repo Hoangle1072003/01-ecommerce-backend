@@ -7,21 +7,22 @@ import net.javaguides.order_service.mappers.IOrderMapper;
 import net.javaguides.order_service.repositories.IOrderRepository;
 import net.javaguides.order_service.services.IOrderService;
 import net.javaguides.order_service.services.httpClient.ICartServiceClient;
+import net.javaguides.order_service.services.httpClient.IProductServiceClient;
 import net.javaguides.order_service.shemas.Order;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
-import net.javaguides.order_service.shemas.response.Cart;
+import net.javaguides.order_service.shemas.response.*;
 import net.javaguides.event.dto.CartItemClientEvent;
-import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
-import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
-import net.javaguides.order_service.shemas.response.ResPaymentMethod;
 import net.javaguides.order_service.utils.constants.CartStatusEnum;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * File: IOrderServiceImpl.java
@@ -39,6 +40,7 @@ public class IOrderServiceImpl implements IOrderService {
     private final IOrderRepository orderRepository;
     private final IOrderMapper orderMapper;
     private final ICartServiceClient cartServiceClient;
+    private final IProductServiceClient productServiceClient;
     private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
     private final KafkaTemplate<String, CartItemClientEvent> kafkaTemplateStockUpdate;
     private final KafkaTemplate<String, CartUpdateEvent> kafkaTemplateCartUpdate;
@@ -51,11 +53,30 @@ public class IOrderServiceImpl implements IOrderService {
         Order existingOrder = orderRepository.findByUserIdAndCartId(reqCreateOrderDto.getUserId(), reqCreateOrderDto.getCartId());
 
         if (existingOrder != null) {
-            throw new Exception("Order already exists");
+            if (existingOrder.getPaymentStatus() == PaymentStatus.CANCELLED
+                    || existingOrder.getPaymentStatus() == PaymentStatus.FAILED
+            ) {
+                existingOrder.setPaymentStatus(PaymentStatus.PENDING);
+                existingOrder.setTotalAmount(cartServiceClient.getCartById(reqCreateOrderDto.getCartId()).getTotal());
+
+                Order updatedOrder = orderRepository.save(existingOrder);
+
+                PaymentEvent paymentEvent = new PaymentEvent(
+                        updatedOrder.getId(),
+                        reqCreateOrderDto.getUserId(),
+                        reqCreateOrderDto.getPaymentMethod(),
+                        PaymentStatus.PENDING,
+                        updatedOrder.getTotalAmount()
+                );
+                kafkaTemplate.send(PAYMENT_TOPIC, paymentEvent);
+
+                return orderMapper.toResCreateOrderDto(updatedOrder);
+            } else {
+                throw new Exception("Order already exists and is not cancelled");
+            }
         }
 
         Cart cart = cartServiceClient.getCartById(reqCreateOrderDto.getCartId());
-
         if (cart == null) {
             throw new Exception("Cart not found");
         }
@@ -64,6 +85,7 @@ public class IOrderServiceImpl implements IOrderService {
         order.setPaymentId(null);
         order.setPaymentStatus(PaymentStatus.PENDING);
         order.setTotalAmount(cart.getTotal());
+
         Order savedOrder = orderRepository.save(order);
 
         PaymentEvent paymentEvent = new PaymentEvent(
@@ -74,8 +96,10 @@ public class IOrderServiceImpl implements IOrderService {
                 cart.getTotal()
         );
         kafkaTemplate.send(PAYMENT_TOPIC, paymentEvent);
+
         return orderMapper.toResCreateOrderDto(savedOrder);
     }
+
 
     @Override
     public ResOrderByIdDto getOrderById(String id) {
@@ -89,24 +113,78 @@ public class IOrderServiceImpl implements IOrderService {
         return orderMapper.toResPaymentMethod(paymentMethods);
     }
 
+    @Override
+    public ResResultPaginationDTO getAllOrdersByUserId(String userId, Pageable pageable) {
+        Page<Order> orders = orderRepository.findAllByUserId(userId, pageable);
+
+        List<ResOrderByUserIdDto> orderDtos = orders.getContent().stream().map(order -> {
+            Cart cart = cartServiceClient.getCartById(order.getCartId());
+
+            List<CartItemClientEvent> cartItems = cartServiceClient.getCartItemByCartId(cart.getId());
+
+
+            cartItems.forEach(cartItem -> {
+                ResProductVarientDto productVariant = productServiceClient.getProductVarient(cartItem.getVariantId());
+                cartItem.setProductVariant(productVariant);
+            });
+
+            ResOrderByUserIdDto dto = orderMapper.toResOrderByUserIdDto(order, cart);
+            dto.setCartItems(cartItems);
+
+            return dto;
+        }).collect(Collectors.toList());
+
+        return new ResResultPaginationDTO(
+                new ResMeta(
+                        orders.getNumber() + 1,
+                        orders.getSize(),
+                        orders.getTotalPages(),
+                        orders.getTotalElements()
+                ),
+                orderDtos
+        );
+    }
+
+    @Override
+    public ResOrderByUserIdDto getOrdersByOrderId(String id) {
+        Optional<Order> orderOptional = orderRepository.findById(id);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            Cart cart = cartServiceClient.getCartById(order.getCartId());
+            List<CartItemClientEvent> cartItems = cartServiceClient.getCartItemByCartId(cart.getId());
+            cartItems.forEach(cartItem -> {
+                ResProductVarientDto productVariant = productServiceClient.getProductVarient(cartItem.getVariantId());
+                cartItem.setProductVariant(productVariant);
+            });
+            ResOrderByUserIdDto dto = orderMapper.toResOrderByUserIdDto(order, cart);
+            dto.setCartItems(cartItems);
+            return dto;
+        }
+        return null;
+    }
+
+
     @KafkaListener(topics = "order-topic")
     public void handlePaymentEvent(PaymentEvent paymentEvent) {
         Optional<Order> orderOptional = orderRepository.findById(paymentEvent.getOrderId());
-        Cart cart = cartServiceClient.getCartById(orderOptional.get().getCartId());
-
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
+            Cart cart = cartServiceClient.getCartById(order.getCartId());
+
             if (paymentEvent.getPaymentStatus() == PaymentStatus.SUCCESS) {
                 order.setPaymentStatus(PaymentStatus.SUCCESS);
                 orderRepository.save(order);
                 System.out.println("Order " + order.getId() + " updated to SUCCESS");
+
                 if (cart == null) {
-                    System.out.println("Cart not found for cartId: " + orderOptional.get().getCartId());
+                    System.out.println("Cart not found for cartId: " + order.getCartId());
                     return;
                 }
+
                 if (cart.getStatus() == CartStatusEnum.ACTIVE) {
                     CartUpdateEvent cartUpdateEvent = new CartUpdateEvent(cart.getId());
                     kafkaTemplateCartUpdate.send(CART_UPDATE_TOPIC, cartUpdateEvent);
+
                     List<CartItemClientEvent> cartItems = cartServiceClient.getCartItemByCartId(cart.getId());
                     if (cartItems != null && !cartItems.isEmpty()) {
                         for (CartItemClientEvent cartItem : cartItems) {
@@ -115,10 +193,13 @@ public class IOrderServiceImpl implements IOrderService {
                         }
                     }
                 }
-            } else if (paymentEvent.getPaymentStatus() == PaymentStatus.FAILED) {
-                order.setPaymentStatus(PaymentStatus.FAILED);
+            } else if (paymentEvent.getPaymentStatus() == PaymentStatus.FAILED
+                    || paymentEvent.getPaymentStatus() == PaymentStatus.CANCELLED // hien tai de day
+                    || paymentEvent.getPaymentStatus() == PaymentStatus.EXPIRED
+            ) {
+                order.setPaymentStatus(PaymentStatus.PENDING);
                 orderRepository.save(order);
-                System.out.println("Order " + order.getId() + " updated to FAILED");
+                System.out.println("Order " + order.getId() + " updated to PENDING");
             }
         } else {
             System.out.println("Order not found for orderId: " + paymentEvent.getOrderId());

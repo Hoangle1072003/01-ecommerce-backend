@@ -7,6 +7,9 @@ spring:
     mongodb:
       uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
       database: order-service
+    web:
+      pageable:
+        one-indexed-parameters: true
   security:
     authentication:
       jwt:

@@ -11,5 +11,5 @@ package net.javaguides.order_service.utils.constants;
  */
 
 public enum PaymentStatus {
-    PENDING, SUCCESS, FAILED, REFUNDED
+    PENDING, SUCCESS, FAILED, REFUNDED, EXPIRED, CANCELLED
 }

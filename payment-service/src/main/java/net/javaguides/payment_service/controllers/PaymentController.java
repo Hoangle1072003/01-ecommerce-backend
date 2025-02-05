@@ -42,40 +42,83 @@ public class PaymentController {
 
     @GetMapping("/vn-pay-callback")
     public ResponseEntity<String> payCallbackHandler(HttpServletRequest request) {
-        String vnpResponseCode = request.getParameter("vnp_ResponseCode");
+        String vnpTransactionStatus = request.getParameter("vnp_TransactionStatus");
         String vnpTxnRef = request.getParameter("vnp_TxnRef");
 
-        System.out.println("Payment status: " + vnpResponseCode);
+        System.out.println("Transaction Status: " + vnpTransactionStatus);
 
         Map<String, String> paymentDetails = new HashMap<>();
         paymentDetails.put("vnp_TxnRef", vnpTxnRef);
 
-        if ("00".equals(vnpResponseCode)) {
-            System.out.println("Payment success");
-
-            paymentDetails.put("status", PaymentStatus.SUCCESS.name());
-            paymentService.updatePaymentStatus(paymentDetails);
-
-            return ResponseEntity.ok("Payment success");
-        } else if ("01".equals(vnpResponseCode)) {
-            System.out.println("Payment failed");
-
-            paymentDetails.put("status", PaymentStatus.FAILED.name());
-            paymentService.updatePaymentStatus(paymentDetails);
-
-            return ResponseEntity.ok("Payment failed");
-        } else if ("02".equals(vnpResponseCode)) {
-            System.out.println("Payment refunded");
-
-            paymentDetails.put("status", PaymentStatus.REFUNDED.name());
-            paymentService.updatePaymentStatus(paymentDetails);
-
-            return ResponseEntity.ok("Payment refunded");
-        } else {
-            System.out.println("Unknown payment status");
-            return ResponseEntity.badRequest().body("Unknown payment status");
+        switch (vnpTransactionStatus) {
+            case "00":
+                System.out.println("Payment success");
+                paymentDetails.put("status", PaymentStatus.SUCCESS.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "01":
+                System.out.println("Payment not completed");
+                paymentDetails.put("status", PaymentStatus.PENDING.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "02":
+                System.out.println("Payment failed");
+                paymentDetails.put("status", PaymentStatus.FAILED.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "04":
+                System.out.println("Payment pending (customer charged but not completed)");
+                paymentDetails.put("status", PaymentStatus.PENDING.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "05":
+                System.out.println("Payment processing");
+                paymentDetails.put("status", PaymentStatus.PENDING.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "06":
+                System.out.println("Refund request sent to bank");
+                paymentDetails.put("status", PaymentStatus.REFUNDED.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "07":
+                System.out.println("Fraud detected");
+                paymentDetails.put("status", PaymentStatus.FAILED.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "08":
+                System.out.println("Payment expired");
+                paymentDetails.put("status", PaymentStatus.EXPIRED.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "09":
+                System.out.println("Refund request declined");
+                paymentDetails.put("status", PaymentStatus.FAILED.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "10":
+                System.out.println("Payment completed (order shipped)");
+                paymentDetails.put("status", PaymentStatus.SUCCESS.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "11":
+                System.out.println("Payment canceled");
+                paymentDetails.put("status", PaymentStatus.CANCELLED.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            case "20":
+                System.out.println("Transaction settled for merchant");
+                paymentDetails.put("status", PaymentStatus.SUCCESS.name());
+                paymentService.updatePaymentStatus(paymentDetails);
+                break;
+            default:
+                System.out.println("Unknown transaction status: " + vnpTransactionStatus);
+                return ResponseEntity.badRequest().body("Unknown transaction status: " + vnpTransactionStatus);
         }
+
+        return ResponseEntity.ok("Payment status updated: " + paymentDetails.get("status"));
     }
+
 
     @PostMapping("/find-payment-by-user-id")
     public ResponseEntity<ResPaymentDto> findPaymentByUserId(@RequestBody ReqPaymentDto reqPaymentDto) {

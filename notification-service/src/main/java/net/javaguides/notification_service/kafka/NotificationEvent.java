@@ -49,7 +49,7 @@ public class NotificationEvent {
             ResCartByIdDto cart = cartServiceClient.getCartById(cartId);
             System.out.println("Received payment success event for User : " + user);
             System.out.println("Received payment success event for Cart : " + cart);
-            ResCartItemByIdDto cartItem = cartServiceClient.getCartItemByUserId(userId);
+            ResCartItemByIdDto cartItem = cartServiceClient.getCartItemByIdAndStatus(userId);
             System.out.println("Received payment success event for CartItem : " + cartItem);
             System.out.println("User email: " + userEmail);
             System.out.println("User name: " + userName);

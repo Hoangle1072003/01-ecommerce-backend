@@ -24,6 +24,6 @@ public interface ICartServiceClient {
     @GetMapping("/api/v1/cart/{id}")
     ResCartByIdDto getCartById(@PathVariable String id);
 
-    @GetMapping("/api/v1/cart-item/{id}")
-    ResCartItemByIdDto getCartItemByUserId(@PathVariable("id") String id);
+    @GetMapping("/api/v1/cart-item/get-cart-item-by-id-status/{id}")
+    ResCartItemByIdDto getCartItemByIdAndStatus(@PathVariable("id") String id);
 }

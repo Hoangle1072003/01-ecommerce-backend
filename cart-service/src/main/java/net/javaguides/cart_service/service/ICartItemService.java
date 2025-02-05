@@ -18,6 +18,8 @@ import java.util.UUID;
 public interface ICartItemService {
     ResCartItemDto getCartItemByUserId(UUID id) throws Exception;
 
+    ResCartItemDto getCartItemByIdAndStatus(UUID id) throws Exception;
+
     Void deleteCartItem(ResCartItemDeleteDto resCartItemDelete) throws Exception;
 
     List<ResGetCartItemDto> getCartItemByCartId(String id) throws Exception;

@@ -1,16 +1,14 @@
-package net.javaguides.product_service.shema.response;
+package net.javaguides.order_service.shemas.response;
 
 import lombok.Data;
-import lombok.Value;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.List;
 
 /**
  * File: ResProductVarientDto.java
  * Author: Le Van Hoang
- * Date: 18/01/2025
- * Time: 21:35
+ * Date: 05/02/2025
+ * Time: 15:39
  * Version: 1.0
  * <p>
  * Copyright © 2025 Le Van Hoang. All rights reserved.
@@ -32,3 +30,4 @@ public class ResProductVarientDto {
         private boolean available;
     }
 }
+

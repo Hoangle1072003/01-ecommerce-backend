@@ -33,6 +33,12 @@ public class CartItemController {
         return ResponseEntity.ok(cartItemService.getCartItemByUserId(id));
     }
 
+    @GetMapping("/get-cart-item-by-id-status/{id}")
+    @ApiMessage("Get cart item by id and status")
+    public ResponseEntity<ResCartItemDto> getCartItemByIdAndStatus(@PathVariable("id") UUID id) throws Exception {
+        return ResponseEntity.ok(cartItemService.getCartItemByIdAndStatus(id));
+    }
+
     @DeleteMapping
     @ApiMessage("Delete cart item")
     public ResponseEntity<Void> deleteCartItem(@RequestBody ResCartItemDeleteDto resCartItemDelete) throws Exception {

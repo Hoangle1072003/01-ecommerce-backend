@@ -117,8 +117,17 @@ public class IPaymentServiceImpl implements IPaymentService {
                         updatedStatus,
                         payment.getTotalAmount()
                 );
-                paymentEventProducer.sendPaymentEvent(paymentEvent);
-                paymentEventProducer.sendNotificationEvent(paymentEvent);
+                if (updatedStatus.equals(PaymentStatus.SUCCESS)) {
+                    paymentEventProducer.sendPaymentEvent(paymentEvent);
+                    paymentEventProducer.sendNotificationEvent(paymentEvent);
+                } else if (updatedStatus.equals(PaymentStatus.FAILED)) {
+                    paymentEventProducer.sendPaymentEvent(paymentEvent);
+                } else if (updatedStatus.equals(PaymentStatus.PENDING)) {
+                    paymentEventProducer.sendPaymentEvent(paymentEvent);
+                } else if (updatedStatus.equals(PaymentStatus.EXPIRED)) {
+                    paymentEventProducer.sendPaymentEvent(paymentEvent);
+                }
+//                paymentEventProducer.sendNotificationEvent(paymentEvent);
             } else {
                 System.out.println("Payment status already " + updatedStatus + " for orderId: " + orderId);
             }
@@ -155,7 +164,6 @@ public class IPaymentServiceImpl implements IPaymentService {
                     }
                 }
             }
-
             throw new RuntimeException("No PENDING payment found for user with ID: " + reqPaymentDto.getUserId());
         } catch (Exception e) {
             System.out.println("Error occurred while finding payment: " + e.getMessage());

@@ -93,6 +93,60 @@ public class CartItemServiceImpl implements ICartItemService {
         return new ResCartItemDto(user.getId(), productDtos);
     }
 
+    @Override
+    public ResCartItemDto getCartItemByIdAndStatus(UUID id) throws Exception {
+        ResUserDTO user = identityServiceClient.getUserById(id);
+        if (user == null || user.getId() == null) {
+            throw new Exception("User not found");
+        }
+
+        List<Cart> carts = cartRepository.findCartByUserId(user.getId());
+        if (carts == null || carts.isEmpty()) {
+            throw new Exception("Cart not found");
+        }
+
+        Cart activeCart = carts.stream()
+                .filter(cart -> cart.getStatus() == CartStatusEnum.COMPLETED)
+                .findFirst()
+                .orElseThrow(() -> new Exception("No active cart found"));
+
+        List<CartItem> cartItems = cartItemRepository.findByCartId(activeCart.getId());
+        System.out.println("cartItems: " + cartItems);
+
+        if (cartItems == null || cartItems.isEmpty()) {
+            return new ResCartItemDto(user.getId(), new ArrayList<>());
+        }
+
+        List<ResCartItemDto.ProductDto> productDtos = new ArrayList<>();
+
+        for (CartItem cartItem : cartItems) {
+            ResProductVarientDto productVarientDto = productServiceClient.getProductVarient(cartItem.getVariantId());
+
+            if (productVarientDto != null) {
+                ResCartItemDto.ProductDto productDto = new ResCartItemDto.ProductDto();
+                productDto.setProductId(cartItem.getProductId());
+                productDto.setProductName(productVarientDto.getName());
+                productDto.setBrandName(productVarientDto.getName());
+
+                List<ResCartItemDto.VarientDto> varientDtos = new ArrayList<>();
+                for (ResProductVarientDto.VarientDto varient : productVarientDto.getVarients()) {
+                    ResCartItemDto.VarientDto varientDto = new ResCartItemDto.VarientDto();
+                    varientDto.setVariantId(varient.getId());
+                    varientDto.setVariantName(varient.getName());
+                    varientDto.setVariant_img(varient.getImage());
+                    varientDto.setVariantPrice(varient.getPrice());
+                    varientDto.setQuantity(cartItem.getQuantity());
+                    varientDto.setTotal(varient.getPrice() * cartItem.getQuantity());
+
+                    varientDtos.add(varientDto);
+                }
+                productDto.setVarients(varientDtos);
+                productDtos.add(productDto);
+            }
+        }
+        return new ResCartItemDto(user.getId(), productDtos);
+    }
+
 
     @Override
     public Void deleteCartItem(ResCartItemDeleteDto resCartItemDelete) throws Exception {
