@@ -1,9 +1,10 @@
-package net.javaguides.notification_service.config;
+package net.javaguides.cart_service.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,8 +20,8 @@ import org.springframework.security.web.SecurityFilterChain;
 /**
  * File: SecurityConfiguration.java
  * Author: Le Van Hoang
- * Date: 27/01/2025
- * Time: 17:48
+ * Date: 06/02/2025
+ * Time: 10:43
  * Version: 1.0
  * <p>
  * Copyright © 2025 Le Van Hoang. All rights reserved.
@@ -40,7 +41,7 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         String[] whiteList = {
-                "/api/v1/payment/vn-pay-callback",
+                "/api/v1/cart/**",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
@@ -49,7 +50,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers(whiteList).permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.decoder(customJwtDecoder)
@@ -74,5 +75,6 @@ public class SecurityConfiguration {
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
     }
-}
 
+
+}

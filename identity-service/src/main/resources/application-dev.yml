@@ -48,6 +48,13 @@ management:
     web:
       exposure:
         include: "*"
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+cors-gateway:
+  host: http://localhost:9191
 server:
   port: 8082
 

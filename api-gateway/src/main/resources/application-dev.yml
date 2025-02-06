@@ -26,9 +26,7 @@ spring:
       globalcors:
         cors-configurations:
           '[/**]':
-            allowedOrigins:
-              - "http://localhost:3000"
-              - "http://localhost:3001"
+            allowedOrigins: "http://localhost:3000, http://localhost:3001, http://localhost:9191"
             allowedMethods:
               - GET
               - POST
@@ -57,5 +55,28 @@ management:
     web:
       exposure:
         include: "*"
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    config-url: /v3/api-docs/swagger-config
+    urls:
+      - name: gateway-service
+        url: /v3/api-docs
+      - name: product-service
+        url: http://localhost:8083/v3/api-docs
+      - name: payment-service
+        url: http://localhost:8086/v3/api-docs
+      - name: order-service
+        url: http://localhost:8085/v3/api-docs
+      - name: notification-service
+        url: http://localhost:8087/v3/api-docs
+      - name: identity-service
+        url: http://localhost:8082/v3/api-docs
+      - name: cart-service
+        url: http://localhost:8084/v3/api-docs
 server:
   port: 9191

@@ -49,6 +49,11 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             "/payment-service/api/v1/payment/vn-pay-callback",
             "/notification-service/api/v1/.*",
             "/identity-service/api/v1/user/.*",
+            "/cart-service/api/v1/cart/.*",
+            "/cart-service/api/v1/cart-items/.*",
+            "/v3/api-docs/.*",
+            "/swagger-ui/.*",
+            "/swagger-ui.html"
     };
 
 //    private final String[] endpointsMethodGet = {
