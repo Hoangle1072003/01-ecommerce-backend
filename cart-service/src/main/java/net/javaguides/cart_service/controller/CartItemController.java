@@ -64,4 +64,9 @@ public class CartItemController {
         return ResponseEntity.ok(updatedCartItem);
     }
 
+    @GetMapping("/cart/deleted-at-is-null/{id}")
+    @ApiMessage("Get cart item by cart id and deleted at is null")
+    public ResponseEntity<List<ResGetCartItemDto>> getCartItemByCartIdAndDeletedAtIsNull(@PathVariable("id") String id) throws Exception {
+        return ResponseEntity.ok(cartItemService.getCartItemByCartIdAndDeletedAtIsNull(id));
+    }
 }

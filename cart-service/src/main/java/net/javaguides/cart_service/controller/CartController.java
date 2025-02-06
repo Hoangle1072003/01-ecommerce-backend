@@ -31,7 +31,7 @@ public class CartController {
 
     @PostMapping()
     @ApiMessage("Create new cart")
-    public ResponseEntity<Cart> createCart(@RequestBody ReqCartDto reqCartDto) {
+    public ResponseEntity<Cart> createCart(@RequestBody ReqCartDto reqCartDto) throws Exception {
         return ResponseEntity.ok(cartService.save(reqCartDto));
     }
 

@@ -38,4 +38,3 @@ public class AuthenticationRequestInterceptor implements RequestInterceptor {
 
 }
 
-

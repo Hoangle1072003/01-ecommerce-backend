@@ -25,4 +25,6 @@ public interface ICartItemService {
     List<ResGetCartItemDto> getCartItemByCartId(String id) throws Exception;
 
     ResUpdateCartItemDto updateCartItemQuantity(UUID userId, String productId, String variantId, int quantity) throws Exception;
+
+    List<ResGetCartItemDto> getCartItemByCartIdAndDeletedAtIsNull(String id) throws Exception;
 }

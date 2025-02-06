@@ -1,6 +1,7 @@
 package net.javaguides.order_service.services;
 
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
+import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
 import net.javaguides.order_service.shemas.response.*;
 import org.springframework.data.domain.Pageable;
 
@@ -26,4 +27,10 @@ public interface IOrderService {
     ResResultPaginationDTO getAllOrdersByUserId(String userId, Pageable pageable);
 
     ResOrderByUserIdDto getOrdersByOrderId(String id);
+
+    ResOrderByIdDto getOrderByCartId(String id) throws Exception;
+
+    ResOrderByIdDto updateOrder(ReqUpdateOrderDto reqUpdateOrderDto) throws Exception;
+
+    ResOrderByIdDto updateOrderStatus(String id) throws Exception;
 }

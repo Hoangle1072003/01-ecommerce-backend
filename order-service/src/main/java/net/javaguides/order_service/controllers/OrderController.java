@@ -3,6 +3,8 @@ package net.javaguides.order_service.controllers;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.order_service.services.IOrderService;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
+import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
+import net.javaguides.order_service.shemas.request.ReqUpdateOrderStatus;
 import net.javaguides.order_service.shemas.response.*;
 import net.javaguides.order_service.utils.annotation.ApiMessage;
 import org.springframework.data.domain.PageRequest;
@@ -65,5 +67,21 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getOrdersByOrderId(id));
     }
 
+    @GetMapping("/get-order-by-cart-id/{id}")
+    @ApiMessage("Get order by cart id")
+    public ResponseEntity<ResOrderByIdDto> getOrderByCartId(@PathVariable String id) throws Exception {
+        return ResponseEntity.ok(orderService.getOrderByCartId(id));
+    }
 
+    @PutMapping("/update-order")
+    @ApiMessage("Update order by id and total amount")
+    public ResponseEntity<ResOrderByIdDto> updateOrder(@RequestBody ReqUpdateOrderDto reqUpdateOrderDto) throws Exception {
+        return ResponseEntity.ok(orderService.updateOrder(reqUpdateOrderDto));
+    }
+
+    @PutMapping("/update-order-status/{id}")
+    @ApiMessage("Update order status by id")
+    public ResponseEntity<ResOrderByIdDto> updateOrderStatus(@PathVariable String id) throws Exception {
+        return ResponseEntity.ok(orderService.updateOrderStatus(id));
+    }
 }

@@ -29,15 +29,15 @@ public class CustomCorsFilter {
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-        config.setAllowedOrigins(java.util.Collections.singletonList(host));
-        config.setAllowedHeaders(java.util.Collections.singletonList("*"));
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("Content-Type", "Authorization"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
-        source.registerCorsConfiguration("/**", config);
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.setAllowCredentials(true);
+//        config.setAllowedOrigins(java.util.Collections.singletonList(host));
+//        config.setAllowedHeaders(java.util.Collections.singletonList("*"));
+//        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+//        config.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+//        config.setAllowCredentials(true);
+//        config.setMaxAge(3600L);
+//        source.registerCorsConfiguration("/**", config);
 
         return new CorsFilter(source);
     }

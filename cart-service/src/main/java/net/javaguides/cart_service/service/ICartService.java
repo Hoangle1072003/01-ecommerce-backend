@@ -21,7 +21,7 @@ import java.util.UUID;
  */
 
 public interface ICartService {
-    Cart save(ReqCartDto reqCartDto);
+    Cart save(ReqCartDto reqCartDto) throws Exception;
 
     Cart findById(String id);
 

@@ -2,7 +2,9 @@ package net.javaguides.order_service.services.httpClient;
 
 import net.javaguides.order_service.shemas.response.Cart;
 import net.javaguides.event.dto.CartItemClientEvent;
+import net.javaguides.order_service.shemas.response.ResGetCartItemDto;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -25,4 +27,7 @@ public interface ICartServiceClient {
 
     @GetMapping("/api/v1/cart-item/cart/{id}")
     List<CartItemClientEvent> getCartItemByCartId(@PathVariable("id") String id);
+
+    @GetMapping("/api/v1/cart-item/cart/deleted-at-is-null/{id}")
+    List<ResGetCartItemDto> getCartItemByCartIdAndDeletedAtIsNull(@PathVariable("id") String id) throws Exception;
 }

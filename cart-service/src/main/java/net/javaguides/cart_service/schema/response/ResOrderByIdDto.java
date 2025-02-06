@@ -1,17 +1,16 @@
-package net.javaguides.order_service.shemas.response;
+package net.javaguides.cart_service.schema.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.javaguides.order_service.utils.constants.PaymentMethod;
-import net.javaguides.order_service.utils.constants.PaymentStatus;
-
+import net.javaguides.cart_service.utils.constant.PaymentMethod;
+import net.javaguides.cart_service.utils.constant.PaymentStatus;
 
 /**
  * File: ResOrderByIdDto.java
  * Author: Le Van Hoang
- * Date: 27/01/2025
- * Time: 21:44
+ * Date: 06/02/2025
+ * Time: 20:20
  * Version: 1.0
  * <p>
  * Copyright © 2025 Le Van Hoang. All rights reserved.

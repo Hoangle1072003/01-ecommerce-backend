@@ -10,6 +10,7 @@ import net.javaguides.order_service.services.httpClient.ICartServiceClient;
 import net.javaguides.order_service.services.httpClient.IProductServiceClient;
 import net.javaguides.order_service.shemas.Order;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
+import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
 import net.javaguides.order_service.shemas.response.*;
 import net.javaguides.event.dto.CartItemClientEvent;
 import net.javaguides.order_service.utils.constants.CartStatusEnum;
@@ -161,6 +162,54 @@ public class IOrderServiceImpl implements IOrderService {
             return dto;
         }
         return null;
+    }
+
+    @Override
+    public ResOrderByIdDto getOrderByCartId(String id) throws Exception {
+        Order order = orderRepository.findOrderByCartId(id);
+        if (order != null) {
+            if (order.getPaymentStatus().equals(PaymentStatus.PENDING)) {
+                List<CartItemClientEvent> cartItems = cartServiceClient.getCartItemByCartId(id);
+                if (cartItems.isEmpty()) {
+                    throw new Exception("Cart is empty");
+                }
+                return orderMapper.toResOrderByIdDto(order);
+            } else {
+                throw new Exception("Order already paid");
+            }
+        } else {
+            throw new Exception("Order not found");
+        }
+    }
+
+    @Override
+    public ResOrderByIdDto updateOrder(ReqUpdateOrderDto reqUpdateOrderDto) throws Exception {
+        Optional<Order> orderOptional = orderRepository.findById(reqUpdateOrderDto.getId());
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setTotalAmount(Double.parseDouble(reqUpdateOrderDto.getTotal_amount()));
+            Order updatedOrder = orderRepository.save(order);
+            return orderMapper.toResOrderByIdDto(updatedOrder);
+        } else {
+            throw new Exception("Order not found");
+        }
+    }
+
+    @Override
+    public ResOrderByIdDto updateOrderStatus(String id) throws Exception {
+        Optional<Order> orderOptional = orderRepository.findById(id);
+        if (orderOptional.isPresent()) {
+            if (orderOptional.get().getPaymentStatus() == PaymentStatus.PENDING) {
+                Order order = orderOptional.get();
+                order.setPaymentStatus(PaymentStatus.CANCELLED);
+                Order updatedOrder = orderRepository.save(order);
+                return orderMapper.toResOrderByIdDto(updatedOrder);
+            } else {
+                throw new Exception("Order already paid");
+            }
+        } else {
+            throw new Exception("Order not found");
+        }
     }
 
 

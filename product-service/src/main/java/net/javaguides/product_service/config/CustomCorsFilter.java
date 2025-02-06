@@ -1,15 +1,15 @@
 package net.javaguides.product_service.config;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Spliterators;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
+
 
 /**
  * File: CustomCorsFilter.java
@@ -21,35 +21,26 @@ import java.util.stream.StreamSupport;
  * Copyright © 2025 Le Van Hoang. All rights reserved.
  */
 
-@Component
-public class CustomCorsFilter implements Filter {
+@Configuration
+public class CustomCorsFilter {
 
-
-    @Override
-    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-        HttpServletResponse response = (HttpServletResponse) res;
-        HttpServletRequest request = (HttpServletRequest) req;
-        if (iteratorToFiniteStream(request.getHeaderNames().asIterator()).count() < 100) {
-            iteratorToFiniteStream(request.getHeaderNames().asIterator())
-                    .filter(h -> h.equalsIgnoreCase("access-control-request-method"))
-                    .findFirst().ifPresent(h -> response.setHeader("Access-Control-Allow-Methods", request.getHeader(h)));
-        }
-        response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
-        response.setHeader("Access-Control-Allow-Headers", "content-type");
-        response.setHeader("Access-Control-Max-Age", "3600");
-        response.setHeader("Allow", "GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH");
-        chain.doFilter(req, res);
-    }
-
-    static <T> Stream<T> iteratorToFiniteStream(final Iterator<T> iterator) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator, 0), false);
-    }
-
-    @Override
-    public void init(FilterConfig filterConfig) {
-    }
-
-    @Override
-    public void destroy() {
-    }
+//    @Value(("${cors-gateway.host}"))
+//    private String host;
+//
+//    @Bean
+//    public CorsFilter corsFilter() {
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//
+//        CorsConfiguration config = new CorsConfiguration();
+//        config.setAllowCredentials(true);
+//        config.setAllowedOrigins(java.util.Collections.singletonList(host));
+//        config.setAllowedHeaders(java.util.Collections.singletonList("*"));
+//        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+//        config.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+//        config.setAllowCredentials(true);
+//        config.setMaxAge(3600L);
+//        source.registerCorsConfiguration("/**", config);
+//
+//        return new CorsFilter(source);
+//    }
 }
