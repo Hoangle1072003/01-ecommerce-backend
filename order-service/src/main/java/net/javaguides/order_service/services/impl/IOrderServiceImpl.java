@@ -53,8 +53,8 @@ public class IOrderServiceImpl implements IOrderService {
         Order existingOrder = orderRepository.findByUserIdAndCartId(reqCreateOrderDto.getUserId(), reqCreateOrderDto.getCartId());
 
         if (existingOrder != null) {
-            if (existingOrder.getPaymentStatus() == PaymentStatus.CANCELLED
-                    || existingOrder.getPaymentStatus() == PaymentStatus.FAILED
+            if (existingOrder.getPaymentStatus() == PaymentStatus.PENDING
+                    || existingOrder.getPaymentStatus() == PaymentStatus.EXPIRED
             ) {
                 existingOrder.setPaymentStatus(PaymentStatus.PENDING);
                 existingOrder.setTotalAmount(cartServiceClient.getCartById(reqCreateOrderDto.getCartId()).getTotal());
@@ -193,10 +193,7 @@ public class IOrderServiceImpl implements IOrderService {
                         }
                     }
                 }
-            } else if (paymentEvent.getPaymentStatus() == PaymentStatus.FAILED
-                    || paymentEvent.getPaymentStatus() == PaymentStatus.CANCELLED // hien tai de day
-                    || paymentEvent.getPaymentStatus() == PaymentStatus.EXPIRED
-            ) {
+            } else if (paymentEvent.getPaymentStatus() == PaymentStatus.FAILED) {
                 order.setPaymentStatus(PaymentStatus.PENDING);
                 orderRepository.save(order);
                 System.out.println("Order " + order.getId() + " updated to PENDING");

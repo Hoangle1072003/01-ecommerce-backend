@@ -19,9 +19,9 @@ spring:
     message: Hello , IDENTITY-SERVICE
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://sql12.freesqldatabase.com:3306/sql12760287
-    username: sql12760287
-    password: fF756YjrfP
+    url: jdbc:mysql://localhost:3306/identity_service?useSSL=false&serverTimezone=UTC
+    username: root
+    password: sapassword
   jpa:
     hibernate:
       ddl-auto: update

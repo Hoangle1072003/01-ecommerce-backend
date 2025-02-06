@@ -122,10 +122,6 @@ public class IPaymentServiceImpl implements IPaymentService {
                     paymentEventProducer.sendNotificationEvent(paymentEvent);
                 } else if (updatedStatus.equals(PaymentStatus.FAILED)) {
                     paymentEventProducer.sendPaymentEvent(paymentEvent);
-                } else if (updatedStatus.equals(PaymentStatus.PENDING)) {
-                    paymentEventProducer.sendPaymentEvent(paymentEvent);
-                } else if (updatedStatus.equals(PaymentStatus.EXPIRED)) {
-                    paymentEventProducer.sendPaymentEvent(paymentEvent);
                 }
 //                paymentEventProducer.sendNotificationEvent(paymentEvent);
             } else {
