@@ -1,9 +1,7 @@
 package net.javaguides.order_service.services.impl;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.event.dto.CartUpdateEvent;
-import net.javaguides.event.dto.OrderCancelledEvent;
-import net.javaguides.event.dto.PaymentEvent;
+import net.javaguides.event.dto.*;
 import net.javaguides.order_service.mappers.IOrderMapper;
 import net.javaguides.order_service.repositories.IOrderRepository;
 import net.javaguides.order_service.services.IOrderService;
@@ -15,8 +13,8 @@ import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
 import net.javaguides.order_service.shemas.request.ReqUpdateStatusCartIdDto;
 import net.javaguides.order_service.shemas.response.*;
-import net.javaguides.event.dto.CartItemClientEvent;
 import net.javaguides.order_service.utils.constants.CartStatusEnum;
+import net.javaguides.order_service.utils.constants.OrderStatusEnum;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,10 +48,12 @@ public class IOrderServiceImpl implements IOrderService {
     private final KafkaTemplate<String, CartItemClientEvent> kafkaTemplateStockUpdate;
     private final KafkaTemplate<String, CartUpdateEvent> kafkaTemplateCartUpdate;
     private final KafkaTemplate<String, OrderCancelledEvent> kafkaTemplateOrderCancelledEvent;
+    private final KafkaTemplate<String, PaymentUpdateCancelledEvent> kafkaTemplatePaymentUpdateCancelledEvent;
     private static final String PAYMENT_TOPIC = "payment-topic";
     private static final String STOCK_UPDATE_TOPIC = "stock-update-topic";
     private static final String CART_UPDATE_TOPIC = "CART_UPDATE_TOPIC";
     private static final String CART_UPDATE_STATUS_CANCELLED_TOPIC = "CART_UPDATE_STATUS_CANCELLED";
+    private static final String PAYMENT_UPDATE_STATUS_CANCELLED_TOPIC = "PAYMENT_UPDATE_STATUS_CANCELLED";
 
     @Override
     public ResCreateOrderDto createOrder(ReqCreateOrderDto reqCreateOrderDto) throws Exception {
@@ -91,6 +91,7 @@ public class IOrderServiceImpl implements IOrderService {
         order.setPaymentId(null);
         order.setPaymentStatus(PaymentStatus.PENDING);
         order.setTotalAmount(cart.getTotal());
+        order.setOrderStatusEnum(OrderStatusEnum.ACTIVE);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -276,6 +277,7 @@ public class IOrderServiceImpl implements IOrderService {
             if (orderOptional.get().getPaymentStatus() == PaymentStatus.PENDING) {
                 Order order = orderOptional.get();
                 order.setPaymentStatus(PaymentStatus.CANCELLED);
+                order.setOrderStatusEnum(OrderStatusEnum.CANCELLED);
                 Order updatedOrder = orderRepository.save(order);
                 return orderMapper.toResOrderByIdDto(updatedOrder);
             } else {
@@ -296,13 +298,15 @@ public class IOrderServiceImpl implements IOrderService {
         }
         if (order.getPaymentStatus() == PaymentStatus.PENDING) {
             order.setPaymentStatus(PaymentStatus.CANCELLED);
+            order.setOrderStatusEnum(OrderStatusEnum.CANCELLED);
             order.setReason(reqCancelOrderStatusPending.getReason());
 
             Order updatedOrder = orderRepository.save(order);
 
             OrderCancelledEvent orderCancelledEvent = new OrderCancelledEvent(updatedOrder.getCartId());
+            PaymentUpdateCancelledEvent paymentUpdateCancelledEvent = new PaymentUpdateCancelledEvent(updatedOrder.getId());
             kafkaTemplateOrderCancelledEvent.send(CART_UPDATE_STATUS_CANCELLED_TOPIC, orderCancelledEvent);
-
+            kafkaTemplatePaymentUpdateCancelledEvent.send(PAYMENT_UPDATE_STATUS_CANCELLED_TOPIC, paymentUpdateCancelledEvent);
             return orderMapper.toResOrderByIdDto(updatedOrder);
         } else {
             throw new Exception("Order already paid");
@@ -316,12 +320,15 @@ public class IOrderServiceImpl implements IOrderService {
         Order order = orderRepository.findOrderByCartId(reqUpdateStatusCartIdDto.getCartId());
         if (order != null) {
             if (order.getPaymentStatus() == PaymentStatus.SUCCESS) {
-                ResCartUpdateDto cartUpdateDto = cartServiceClient.updateStatusCartCompleted(reqUpdateStatusCartIdDto.getCartId());
-                if (cartUpdateDto != null) {
-                    return orderMapper.toResOrderByIdDto(order);
-                } else {
-                    throw new Exception("Cart not found");
-                }
+//                ResCartUpdateDto cartUpdateDto = cartServiceClient.updateStatusCartCompleted(reqUpdateStatusCartIdDto.getCartId());
+//                if (cartUpdateDto != null) {
+//                    return orderMapper.toResOrderByIdDto(order);
+//                } else {
+//                    throw new Exception("Cart not found");
+//                }
+                order.setOrderStatusEnum(OrderStatusEnum.SHIPPING);
+                Order updatedOrder = orderRepository.save(order);
+                return orderMapper.toResOrderByIdDto(updatedOrder);
             } else {
                 throw new Exception("Order not paid");
             }
@@ -340,6 +347,7 @@ public class IOrderServiceImpl implements IOrderService {
 
             if (paymentEvent.getPaymentStatus() == PaymentStatus.SUCCESS) {
                 order.setPaymentStatus(PaymentStatus.SUCCESS);
+                order.setOrderStatusEnum(OrderStatusEnum.PENDING);
                 orderRepository.save(order);
                 System.out.println("Order " + order.getId() + " updated to SUCCESS");
 

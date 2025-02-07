@@ -1,21 +1,30 @@
 package net.javaguides.payment_service.controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
 import net.javaguides.payment_service.schemas.Payment;
+import net.javaguides.payment_service.schemas.request.RefundRequestDto;
 import net.javaguides.payment_service.schemas.request.ReqPaymentDto;
 import net.javaguides.payment_service.schemas.response.ResPaymentDto;
 import net.javaguides.payment_service.services.IPaymentService;
+import net.javaguides.payment_service.utils.VNPayUtil;
 import net.javaguides.payment_service.utils.constant.PaymentStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 
 /**
@@ -76,4 +85,94 @@ public class PaymentController {
     public ResponseEntity<ResPaymentDto> findPaymentByUserId(@RequestBody ReqPaymentDto reqPaymentDto) {
         return ResponseEntity.ok(paymentService.findPayment(reqPaymentDto));
     }
+
+
+    @PostMapping("/refund")
+    public ResponseEntity<?> sendRefundRequest(@RequestBody RefundRequestDto refundRequest) {
+        try {
+            Payment originalPayment = paymentService.findByVnpTxnRef(refundRequest.getVnp_TxnRef());
+            if (originalPayment == null) {
+                return ResponseEntity.badRequest().body("Transaction not found");
+            }
+
+            if (refundRequest.getVnp_Amount() > originalPayment.getTotalAmount()) {
+                return ResponseEntity.badRequest().body("Refund amount exceeds original amount");
+            }
+
+            String vnp_RequestId = UUID.randomUUID().toString().replace("-", "");
+            // Giờ Việt Nam (GMT+7)
+            ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
+
+// Tạo Instant với ngày giờ mong muốn
+            LocalDateTime fakeDateTime = LocalDateTime.of(2025, 2, 8, 1, 45, 14);
+            ZonedDateTime fakeZonedDateTime = fakeDateTime.atZone(vietnamZone);
+            Instant createdAtInstant = fakeZonedDateTime.toInstant();
+// Convert sang Date để format
+            Date createdAtDate = Date.from(createdAtInstant);
+            String vnp_TransactionDate = new SimpleDateFormat("yyyyMMddHHmmss").format(createdAtDate);
+
+            System.out.println("Fake vnp_TransactionDate: " + vnp_TransactionDate);
+
+
+            Map<String, String> requestParams = new TreeMap<>();
+            requestParams.put("vnp_RequestId", vnp_RequestId);
+            requestParams.put("vnp_Version", "2.1.0");
+            requestParams.put("vnp_Command", "refund");
+            requestParams.put("vnp_TmnCode", "F90IELCW");
+            requestParams.put("vnp_TransactionType", "02");
+            requestParams.put("vnp_TxnRef", refundRequest.getVnp_TxnRef());
+            requestParams.put("vnp_Amount", String.valueOf(refundRequest.getVnp_Amount() * 100)); // Nhân 100
+            requestParams.put("vnp_OrderInfo", refundRequest.getVnp_OrderInfo());
+            requestParams.put("vnp_TransactionDate", vnp_TransactionDate); // Lấy từ giao dịch gốc
+            requestParams.put("vnp_CreateBy", refundRequest.getVnp_CreateBy());
+            requestParams.put("vnp_CreateDate", VNPayUtil.getCurrentTime());
+            requestParams.put("vnp_IpAddr", "127.0.0.1");
+
+            String data = String.join("|",
+                    vnp_RequestId,
+                    "2.1.0",
+                    "refund",
+                    "F90IELCW",
+                    "02",
+                    refundRequest.getVnp_TxnRef(),
+                    String.valueOf(refundRequest.getVnp_Amount() * 100),
+                    "", // vnp_TransactionNo (nếu có)
+                    vnp_TransactionDate,
+                    refundRequest.getVnp_CreateBy(),
+                    requestParams.get("vnp_CreateDate"),
+                    "127.0.0.1",
+                    refundRequest.getVnp_OrderInfo()
+            );
+
+            String secureHash = VNPayUtil.hmacSHA512("KEK75W0MSYY3JTELC76V6OVRLXSYR5MO", data);
+            requestParams.put("vnp_SecureHash", secureHash);
+
+            // 4. Gọi API
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestParams, headers);
+            ResponseEntity<Map> response = restTemplate.postForEntity(
+                    "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction",
+                    requestEntity,
+                    Map.class
+            );
+
+            // 5. Xử lý response
+            Map<String, String> responseBody = response.getBody();
+            if ("00".equals(responseBody.get("vnp_ResponseCode"))) {
+//                paymentService.saveRefundTransaction(refundRequest, responseBody);
+                return ResponseEntity.ok(Collections.singletonMap("message", "Refund successful"));
+            } else {
+                return ResponseEntity.badRequest().body(responseBody);
+            }
+
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
+
 }

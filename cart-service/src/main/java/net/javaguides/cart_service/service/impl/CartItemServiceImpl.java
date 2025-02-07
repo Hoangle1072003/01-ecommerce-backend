@@ -111,7 +111,7 @@ public class CartItemServiceImpl implements ICartItemService {
         }
 
         Cart activeCart = carts.stream()
-                .filter(cart -> cart.getStatus() == CartStatusEnum.COMPLETED)
+//                .filter(cart -> cart.getStatus() == CartStatusEnum.COMPLETED)
                 .findFirst()
                 .orElseThrow(() -> new Exception("No active cart found"));
 

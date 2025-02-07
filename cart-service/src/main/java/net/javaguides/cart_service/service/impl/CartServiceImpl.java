@@ -140,7 +140,7 @@ public class CartServiceImpl implements ICartService {
             throw new IllegalArgumentException("Giỏ hàng không tồn tại.");
         }
         if (cart.getStatus().equals(CartStatusEnum.ACTIVE)) {
-            cart.setStatus(CartStatusEnum.PENDING);
+            cart.setStatus(CartStatusEnum.COMPLETED);
             cartRepository.save(cart);
             return cartMapper.toResCartUpdateDto(cart);
         }

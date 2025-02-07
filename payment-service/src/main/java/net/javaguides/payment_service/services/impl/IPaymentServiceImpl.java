@@ -8,6 +8,7 @@ import net.javaguides.payment_service.kafka.PaymentEventProducer;
 import net.javaguides.payment_service.mappers.IPaymentMapper;
 import net.javaguides.payment_service.repositories.IPaymentRepository;
 import net.javaguides.payment_service.schemas.Payment;
+import net.javaguides.payment_service.schemas.request.RefundRequestDto;
 import net.javaguides.payment_service.schemas.request.ReqPaymentDto;
 import net.javaguides.payment_service.schemas.response.ResOrderByIdDto;
 import net.javaguides.payment_service.schemas.response.ResPaymentDto;
@@ -17,8 +18,10 @@ import net.javaguides.payment_service.services.httpClient.IIdentityServiceClient
 import net.javaguides.payment_service.services.httpClient.IOrderServiceClient;
 import net.javaguides.payment_service.utils.VNPayUtil;
 import net.javaguides.payment_service.utils.constant.PaymentStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -83,6 +86,7 @@ public class IPaymentServiceImpl implements IPaymentService {
         newPayment.setUserId(paymentEvent.getUserId());
         newPayment.setPaymentMethod(paymentEvent.getPaymentMethod());
         newPayment.setTotalAmount(paymentEvent.getTotalAmount());
+        newPayment.setVnpTxnRef(vnpParams.get("vnp_TxnRef"));
 
         return paymentRepository.save(newPayment);
     }
@@ -114,6 +118,7 @@ public class IPaymentServiceImpl implements IPaymentService {
     public void updatePaymentStatus(Map<String, String> paymentDetails) {
         String orderId = paymentDetails.get("vnp_TxnRef");
         String newStatus = paymentDetails.get("status");
+        String transactionNo = paymentDetails.get("vnp_TransactionNo");
         Optional<Payment> paymentOptional = paymentRepository.findByOrderId(orderId);
 
         if (paymentOptional.isPresent()) {
@@ -122,6 +127,7 @@ public class IPaymentServiceImpl implements IPaymentService {
 
             if (!payment.getPaymentStatus().equals(updatedStatus)) {
                 payment.setPaymentStatus(updatedStatus);
+                payment.setTransactionNo(transactionNo);
                 paymentRepository.save(payment);
                 System.out.println("Payment status updated to " + updatedStatus + " for orderId: " + orderId);
 
@@ -181,5 +187,65 @@ public class IPaymentServiceImpl implements IPaymentService {
             throw new RuntimeException("Error occurred while finding payment: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public ResPaymentDto updatePaymentCancelStatus(String orderId) {
+        try {
+            Payment payment = paymentRepository.findByOrderId(orderId).orElse(null);
+            if (payment == null) {
+                throw new RuntimeException("Payment not found with orderId: " + orderId);
+            }
+            payment.setPaymentStatus(PaymentStatus.CANCELLED);
+            paymentRepository.save(payment);
+            return paymentMapper.toResPaymentDto(payment);
+        } catch (Exception e) {
+            System.out.println("Error occurred while updating payment status: " + e.getMessage());
+            throw new RuntimeException("Error occurred while updating payment status: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Payment findByVnpTxnRef(String vnpTxnRef) {
+        return paymentRepository.findByVnpTxnRef(vnpTxnRef);
+    }
+
+//    @Override
+//    public ResPaymentDto processRefund(RefundRequestDto refundRequest, HttpServletRequest request) {
+//        try {
+//            Payment payment = paymentRepository.findByOrderId(refundRequest.getVnp_TxnRef())
+//                    .orElseThrow(() -> new RuntimeException("Payment not found with orderId: " + refundRequest.getVnp_TxnRef()));
+//
+//            if (!PaymentStatus.SUCCESS.equals(payment.getPaymentStatus())) {
+//                throw new RuntimeException("Payment status is not SUCCESS for orderId: " + refundRequest.getVnp_TxnRef());
+//            }
+//
+//            Map<String, String> refundParams = vnPayConfig.getVNPayConfig(payment.getOrderId());
+//            refundParams.put("vnp_TransactionType", "02");
+//            refundParams.put("vnp_Amount", String.valueOf((int) (refundRequest.getVnp_Amount() * 100)));
+//            refundParams.put("vnp_TransactionNo", String.valueOf(payment.getTransactionNo()));
+//            refundParams.put("vnp_CreateBy", "Admin");
+//            refundParams.put("vnp_RequestId", VNPayUtil.getRandomNumber(10));
+//
+//            String queryUrl = VNPayUtil.getPaymentURL(refundParams, true);
+//            String refundApiUrl = vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
+//
+//            RestTemplate restTemplate = new RestTemplate();
+//            ResponseEntity<String> response = restTemplate.postForEntity(refundApiUrl, null, String.class);
+//
+//            Map<String, String> responseMap = VNPayUtil.parseResponse(response.getBody());
+//            if (!"00".equals(responseMap.get("vnp_ResponseCode"))) {
+//                throw new RuntimeException("VNPAY Refund Failed: " + responseMap.get("vnp_Message"));
+//            }
+//
+//            payment.setPaymentStatus(PaymentStatus.REFUNDED);
+//            paymentRepository.save(payment);
+//
+//            return paymentMapper.toResPaymentDto(payment);
+//
+//        } catch (Exception e) {
+//            System.out.println("Error occurred while processing refund: " + e.getMessage());
+//            throw new RuntimeException("Error processing refund: " + e.getMessage(), e);
+//        }
+//    }
 
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.javaguides.order_service.utils.constants.OrderStatusEnum;
 import net.javaguides.order_service.utils.constants.PaymentMethod;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
 import org.springframework.data.annotation.Id;
@@ -35,6 +36,8 @@ public class Order extends AbstractMappedEntity {
     private PaymentMethod paymentMethod;
     @Field("payment_status")
     private PaymentStatus paymentStatus;
+    @Field("order_status")
+    private OrderStatusEnum orderStatusEnum;
     private String paymentId;
     @Field("total_amount")
     private Double totalAmount;

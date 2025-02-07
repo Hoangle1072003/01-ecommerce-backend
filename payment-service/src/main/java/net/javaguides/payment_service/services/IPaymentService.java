@@ -3,6 +3,7 @@ package net.javaguides.payment_service.services;
 import jakarta.servlet.http.HttpServletRequest;
 import net.javaguides.event.dto.PaymentEvent;
 import net.javaguides.payment_service.schemas.Payment;
+import net.javaguides.payment_service.schemas.request.RefundRequestDto;
 import net.javaguides.payment_service.schemas.request.ReqPaymentDto;
 import net.javaguides.payment_service.schemas.response.ResPaymentDto;
 
@@ -27,5 +28,10 @@ public interface IPaymentService {
     void updatePaymentStatus(Map<String, String> paymentDetails);
 
     ResPaymentDto findPayment(ReqPaymentDto reqPaymentDto);
+
+    ResPaymentDto updatePaymentCancelStatus(String orderId);
+
+    Payment findByVnpTxnRef(String vnpTxnRef);
+//    ResPaymentDto processRefund(RefundRequestDto refundRequest, HttpServletRequest request);
 
 }

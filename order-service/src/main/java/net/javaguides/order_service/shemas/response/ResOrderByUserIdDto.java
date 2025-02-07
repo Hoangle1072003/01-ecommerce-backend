@@ -2,6 +2,7 @@ package net.javaguides.order_service.shemas.response;
 
 import lombok.Data;
 import net.javaguides.event.dto.CartItemClientEvent;
+import net.javaguides.order_service.utils.constants.OrderStatusEnum;
 import net.javaguides.order_service.utils.constants.PaymentMethod;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -26,6 +27,7 @@ public class ResOrderByUserIdDto {
     private String shipping;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
+    private OrderStatusEnum orderStatus;
     private String paymentId;
     private Double totalAmount;
     private Cart cart;

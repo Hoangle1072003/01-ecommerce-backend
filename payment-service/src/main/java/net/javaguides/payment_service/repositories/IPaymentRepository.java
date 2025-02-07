@@ -23,4 +23,6 @@ public interface IPaymentRepository extends MongoRepository<Payment, String> {
     Optional<Payment> findByOrderId(String orderId);
 
     List<Payment> findByUserId(String userId);
+
+    Payment findByVnpTxnRef(String vnpTxnRef);
 }

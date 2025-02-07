@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.javaguides.order_service.utils.constants.OrderStatusEnum;
 import net.javaguides.order_service.utils.constants.PaymentMethod;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -29,5 +30,6 @@ public class ResCreateOrderDto {
     private String shipping;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
+    private OrderStatusEnum orderStatusEnum;
     private double totalAmount;
 }
