@@ -100,14 +100,11 @@ public class PaymentController {
             }
 
             String vnp_RequestId = UUID.randomUUID().toString().replace("-", "");
-            // Giờ Việt Nam (GMT+7)
             ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
 
-// Tạo Instant với ngày giờ mong muốn
             LocalDateTime fakeDateTime = LocalDateTime.of(2025, 2, 8, 1, 45, 14);
             ZonedDateTime fakeZonedDateTime = fakeDateTime.atZone(vietnamZone);
             Instant createdAtInstant = fakeZonedDateTime.toInstant();
-// Convert sang Date để format
             Date createdAtDate = Date.from(createdAtInstant);
             String vnp_TransactionDate = new SimpleDateFormat("yyyyMMddHHmmss").format(createdAtDate);
 
@@ -121,9 +118,9 @@ public class PaymentController {
             requestParams.put("vnp_TmnCode", "F90IELCW");
             requestParams.put("vnp_TransactionType", "02");
             requestParams.put("vnp_TxnRef", refundRequest.getVnp_TxnRef());
-            requestParams.put("vnp_Amount", String.valueOf(refundRequest.getVnp_Amount() * 100)); // Nhân 100
+            requestParams.put("vnp_Amount", String.valueOf(refundRequest.getVnp_Amount() * 100));
             requestParams.put("vnp_OrderInfo", refundRequest.getVnp_OrderInfo());
-            requestParams.put("vnp_TransactionDate", vnp_TransactionDate); // Lấy từ giao dịch gốc
+            requestParams.put("vnp_TransactionDate", vnp_TransactionDate);
             requestParams.put("vnp_CreateBy", refundRequest.getVnp_CreateBy());
             requestParams.put("vnp_CreateDate", VNPayUtil.getCurrentTime());
             requestParams.put("vnp_IpAddr", "127.0.0.1");
@@ -136,7 +133,7 @@ public class PaymentController {
                     "02",
                     refundRequest.getVnp_TxnRef(),
                     String.valueOf(refundRequest.getVnp_Amount() * 100),
-                    "", // vnp_TransactionNo (nếu có)
+                    "", // vnp_TransactionNo
                     vnp_TransactionDate,
                     refundRequest.getVnp_CreateBy(),
                     requestParams.get("vnp_CreateDate"),
@@ -147,7 +144,6 @@ public class PaymentController {
             String secureHash = VNPayUtil.hmacSHA512("KEK75W0MSYY3JTELC76V6OVRLXSYR5MO", data);
             requestParams.put("vnp_SecureHash", secureHash);
 
-            // 4. Gọi API
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
@@ -159,7 +155,6 @@ public class PaymentController {
                     Map.class
             );
 
-            // 5. Xử lý response
             Map<String, String> responseBody = response.getBody();
             if ("00".equals(responseBody.get("vnp_ResponseCode"))) {
 //                paymentService.saveRefundTransaction(refundRequest, responseBody);
