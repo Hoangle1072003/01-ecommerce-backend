@@ -25,7 +25,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 @Builder
 @Document(collection = "orders")
-public class Order extends AbstractMappedEntity{
+public class Order extends AbstractMappedEntity {
     @Id
     private String id;
     private String cartId;
@@ -38,4 +38,6 @@ public class Order extends AbstractMappedEntity{
     private String paymentId;
     @Field("total_amount")
     private Double totalAmount;
+    @Field("reason")
+    private String reason;
 }

@@ -28,5 +28,9 @@ public interface IOrderRepository extends MongoRepository<Order, String> {
 
     Page<Order> findAllByUserId(String userId, Pageable pageable);
 
+    Page<Order> findAllByUserIdAndPaymentStatus(String userId, Pageable pageable, PaymentStatus paymentStatus);
+    
+
     Order findOrderByCartId(String cartId);
+
 }

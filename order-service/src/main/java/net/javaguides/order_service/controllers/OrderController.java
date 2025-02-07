@@ -2,6 +2,7 @@ package net.javaguides.order_service.controllers;
 
 import lombok.RequiredArgsConstructor;
 import net.javaguides.order_service.services.IOrderService;
+import net.javaguides.order_service.shemas.request.ReqCancelOrderStatusPending;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
 import net.javaguides.order_service.shemas.request.ReqUpdateOrderStatus;
@@ -61,6 +62,33 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrdersByUserId(userId, pageable));
     }
 
+    @GetMapping("/get-all-orders-waiting")
+    @ApiMessage("Get all orders by user id")
+    public ResponseEntity<ResResultPaginationDTO> getAllOrdersByUserIdWaiting(@RequestParam String userId,
+                                                                              @RequestParam("current") String current,
+                                                                              @RequestParam("pageSize") String pageSize,
+                                                                              @RequestParam("sort") String sort) {
+        int page = Integer.parseInt(current);
+        int size = Integer.parseInt(pageSize);
+
+        Pageable pageable = PageRequest.of(page - 1, size, sort.equals("asc") ? Sort.by("createdAt").ascending() : Sort.by("createdAt").descending());
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrdersByUserIdWating(userId, pageable));
+    }
+
+    @GetMapping("/get-all-orders-processing")
+    @ApiMessage("Get all orders by user id")
+    public ResponseEntity<ResResultPaginationDTO> getAllOrdersByUserIdProcessing(@RequestParam String userId,
+                                                                                 @RequestParam("current") String current,
+                                                                                 @RequestParam("pageSize") String pageSize,
+                                                                                 @RequestParam("sort") String sort) {
+        int page = Integer.parseInt(current);
+        int size = Integer.parseInt(pageSize);
+
+        Pageable pageable = PageRequest.of(page - 1, size, sort.equals("asc") ? Sort.by("createdAt").ascending() : Sort.by("createdAt").descending());
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrdersByUserIdProcessing(userId, pageable));
+    }
+
+
     @GetMapping("/get-all-orders-by-order-id/{id}")
     @ApiMessage("Get all orders by order id")
     public ResponseEntity<ResOrderByUserIdDto> getAllOrdersByOrderId(@PathVariable String id) {
@@ -83,5 +111,11 @@ public class OrderController {
     @ApiMessage("Update order status by id")
     public ResponseEntity<ResOrderByIdDto> updateOrderStatus(@PathVariable String id) throws Exception {
         return ResponseEntity.ok(orderService.updateOrderStatus(id));
+    }
+
+    @PutMapping("/cancel-order")
+    @ApiMessage("Cancel order by id - status = pending")
+    public ResponseEntity<ResOrderByIdDto> cancelOrder(@RequestBody ReqCancelOrderStatusPending reqCancelOrderStatusPending) throws Exception {
+        return ResponseEntity.ok(orderService.cancelOrder(reqCancelOrderStatusPending));
     }
 }

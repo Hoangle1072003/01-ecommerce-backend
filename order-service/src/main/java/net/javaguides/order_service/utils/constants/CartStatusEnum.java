@@ -14,5 +14,6 @@ public enum CartStatusEnum {
     ACTIVE,
     EXPIRED,
     COMPLETED,
-    CANCELLED
+    CANCELLED,
+    PENDING,
 }

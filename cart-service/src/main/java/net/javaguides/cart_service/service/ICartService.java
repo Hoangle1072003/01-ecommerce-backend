@@ -33,4 +33,6 @@ public interface ICartService {
 
     ResCartUpdateDto updateCartStatus(String cartId);
 
+    ResCartUpdateDto updateCartStatusCancelled(String cartId);
+
 }

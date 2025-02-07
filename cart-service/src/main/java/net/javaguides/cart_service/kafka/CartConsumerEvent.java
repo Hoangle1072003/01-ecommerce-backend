@@ -3,6 +3,7 @@ package net.javaguides.cart_service.kafka;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.cart_service.service.ICartService;
 import net.javaguides.event.dto.CartUpdateEvent;
+import net.javaguides.event.dto.OrderCancelledEvent;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -25,5 +26,11 @@ public class CartConsumerEvent {
     public void listenUpdateCart(CartUpdateEvent cartUpdateEvent) {
         System.out.println("Received cart update event: " + cartUpdateEvent);
         cartService.updateCartStatus(cartUpdateEvent.getCartId());
+    }
+
+    @KafkaListener(topics = "CART_UPDATE_STATUS_CANCELLED")
+    public void listenUpdateCartStatusCancelled(OrderCancelledEvent orderCancelledEvent) {
+        System.out.println("Received order cancelled event: " + orderCancelledEvent);
+        cartService.updateCartStatusCancelled(orderCancelledEvent.getCartId());
     }
 }
