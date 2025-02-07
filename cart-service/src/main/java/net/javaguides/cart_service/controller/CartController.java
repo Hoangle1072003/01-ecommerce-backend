@@ -53,5 +53,9 @@ public class CartController {
         return ResponseEntity.ok(cartService.updateCartStatus(reqCartUpdateDto.getId()));
     }
 
-
+    @PutMapping("/update-status-cart-completed/{id}")
+    @ApiMessage("Update status cart completed")
+    public ResponseEntity<ResCartUpdateDto> updateStatusCartCompleted(@PathVariable String id) {
+        return ResponseEntity.ok(cartService.updateStatusCartCompleted(id));
+    }
 }

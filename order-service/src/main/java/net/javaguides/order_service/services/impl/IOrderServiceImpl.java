@@ -13,6 +13,7 @@ import net.javaguides.order_service.shemas.Order;
 import net.javaguides.order_service.shemas.request.ReqCancelOrderStatusPending;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
+import net.javaguides.order_service.shemas.request.ReqUpdateStatusCartIdDto;
 import net.javaguides.order_service.shemas.response.*;
 import net.javaguides.event.dto.CartItemClientEvent;
 import net.javaguides.order_service.utils.constants.CartStatusEnum;
@@ -60,7 +61,6 @@ public class IOrderServiceImpl implements IOrderService {
 
         if (existingOrder != null) {
             if (existingOrder.getPaymentStatus() == PaymentStatus.PENDING
-                    || existingOrder.getPaymentStatus() == PaymentStatus.EXPIRED
             ) {
                 existingOrder.setPaymentStatus(PaymentStatus.PENDING);
                 existingOrder.setTotalAmount(cartServiceClient.getCartById(reqCreateOrderDto.getCartId()).getTotal());
@@ -309,6 +309,25 @@ public class IOrderServiceImpl implements IOrderService {
         }
 
 
+    }
+
+    @Override
+    public ResOrderByIdDto updateOrderStatusByCartId(ReqUpdateStatusCartIdDto reqUpdateStatusCartIdDto) throws Exception {
+        Order order = orderRepository.findOrderByCartId(reqUpdateStatusCartIdDto.getCartId());
+        if (order != null) {
+            if (order.getPaymentStatus() == PaymentStatus.SUCCESS) {
+                ResCartUpdateDto cartUpdateDto = cartServiceClient.updateStatusCartCompleted(reqUpdateStatusCartIdDto.getCartId());
+                if (cartUpdateDto != null) {
+                    return orderMapper.toResOrderByIdDto(order);
+                } else {
+                    throw new Exception("Cart not found");
+                }
+            } else {
+                throw new Exception("Order not paid");
+            }
+        } else {
+            throw new Exception("Order not found");
+        }
     }
 
 

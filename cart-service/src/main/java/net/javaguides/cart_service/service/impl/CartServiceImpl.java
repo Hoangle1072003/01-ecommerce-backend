@@ -162,6 +162,20 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
+    public ResCartUpdateDto updateStatusCartCompleted(String cartId) {
+        Cart cart = cartRepository.findById(cartId).orElse(null);
+        if (cart == null) {
+            throw new IllegalArgumentException("Giỏ hàng không tồn tại.");
+        }
+        if (cart.getStatus().equals(CartStatusEnum.PENDING)) {
+            cart.setStatus(CartStatusEnum.SHIPPING);
+            cartRepository.save(cart);
+            return cartMapper.toResCartUpdateDto(cart);
+        }
+        return null;
+    }
+
+    @Override
     public Cart findById(String id) {
         return cartRepository.findById(id).orElse(null);
     }

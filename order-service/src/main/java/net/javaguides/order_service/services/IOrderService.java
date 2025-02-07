@@ -3,6 +3,7 @@ package net.javaguides.order_service.services;
 import net.javaguides.order_service.shemas.request.ReqCancelOrderStatusPending;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
 import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
+import net.javaguides.order_service.shemas.request.ReqUpdateStatusCartIdDto;
 import net.javaguides.order_service.shemas.response.*;
 import org.springframework.data.domain.Pageable;
 
@@ -40,4 +41,6 @@ public interface IOrderService {
     ResOrderByIdDto updateOrderStatus(String id) throws Exception;
 
     ResOrderByIdDto cancelOrder(ReqCancelOrderStatusPending reqCancelOrderStatusPending) throws Exception;
+
+    ResOrderByIdDto updateOrderStatusByCartId(ReqUpdateStatusCartIdDto reqUpdateStatusCartIdDto) throws Exception;
 }

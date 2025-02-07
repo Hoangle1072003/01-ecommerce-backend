@@ -16,4 +16,5 @@ public enum CartStatusEnum {
     COMPLETED,
     CANCELLED,
     PENDING,
+    SHIPPING,
 }

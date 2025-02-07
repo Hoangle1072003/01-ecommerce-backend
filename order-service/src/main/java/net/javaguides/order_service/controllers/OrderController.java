@@ -2,10 +2,7 @@ package net.javaguides.order_service.controllers;
 
 import lombok.RequiredArgsConstructor;
 import net.javaguides.order_service.services.IOrderService;
-import net.javaguides.order_service.shemas.request.ReqCancelOrderStatusPending;
-import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
-import net.javaguides.order_service.shemas.request.ReqUpdateOrderDto;
-import net.javaguides.order_service.shemas.request.ReqUpdateOrderStatus;
+import net.javaguides.order_service.shemas.request.*;
 import net.javaguides.order_service.shemas.response.*;
 import net.javaguides.order_service.utils.annotation.ApiMessage;
 import org.springframework.data.domain.PageRequest;
@@ -117,5 +114,11 @@ public class OrderController {
     @ApiMessage("Cancel order by id - status = pending")
     public ResponseEntity<ResOrderByIdDto> cancelOrder(@RequestBody ReqCancelOrderStatusPending reqCancelOrderStatusPending) throws Exception {
         return ResponseEntity.ok(orderService.cancelOrder(reqCancelOrderStatusPending));
+    }
+
+    @PutMapping("/update-order-status-cart-id")
+    @ApiMessage("Update order status by cart id")
+    public ResponseEntity<ResOrderByIdDto> updateOrderStatusByCartId(@RequestBody ReqUpdateStatusCartIdDto reqUpdateStatusCartIdDto) throws Exception {
+        return ResponseEntity.ok(orderService.updateOrderStatusByCartId(reqUpdateStatusCartIdDto));
     }
 }

@@ -45,10 +45,10 @@ public class IPaymentServiceImpl implements IPaymentService {
     @Override
     @Transactional
     public Payment processPaymentEvent(PaymentEvent paymentEvent) {
-        Map<String, String> vnpParams = new HashMap<>(vnPayConfig.getVNPayConfig());
+        String orderId = paymentEvent.getOrderId();
+
+        Map<String, String> vnpParams = new HashMap<>(vnPayConfig.getVNPayConfig(orderId));
         vnpParams.put("vnp_Amount", String.valueOf((int) (paymentEvent.getTotalAmount() * 100)));
-        vnpParams.put("vnp_OrderInfo", "Thanh toan don hang: " + paymentEvent.getOrderId());
-        vnpParams.put("vnp_TxnRef", paymentEvent.getOrderId());
         vnpParams.put("vnp_IpAddr", "127.0.0.1");
         vnpParams.put("vnp_CreateDate", VNPayUtil.getCurrentTime());
         vnpParams.put("vnp_ExpireDate", VNPayUtil.getExpireTime());
@@ -61,17 +61,32 @@ public class IPaymentServiceImpl implements IPaymentService {
 
         System.out.println("Generated Payment URL: " + paymentUrl);
 
-        Payment payment = new Payment();
-        payment.setPaymentUrl(paymentUrl);
-        payment.setOrderId(paymentEvent.getOrderId());
-        payment.setPaymentStatus(PaymentStatus.PENDING);
-        payment.setUserId(paymentEvent.getUserId());
-        payment.setPaymentMethod(paymentEvent.getPaymentMethod());
-        payment.setPaymentUrl(paymentUrl);
-        payment.setTotalAmount(paymentEvent.getTotalAmount());
-        paymentRepository.save(payment);
-        return payment;
+        Payment existingPayment = paymentRepository.findByOrderId(orderId).orElse(null);
+
+        if (existingPayment != null) {
+            if (existingPayment.getPaymentStatus() == PaymentStatus.FAILED) {
+                existingPayment.setPaymentUrl(paymentUrl);
+                existingPayment.setTotalAmount(paymentEvent.getTotalAmount());
+                existingPayment.setPaymentStatus(PaymentStatus.PENDING);
+                existingPayment.setPaymentMethod(paymentEvent.getPaymentMethod());
+
+                return paymentRepository.save(existingPayment);
+            } else {
+                return existingPayment;
+            }
+        }
+
+        Payment newPayment = new Payment();
+        newPayment.setPaymentUrl(paymentUrl);
+        newPayment.setOrderId(orderId);
+        newPayment.setPaymentStatus(PaymentStatus.PENDING);
+        newPayment.setUserId(paymentEvent.getUserId());
+        newPayment.setPaymentMethod(paymentEvent.getPaymentMethod());
+        newPayment.setTotalAmount(paymentEvent.getTotalAmount());
+
+        return paymentRepository.save(newPayment);
     }
+
 
     @Override
     @Transactional
