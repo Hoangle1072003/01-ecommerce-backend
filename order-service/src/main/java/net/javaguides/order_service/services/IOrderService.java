@@ -32,6 +32,10 @@ public interface IOrderService {
 
     ResResultPaginationDTO getAllOrdersByUserIdProcessing(String userId, Pageable pageable);
 
+    ResResultPaginationDTO getAllOrdersByUserIdShipping(String userId, Pageable pageable);
+
+    ResResultPaginationDTO getAllOrdersByUserIdCancelled(String userId, Pageable pageable);
+
     ResOrderByUserIdDto getOrdersByOrderId(String id);
 
     ResOrderByIdDto getOrderByCartId(String id) throws Exception;
@@ -43,4 +47,6 @@ public interface IOrderService {
     ResOrderByIdDto cancelOrder(ReqCancelOrderStatusPending reqCancelOrderStatusPending) throws Exception;
 
     ResOrderByIdDto updateOrderStatusByCartId(ReqUpdateStatusCartIdDto reqUpdateStatusCartIdDto) throws Exception;
+
+    ResOrderByIdDto updateOrderStatusRefund(String id) throws Exception;
 }

@@ -85,6 +85,31 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrdersByUserIdProcessing(userId, pageable));
     }
 
+    @GetMapping("/get-all-orders-shipping")
+    @ApiMessage("Get all orders by user id")
+    public ResponseEntity<ResResultPaginationDTO> getAllOrdersByUserIdShipping(@RequestParam String userId,
+                                                                               @RequestParam("current") String current,
+                                                                               @RequestParam("pageSize") String pageSize,
+                                                                               @RequestParam("sort") String sort) {
+        int page = Integer.parseInt(current);
+        int size = Integer.parseInt(pageSize);
+
+        Pageable pageable = PageRequest.of(page - 1, size, sort.equals("asc") ? Sort.by("createdAt").ascending() : Sort.by("createdAt").descending());
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrdersByUserIdShipping(userId, pageable));
+    }
+
+    @GetMapping("/get-all-orders-cancelled")
+    @ApiMessage("Get all orders by user id")
+    public ResponseEntity<ResResultPaginationDTO> getAllOrdersByUserIdCancelled(@RequestParam String userId,
+                                                                                @RequestParam("current") String current,
+                                                                                @RequestParam("pageSize") String pageSize,
+                                                                                @RequestParam("sort") String sort) {
+        int page = Integer.parseInt(current);
+        int size = Integer.parseInt(pageSize);
+
+        Pageable pageable = PageRequest.of(page - 1, size, sort.equals("asc") ? Sort.by("createdAt").ascending() : Sort.by("createdAt").descending());
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrdersByUserIdCancelled(userId, pageable));
+    }
 
     @GetMapping("/get-all-orders-by-order-id/{id}")
     @ApiMessage("Get all orders by order id")

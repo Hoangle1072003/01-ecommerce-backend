@@ -53,11 +53,18 @@ public class PaymentController {
     public ResponseEntity<String> payCallbackHandler(HttpServletRequest request) {
         String vnp_TransactionStatus = request.getParameter("vnp_TransactionStatus");
         String vnpTxnRef = request.getParameter("vnp_TxnRef");
+        String vnp_TransactionNo = request.getParameter("vnp_TransactionNo");
+        String vnp_TransactionDate = request.getParameter("vnp_PayDate");
 
         System.out.println("Payment status: " + vnp_TransactionStatus);
+        System.out.println("vnp_TxnRef: " + vnpTxnRef);
+        System.out.println("vnp_TransactionNo: " + vnp_TransactionNo);
+        System.out.println(" vnp_PayDate (vnp_TransactionDate): " + vnp_TransactionDate);
 
         Map<String, String> paymentDetails = new HashMap<>();
         paymentDetails.put("vnp_TxnRef", vnpTxnRef);
+        paymentDetails.put("vnp_TransactionNo", vnp_TransactionNo);
+        paymentDetails.put("vnp_TransactionDate", vnp_TransactionDate);
 
 
         switch (vnp_TransactionStatus) {
@@ -100,14 +107,13 @@ public class PaymentController {
             }
 
             String vnp_RequestId = UUID.randomUUID().toString().replace("-", "");
-            ZoneId vietnamZone = ZoneId.of("Asia/Ho_Chi_Minh");
 
-            LocalDateTime fakeDateTime = LocalDateTime.of(2025, 2, 8, 1, 45, 14);
-            ZonedDateTime fakeZonedDateTime = fakeDateTime.atZone(vietnamZone);
-            Instant createdAtInstant = fakeZonedDateTime.toInstant();
-            Date createdAtDate = Date.from(createdAtInstant);
-            String vnp_TransactionDate = new SimpleDateFormat("yyyyMMddHHmmss").format(createdAtDate);
-
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+            LocalDateTime transactionDateTime = LocalDateTime.parse(originalPayment.getTransactionDate(), formatter);
+            ZonedDateTime transactionZonedDateTime = transactionDateTime.atZone(ZoneId.of("Asia/Ho_Chi_Minh"));
+            Instant transactionInstant = transactionZonedDateTime.toInstant();
+            Date transactionDate = Date.from(transactionInstant);
+            String vnp_TransactionDate = new SimpleDateFormat("yyyyMMddHHmmss").format(transactionDate);
             System.out.println("Fake vnp_TransactionDate: " + vnp_TransactionDate);
 
 
@@ -157,7 +163,7 @@ public class PaymentController {
 
             Map<String, String> responseBody = response.getBody();
             if ("00".equals(responseBody.get("vnp_ResponseCode"))) {
-//                paymentService.saveRefundTransaction(refundRequest, responseBody);
+                paymentService.saveRefundTransaction(refundRequest, responseBody);
                 return ResponseEntity.ok(Collections.singletonMap("message", "Refund successful"));
             } else {
                 return ResponseEntity.badRequest().body(responseBody);
@@ -168,6 +174,4 @@ public class PaymentController {
                     .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
-
-
 }

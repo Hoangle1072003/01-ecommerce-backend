@@ -39,7 +39,10 @@ public class Payment extends AbstractMappedEntity {
     private String paymentUrl;
     @Field("vnp_TxnRef")
     private String vnpTxnRef;
+    @Field("transaction_no")
     private String transactionNo;
+    @Field("transaction_date")
+    private String transactionDate;
     @Field("total_amount")
     private Double totalAmount;
 }

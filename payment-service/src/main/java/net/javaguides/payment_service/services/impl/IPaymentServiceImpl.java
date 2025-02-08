@@ -3,6 +3,7 @@ package net.javaguides.payment_service.services.impl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
+import net.javaguides.event.dto.PaymentUpdateStatusRefundEvent;
 import net.javaguides.payment_service.configs.VNPAYConfig;
 import net.javaguides.payment_service.kafka.PaymentEventProducer;
 import net.javaguides.payment_service.mappers.IPaymentMapper;
@@ -19,6 +20,7 @@ import net.javaguides.payment_service.services.httpClient.IOrderServiceClient;
 import net.javaguides.payment_service.utils.VNPayUtil;
 import net.javaguides.payment_service.utils.constant.PaymentStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -44,6 +46,8 @@ public class IPaymentServiceImpl implements IPaymentService {
     private final IPaymentMapper paymentMapper;
     private final IIdentityServiceClient identityServiceClient;
     private final IOrderServiceClient orderServiceClient;
+    private final KafkaTemplate<String, PaymentUpdateStatusRefundEvent> paymentUpdateStatusRefundEventKafkaTemplate;
+    private static final String REFUND_TOPIC = "REFUND_TOPIC";
 
     @Override
     @Transactional
@@ -56,6 +60,7 @@ public class IPaymentServiceImpl implements IPaymentService {
         vnpParams.put("vnp_CreateDate", VNPayUtil.getCurrentTime());
         vnpParams.put("vnp_ExpireDate", VNPayUtil.getExpireTime());
 
+
         String queryString = VNPayUtil.getPaymentURL(vnpParams, true);
         String rawHashData = VNPayUtil.getPaymentURL(vnpParams, false);
         String secureHash = VNPayUtil.hmacSHA512(vnPayConfig.getSecretKey(), rawHashData);
@@ -63,6 +68,7 @@ public class IPaymentServiceImpl implements IPaymentService {
         String paymentUrl = vnPayConfig.getVnp_PayUrl() + "?" + queryString + "&vnp_SecureHash=" + secureHash;
 
         System.out.println("Generated Payment URL: " + paymentUrl);
+
 
         Payment existingPayment = paymentRepository.findByOrderId(orderId).orElse(null);
 
@@ -119,15 +125,19 @@ public class IPaymentServiceImpl implements IPaymentService {
         String orderId = paymentDetails.get("vnp_TxnRef");
         String newStatus = paymentDetails.get("status");
         String transactionNo = paymentDetails.get("vnp_TransactionNo");
+        String transactionDate = paymentDetails.get("vnp_TransactionDate");
         Optional<Payment> paymentOptional = paymentRepository.findByOrderId(orderId);
 
         if (paymentOptional.isPresent()) {
             Payment payment = paymentOptional.get();
             PaymentStatus updatedStatus = PaymentStatus.valueOf(newStatus);
 
-            if (!payment.getPaymentStatus().equals(updatedStatus)) {
+            if (!payment.getPaymentStatus().equals(updatedStatus) || payment.getTransactionNo() == null
+                    || payment.getTransactionDate() == null
+            ) {
                 payment.setPaymentStatus(updatedStatus);
                 payment.setTransactionNo(transactionNo);
+                payment.setTransactionDate(transactionDate);
                 paymentRepository.save(payment);
                 System.out.println("Payment status updated to " + updatedStatus + " for orderId: " + orderId);
 
@@ -140,7 +150,7 @@ public class IPaymentServiceImpl implements IPaymentService {
                 );
                 if (updatedStatus.equals(PaymentStatus.SUCCESS)) {
                     paymentEventProducer.sendPaymentEvent(paymentEvent);
-                    paymentEventProducer.sendNotificationEvent(paymentEvent);
+//                    paymentEventProducer.sendNotificationEvent(paymentEvent);
                 } else if (updatedStatus.equals(PaymentStatus.FAILED)) {
                     paymentEventProducer.sendPaymentEvent(paymentEvent);
                 }
@@ -207,6 +217,28 @@ public class IPaymentServiceImpl implements IPaymentService {
     @Override
     public Payment findByVnpTxnRef(String vnpTxnRef) {
         return paymentRepository.findByVnpTxnRef(vnpTxnRef);
+    }
+
+    @Override
+    public void saveRefundTransaction(RefundRequestDto refundRequest, Map<String, String> responseBody) {
+        try {
+            Payment payment = paymentRepository.findByOrderId(refundRequest.getVnp_TxnRef())
+                    .orElseThrow(() -> new RuntimeException("Payment not found with orderId: " + refundRequest.getVnp_TxnRef()));
+
+            if (!PaymentStatus.SUCCESS.equals(payment.getPaymentStatus())) {
+                throw new RuntimeException("Payment status is not SUCCESS for orderId: " + refundRequest.getVnp_TxnRef());
+            }
+
+            payment.setPaymentStatus(PaymentStatus.REFUNDED);
+            paymentRepository.save(payment);
+
+            PaymentUpdateStatusRefundEvent paymentUpdateStatusRefundEvent = new PaymentUpdateStatusRefundEvent();
+            paymentUpdateStatusRefundEvent.setOrderId(refundRequest.getVnp_TxnRef());
+            paymentUpdateStatusRefundEventKafkaTemplate.send(REFUND_TOPIC, paymentUpdateStatusRefundEvent);
+        } catch (Exception e) {
+            System.out.println("Error occurred while saving refund transaction: " + e.getMessage());
+            throw new RuntimeException("Error occurred while saving refund transaction: " + e.getMessage(), e);
+        }
     }
 
 //    @Override

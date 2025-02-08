@@ -2,6 +2,7 @@ package net.javaguides.order_service.repositories;
 
 import net.javaguides.order_service.shemas.Order;
 import net.javaguides.order_service.shemas.response.ResPaymentMethod;
+import net.javaguides.order_service.utils.constants.OrderStatusEnum;
 import net.javaguides.order_service.utils.constants.PaymentMethod;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,15 @@ public interface IOrderRepository extends MongoRepository<Order, String> {
     Page<Order> findAllByUserId(String userId, Pageable pageable);
 
     Page<Order> findAllByUserIdAndPaymentStatus(String userId, Pageable pageable, PaymentStatus paymentStatus);
-    
+
+    Page<Order> findAllByUserIdAndPaymentStatusAndOrderStatusEnum(String userId, Pageable pageable, PaymentStatus paymentStatus, OrderStatusEnum orderStatusEnum);
+
+    Page<Order> findAllByUserIdAndPaymentStatusInAndOrderStatusEnumNot(
+            String userId, List<PaymentStatus> paymentStatuses, OrderStatusEnum excludedStatus, Pageable pageable);
+
+
+    Page<Order> findAllByUserIdAndPaymentStatusInAndOrderStatusEnum(
+            String userId, PaymentStatus paymentStatuses, OrderStatusEnum orderStatusEnum, Pageable pageable);
 
     Order findOrderByCartId(String cartId);
 

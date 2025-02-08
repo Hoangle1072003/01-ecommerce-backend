@@ -32,6 +32,7 @@ public interface IPaymentService {
     ResPaymentDto updatePaymentCancelStatus(String orderId);
 
     Payment findByVnpTxnRef(String vnpTxnRef);
-//    ResPaymentDto processRefund(RefundRequestDto refundRequest, HttpServletRequest request);
+
+    void saveRefundTransaction(RefundRequestDto refundRequest, Map<String, String> responseBody);
 
 }
