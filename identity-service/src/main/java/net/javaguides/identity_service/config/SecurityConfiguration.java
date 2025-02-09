@@ -59,6 +59,7 @@ public class SecurityConfiguration {
                 "/api/v1/auth/login",
                 "/api/v1/auth/refresh",
                 "/api/v1/auth/register",
+                "/api/v1/auth/activate",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
@@ -71,6 +72,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/introspect").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/resend-activation").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())

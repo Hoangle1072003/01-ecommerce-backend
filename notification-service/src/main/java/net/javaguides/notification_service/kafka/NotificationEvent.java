@@ -2,6 +2,7 @@ package net.javaguides.notification_service.kafka;
 
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
+import net.javaguides.event.dto.UserActiveEvent;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -60,4 +61,16 @@ public class NotificationEvent {
             e.printStackTrace();
         }
     }
+
+    @KafkaListener(topics = "USER_ACTIVE_ACCOUNT")
+    public void listenUserActiveEvent(UserActiveEvent userActiveEvent) {
+        try {
+            System.out.println("Received user active event: " + userActiveEvent);
+            emailService.sendAccountActivationEmail(userActiveEvent);
+        } catch (Exception e) {
+            System.err.println("Error handling user active event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

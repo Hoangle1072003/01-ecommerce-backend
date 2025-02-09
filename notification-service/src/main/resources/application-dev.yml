@@ -47,5 +47,7 @@ springdoc:
     path: /v3/api-docs
 cors-gateway:
   host: http://localhost:9191
+activation:
+  link: http://localhost:9191/identity-service/api/v1/auth/activate?token=
 server:
   port: 8087

@@ -3,23 +3,29 @@ package net.javaguides.identity_service.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javaguides.event.dto.UserActiveEvent;
 import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.domain.request.ReqEmailDto;
 import net.javaguides.identity_service.domain.request.ReqLoginDTO;
 import net.javaguides.identity_service.domain.request.ReqUserCreateDto;
 import net.javaguides.identity_service.domain.request.TokenIntrospectionRequest;
 import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
 import net.javaguides.identity_service.domain.response.ResLoginDTO;
+import net.javaguides.identity_service.domain.response.ResResendActivationDto;
 import net.javaguides.identity_service.mapper.IUserCreateMapper;
 import net.javaguides.identity_service.mapper.IUserMapper;
 import net.javaguides.identity_service.service.IUserService;
 import net.javaguides.identity_service.service.impl.UserServiceImpl;
 import net.javaguides.identity_service.utils.SecurityUtil;
 import net.javaguides.identity_service.utils.annotation.ApiMessage;
+import net.javaguides.identity_service.utils.constant.StatusEnum;
+import net.javaguides.identity_service.utils.error.AccountNotActivatedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -55,13 +61,21 @@ public class AuthController {
     @Value("${spring.security.authentication.jwt.refresh-token-validity-in-seconds}")
     private Long refreshTokenExpiration;
 
+    private final KafkaTemplate<String, UserActiveEvent> userActiveEventKafkaTemplate;
+    private static final String USER_ACTIVE_TOPIC = "USER_ACTIVE_ACCOUNT";
 
     @PostMapping("/introspect")
     public ResponseEntity<Boolean> introspect(@RequestBody TokenIntrospectionRequest token) {
 
         try {
-            securityUtil.checkValidJWTAccessToken(token.getToken());
-            return ResponseEntity.ok(true);
+//            securityUtil.checkValidJWTAccessToken(token.getToken());
+            Jwt jwt = securityUtil.checkValidJWTAccessToken(token.getToken());
+            String email = jwt.getSubject();
+            User user = userService.handleGetUserByUserName(email);
+            if (user != null && user.getStatus().equals(StatusEnum.ACTIVATED)) {
+                return ResponseEntity.ok(true);
+            }
+            return ResponseEntity.ok(false);
         } catch (Exception e) {
             return ResponseEntity.ok(false);
         }
@@ -69,7 +83,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO reqLoginDTO) {
+    public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO reqLoginDTO) throws Exception {
         // nap input username/password vao security
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(reqLoginDTO.getUsername(), reqLoginDTO.getPassword());
         // Xac thuc nguoi dung = > can viet loadUserByUsername
@@ -79,7 +93,7 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
         User currentUserDB = userService.handleGetUserByUserName(reqLoginDTO.getUsername());
 
-        if (currentUserDB != null) {
+        if (currentUserDB != null && currentUserDB.getStatus().equals(StatusEnum.ACTIVATED)) {
             ResLoginDTO.UserLogin user = new ResLoginDTO.UserLogin(
                     currentUserDB.getId(),
                     currentUserDB.getName(),
@@ -88,6 +102,8 @@ public class AuthController {
                     currentUserDB.getRole()
             );
             res.setUser(user);
+        } else {
+            throw new AccountNotActivatedException("User is not activated");
         }
 
         String access_token = securityUtil.createAccessToken(authentication.getName(), res);
@@ -209,8 +225,51 @@ public class AuthController {
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         User newUser = userService.handleUser(userCreateMapper.toEntity(user));
+        String activeToken = securityUtil.createActivationToken(newUser.getEmail());
+        System.out.println("activeToken = " + activeToken);
+        UserActiveEvent userActiveEvent = new UserActiveEvent(newUser.getName(), newUser.getEmail(), activeToken);
+        userActiveEventKafkaTemplate.send(USER_ACTIVE_TOPIC, userActiveEvent);
         ResCreateUserDTO resCreateUserDTO = userMapper.toDto(newUser);
         log.info("User with id {} has been created", resCreateUserDTO.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(resCreateUserDTO);
     }
+
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String token) {
+        try {
+            String email = securityUtil.extractEmailFromToken(token);
+
+            boolean isActivated = userService.activateUserByEmail(email);
+            if (isActivated) {
+                return ResponseEntity.ok("Tài khoản của bạn đã được kích hoạt thành công!");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Người dùng không tồn tại hoặc đã được kích hoạt trước đó.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token không hợp lệ hoặc đã hết hạn.");
+        }
+    }
+
+    @PostMapping("/resend-activation")
+    @ApiMessage("Resend activation email")
+    public ResponseEntity<ResResendActivationDto> resendActivationEmail(@RequestBody ReqEmailDto reqEmailDto) {
+        ResResendActivationDto response = new ResResendActivationDto();
+        response.setEmail(reqEmailDto.getEmail());
+        User user = userService.handleGetUserByUserName(reqEmailDto.getEmail());
+        if (user == null) {
+            response.setMessage("Người dùng không tồn tại.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+        if (user.getStatus().equals(StatusEnum.ACTIVATED)) {
+            response.setMessage("Tài khoản của bạn đã được kích hoạt trước đó.");
+            response.setStatus(StatusEnum.ACTIVATED);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+
+        String activeToken = securityUtil.createActivationToken(user.getEmail());
+        System.out.println("activeToken = " + activeToken);
+        UserActiveEvent userActiveEvent = new UserActiveEvent(user.getName(), user.getEmail(), activeToken);
+        userActiveEventKafkaTemplate.send(USER_ACTIVE_TOPIC, userActiveEvent);
+        return ResponseEntity.ok(response);
+    }
+
 }

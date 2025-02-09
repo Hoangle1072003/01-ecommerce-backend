@@ -1,5 +1,6 @@
 package net.javaguides.notification_service.services;
 
+import net.javaguides.event.dto.UserActiveEvent;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -22,5 +23,5 @@ public interface IEmailService {
 
     void sendOrderConfirmationEmail(String name, String to, ResUserDTO resUserDTO, ResCartByIdDto resCartByIdDto, ResOrderByIdDto resOrderByIdDto, ResCartItemByIdDto resCartItemByIdDto);
 
-
+    void sendAccountActivationEmail(UserActiveEvent userActiveEvent);
 }

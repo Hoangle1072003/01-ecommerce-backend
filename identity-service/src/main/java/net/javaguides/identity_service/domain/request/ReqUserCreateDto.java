@@ -35,13 +35,13 @@ public class ReqUserCreateDto implements Serializable {
     @Size(min = 6, message = "Password must be at least 6 characters long")
     String password;
 
-    int age;
-    @NotBlank(message = "Address is required")
-    @Size(min = 5, max = 255, message = "Address must be between 5 and 255 characters")
-    String address;
-    @NotBlank(message = "Phone is required")
-    @Pattern(regexp = "^(\\+\\d{1,3}[- ]?)?\\d{10}$", message = "Invalid phone number format: +xxx-xxxxxxxx")
-    String phone;
-    GenderEnum gender;
-    private Role role;
+//    int age;
+//    @NotBlank(message = "Address is required")
+//    @Size(min = 5, max = 255, message = "Address must be between 5 and 255 characters")
+//    String address;
+//    @NotBlank(message = "Phone is required")
+//    @Pattern(regexp = "^(\\+\\d{1,3}[- ]?)?\\d{10}$", message = "Invalid phone number format: +xxx-xxxxxxxx")
+//    String phone;
+//    GenderEnum gender;
+//    private Role role;
 }

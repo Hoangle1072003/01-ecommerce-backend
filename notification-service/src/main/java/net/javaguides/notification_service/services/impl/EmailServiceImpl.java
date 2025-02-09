@@ -3,6 +3,7 @@ package net.javaguides.notification_service.services.impl;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import net.javaguides.event.dto.UserActiveEvent;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -41,7 +42,10 @@ public class EmailServiceImpl implements IEmailService {
     public static final String UTF_8_ENCODING = "UTF-8";
     public static final String EMAIL_TEMPLATE = "email-thanks";
     private static final String EMAIL_ORDER_CONFIRMATION_TEMPLATE = "email-bill";
+    public static final String EMAIL_ACCOUNT_ACTIVATION_TEMPLATE = "email-account-activation";
 
+    @Value("${activation.link}")
+    private String linkActivation;
 
     @Override
     public void sendSimpleMailMessage(String name, String to) {
@@ -106,4 +110,31 @@ public class EmailServiceImpl implements IEmailService {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void sendAccountActivationEmail(UserActiveEvent userActiveEvent) {
+        try {
+            System.out.println("linkActivation = " + linkActivation);
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            var messageHelper = new MimeMessageHelper(mimeMessage, true, UTF_8_ENCODING);
+
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(userActiveEvent.getEmail());
+            messageHelper.setSubject("Kích Hoạt Tài Khoản");
+
+//            String activationLink = "http://localhost:9191/identity-service/api/v1/auth/activate?token=" + userActiveEvent.getToken();
+            String activationLink = linkActivation + userActiveEvent.getToken();
+            Context context = new Context();
+            context.setVariable("name", userActiveEvent.getName());
+            context.setVariable("email", userActiveEvent.getEmail());
+            context.setVariable("activationLink", activationLink);
+            String content = templateEngine.process(EMAIL_ACCOUNT_ACTIVATION_TEMPLATE, context);
+
+            messageHelper.setText(content, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

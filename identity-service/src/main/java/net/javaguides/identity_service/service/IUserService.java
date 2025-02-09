@@ -43,4 +43,6 @@ public interface IUserService {
     User getUserByRefreshToken(String token, String email);
 
     List<User> findByNameOrActive(String name, StatusEnum status, UUID roleId);
+
+    boolean activateUserByEmail(String email);
 }

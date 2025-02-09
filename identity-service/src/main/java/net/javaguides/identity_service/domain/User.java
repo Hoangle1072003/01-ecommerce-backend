@@ -47,7 +47,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private GenderEnum gender;
     @Enumerated(EnumType.STRING)
-    private StatusEnum status = StatusEnum.ACTIVATED;
+    private StatusEnum status = StatusEnum.PENDING_ACTIVATION;
     @Column(name = "refresh_token", columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
     @Column(name = "created_by")

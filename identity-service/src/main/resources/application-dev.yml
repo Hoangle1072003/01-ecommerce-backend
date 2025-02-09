@@ -12,7 +12,20 @@ spring:
         # openssl rand -base64 64
         base64-secret: YTwQoI5e3OjbPsvbRgXFdbGAz3ML2jTezUQTD0CO82VOl/ZrzSyJvQ5b6t1YyS9bqiT4jA1bny2MhHn4RNcu9A==
         access-token-validity-in-seconds: 86400
+        access-token-active-in-seconds: 300
         refresh-token-validity-in-seconds: 86400
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: identity-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: '*'
   api:
     version: /api/v1
   boot:

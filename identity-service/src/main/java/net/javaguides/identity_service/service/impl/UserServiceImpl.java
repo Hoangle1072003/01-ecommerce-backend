@@ -7,9 +7,11 @@ import net.javaguides.identity_service.domain.User;
 
 import net.javaguides.identity_service.domain.response.ResMeta;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
+import net.javaguides.identity_service.repository.IRoleRepository;
 import net.javaguides.identity_service.repository.IUserRepository;
 import net.javaguides.identity_service.service.IRoleService;
 import net.javaguides.identity_service.service.IUserService;
+import net.javaguides.identity_service.utils.SecurityUtil;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,12 +38,14 @@ public class UserServiceImpl implements IUserService {
     private final IUserRepository userRepository;
     private final IRoleService roleService;
     private final PasswordEncoder passwordEncoder;
+    private final SecurityUtil securityUtil;
+    private final IRoleRepository roleRepository;
 
     @Override
     public User handleUser(User user) {
-        if (user.getRole() != null) {
-            Role role = roleService.fetchById(user.getRole().getId());
-            user.setRole(role != null ? role : null);
+        if (user.getRole() == null) {
+            Role userRole = roleRepository.findByName("USER");
+            user.setRole(userRole);
         }
         return userRepository.save(user);
     }
@@ -147,5 +151,16 @@ public class UserServiceImpl implements IUserService {
     @Override
     public List<User> findByNameOrActive(String name, StatusEnum status, UUID roleId) {
         return userRepository.findByNameOrEmailOrStatusOrRoleId(name, status, roleId);
+    }
+
+    @Override
+    public boolean activateUserByEmail(String email) {
+        User user = userRepository.findByEmail(email);
+        if (user != null && user.getStatus().equals(StatusEnum.PENDING_ACTIVATION)) {
+            user.setStatus(StatusEnum.ACTIVATED);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
     }
 }

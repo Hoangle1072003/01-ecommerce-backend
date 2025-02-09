@@ -51,6 +51,9 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4")
     implementation("org.springframework.data:spring-data-rest-webmvc:4.4.2")
+    implementation("org.springframework.kafka:spring-kafka")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
+
 
 }
 

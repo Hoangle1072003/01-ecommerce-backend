@@ -47,4 +47,13 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
 
+    @ExceptionHandler(AccountNotActivatedException.class)
+    public ResponseEntity<RestResponse<Object>> handleAccountNotActivatedException(AccountNotActivatedException ex) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.FORBIDDEN.value());
+        res.setMessage(ex.getMessage());
+        res.setError("Account Not Activated");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(res);
+    }
+
 }
