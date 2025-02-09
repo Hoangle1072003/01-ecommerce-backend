@@ -43,6 +43,10 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private final WebClient.Builder webClientBuilder;
     private final String[] publicEndpoints = {
             "/identity-service/api/v1/auth/.*",
+            "/identity-service/oauth2/.*",
+            "/oauth2/.*",
+            "/login/oauth2/code/google/.*",
+            "/identity-service/oauth2/authorization/google/.*",
             "/product-service/api/v1/products/.*",
             "/product-service/api/v1/products",
             "/product-service/api/v1/category",

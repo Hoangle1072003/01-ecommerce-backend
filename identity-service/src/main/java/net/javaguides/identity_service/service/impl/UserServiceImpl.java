@@ -12,6 +12,7 @@ import net.javaguides.identity_service.repository.IUserRepository;
 import net.javaguides.identity_service.service.IRoleService;
 import net.javaguides.identity_service.service.IUserService;
 import net.javaguides.identity_service.utils.SecurityUtil;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User handleUser(User user) {
         if (user.getRole() == null) {
+            user.setProvider(AuthProvider.LOCAL);
             Role userRole = roleRepository.findByName("USER");
             user.setRole(userRole);
         }

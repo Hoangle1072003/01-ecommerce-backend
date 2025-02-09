@@ -8,6 +8,8 @@ spring:
 
   cloud:
     gateway:
+      httpclient:
+        preserveHostHeader: true
       #      routes:
       #        - id: EMPLOYEE-SERVICE
       #          uri: lb://EMPLOYEE-SERVICE

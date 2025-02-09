@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,6 +42,7 @@ import javax.crypto.spec.SecretKeySpec;
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
+@EnableWebSecurity
 public class SecurityConfiguration {
     @Value("${spring.security.authentication.jwt.base64-secret}")
     private String jwtSecret;
@@ -63,6 +65,9 @@ public class SecurityConfiguration {
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
+                "/oauth2/**",
+                "/login/oauth2/code/**",
+                "/login/**"
         };
         http
                 .csrf(csrf -> csrf.disable())
@@ -72,9 +77,13 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/introspect").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/resend-activation").permitAll()
+                        .requestMatchers("/auth/google/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .defaultSuccessUrl("/auth/google/signin", true)
+                )
+//                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
@@ -83,11 +92,9 @@ public class SecurityConfiguration {
                         .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
                         .accessDeniedHandler(customAccessDeniedHandler)
                 )
-
-
                 .formLogin(form -> form.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED));
 
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
     }

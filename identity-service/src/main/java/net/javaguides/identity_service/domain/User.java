@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.javaguides.identity_service.utils.SecurityUtil;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 import net.javaguides.identity_service.utils.constant.GenderEnum;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -48,6 +49,8 @@ public class User {
     private GenderEnum gender;
     @Enumerated(EnumType.STRING)
     private StatusEnum status = StatusEnum.PENDING_ACTIVATION;
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider = AuthProvider.LOCAL;
     @Column(name = "refresh_token", columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
     @Column(name = "created_by")

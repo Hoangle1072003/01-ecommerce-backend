@@ -53,6 +53,7 @@ dependencies {
     implementation("org.springframework.data:spring-data-rest-webmvc:4.4.2")
     implementation("org.springframework.kafka:spring-kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
 
 }
