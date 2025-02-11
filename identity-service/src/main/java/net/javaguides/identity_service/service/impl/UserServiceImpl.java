@@ -192,6 +192,25 @@ public class UserServiceImpl implements IUserService {
 
     }
 
+    @Override
+    public User saveUserByGithub(ReqUserGoogleDto reqUserGoogleDto) {
+        User oldUser = userRepository.findByEmail(reqUserGoogleDto.getEmail());
+        if (oldUser != null) {
+            return oldUser;
+        }
+        User user = new User();
+
+        user.setEmail(reqUserGoogleDto.getEmail());
+        user.setName(reqUserGoogleDto.getName());
+        user.setImageUrl(reqUserGoogleDto.getPicture());
+        user.setProviderId(reqUserGoogleDto.getSub());
+        user.setStatus(StatusEnum.ACTIVATED);
+        user.setProvider(AuthProvider.GITHUB);
+        Role userRole = roleRepository.findByName("USER");
+        user.setRole(userRole);
+        return userRepository.save(user);
+    }
+
 
 //    @Override
 //    public boolean verifyGoogleAccessToken(String token) {

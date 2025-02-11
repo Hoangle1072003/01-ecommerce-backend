@@ -48,4 +48,6 @@ public interface IUserService {
     boolean activateUserByEmail(String email);
 
     User saveUserByGoogle(ReqUserGoogleDto reqUserGoogleDto);
+
+    User saveUserByGithub(ReqUserGoogleDto reqUserGoogleDto);
 }

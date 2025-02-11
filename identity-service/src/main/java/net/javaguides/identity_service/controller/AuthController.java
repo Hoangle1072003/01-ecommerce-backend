@@ -25,10 +25,7 @@ import net.javaguides.identity_service.utils.annotation.ApiMessage;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import net.javaguides.identity_service.utils.error.AccountNotActivatedException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -93,6 +90,11 @@ public class AuthController {
             boolean isGoogleIdToken = validateGoogleIdToken(token);
             if (isGoogleIdToken) {
                 return ResponseEntity.ok(true);
+            } else {
+                boolean isGithubAccessToken = validateGithubAccessToken(token);
+                if (isGithubAccessToken) {
+                    return ResponseEntity.ok(true);
+                }
             }
             log.error("JWT Verification Failed: {}", e.getMessage());
         }
@@ -117,6 +119,31 @@ public class AuthController {
 
         } catch (Exception e) {
             log.warn(">>> Google ID Token validation failed: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean validateGithubAccessToken(String accessToken) {
+        try {
+            String url = "https://api.github.com/user";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map> response = restTemplate.exchange(url, HttpMethod.GET, entity, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                String login = (String) response.getBody().get("login");
+                if (login != null) {
+                    log.info(">>> GitHub OAuth Access Token is valid for user: " + login);
+                    return true;
+                }
+            } else {
+                log.error("GitHub API error: {}", response.getBody());
+            }
+        } catch (Exception e) {
+            log.warn(">>> GitHub OAuth Access Token validation failed: " + e.getMessage());
         }
         return false;
     }
@@ -355,6 +382,15 @@ public class AuthController {
     @ApiMessage("Create new user by google")
     public ResponseEntity<ResCreateUserDTO> createNewUserByGoogle(@RequestBody ReqUserGoogleDto reqUserGoogleDto) {
         User newUser = userService.saveUserByGoogle(reqUserGoogleDto);
+        ResCreateUserDTO resCreateUserDTO = userMapper.toDto(newUser);
+        log.info("User with id {} has been created", resCreateUserDTO.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(resCreateUserDTO);
+    }
+
+    @PostMapping("/create-new-user-github")
+    @ApiMessage("Create new user by github")
+    public ResponseEntity<ResCreateUserDTO> createNewUserByGithub(@RequestBody ReqUserGoogleDto reqUserGoogleDto) {
+        User newUser = userService.saveUserByGithub(reqUserGoogleDto);
         ResCreateUserDTO resCreateUserDTO = userMapper.toDto(newUser);
         log.info("User with id {} has been created", resCreateUserDTO.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(resCreateUserDTO);

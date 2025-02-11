@@ -11,6 +11,8 @@ package net.javaguides.identity_service.utils.constant;
  */
 
 public enum AuthProvider {
+    GITHUB,
     LOCAL,
     GOOGLE,
+
 }

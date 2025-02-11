@@ -2,6 +2,7 @@ package net.javaguides.identity_service.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
+import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.identity_service.utils.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,7 @@ public class SecurityConfiguration {
                 "/api/v1/auth/register",
                 "/api/v1/auth/activate",
                 "/api/v1/auth/create-new-user-google",
+                "/api/v1/auth/create-new-user-github",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
@@ -91,7 +93,8 @@ public class SecurityConfiguration {
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuthenticationSuccessHandler)
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.decoder(jwtDecoder()))
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
 
@@ -141,8 +144,9 @@ public class SecurityConfiguration {
             System.out.println("Decoding token: " + token);
             if (token != null) {
                 try {
-                    System.out.println("Using Google public key decoder.");
+                   
                     return googleDecoder.decode(token);
+
                 } catch (Exception e) {
                     System.out.println(">>> Error decoding Google token: " + e.getMessage());
                     return secretDecoder.decode(token);
@@ -161,6 +165,7 @@ public class SecurityConfiguration {
 
         return token -> {
             try {
+
                 return jwtDecoder.decode(token);
             } catch (Exception e) {
                 System.out.println(">>> JWT error (secret): " + e.getMessage());
