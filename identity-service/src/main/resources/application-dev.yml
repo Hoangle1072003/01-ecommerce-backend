@@ -18,8 +18,8 @@ spring:
       client:
         registration:
           google:
-            client-id: 606746552852-3raqr71rai256m88tebg8k3c017piaii.apps.googleusercontent.com
-            client-secret: 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
+            client-id: 1234
+            client-secret: 1234
   kafka:
     bootstrap-servers: localhost:9094
     producer:
