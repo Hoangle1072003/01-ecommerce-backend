@@ -1,21 +1,25 @@
 package net.javaguides.identity_service.controller;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.JsonGenerator;
+import com.google.api.client.json.JsonParser;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.event.dto.UserActiveEvent;
 import net.javaguides.identity_service.domain.User;
-import net.javaguides.identity_service.domain.request.ReqEmailDto;
-import net.javaguides.identity_service.domain.request.ReqLoginDTO;
-import net.javaguides.identity_service.domain.request.ReqUserCreateDto;
-import net.javaguides.identity_service.domain.request.TokenIntrospectionRequest;
+import net.javaguides.identity_service.domain.request.*;
 import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
 import net.javaguides.identity_service.domain.response.ResLoginDTO;
 import net.javaguides.identity_service.domain.response.ResResendActivationDto;
 import net.javaguides.identity_service.mapper.IUserCreateMapper;
 import net.javaguides.identity_service.mapper.IUserMapper;
 import net.javaguides.identity_service.service.IUserService;
-import net.javaguides.identity_service.service.impl.UserServiceImpl;
 import net.javaguides.identity_service.utils.SecurityUtil;
 import net.javaguides.identity_service.utils.annotation.ApiMessage;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
@@ -25,6 +29,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -33,8 +38,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -64,23 +74,92 @@ public class AuthController {
     private final KafkaTemplate<String, UserActiveEvent> userActiveEventKafkaTemplate;
     private static final String USER_ACTIVE_TOPIC = "USER_ACTIVE_ACCOUNT";
 
-    @PostMapping("/introspect")
-    public ResponseEntity<Boolean> introspect(@RequestBody TokenIntrospectionRequest token) {
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String CLIENT_ID;
 
+
+    @PostMapping("/introspect")
+    public ResponseEntity<Boolean> introspect(@RequestBody TokenIntrospectionRequest tokenRequest) {
+        String token = tokenRequest.getToken();
         try {
-//            securityUtil.checkValidJWTAccessToken(token.getToken());
-            Jwt jwt = securityUtil.checkValidJWTAccessToken(token.getToken());
+            Jwt jwt = securityUtil.checkValidJWTAccessToken(token);
             String email = jwt.getSubject();
             User user = userService.handleGetUserByUserName(email);
+
             if (user != null && user.getStatus().equals(StatusEnum.ACTIVATED)) {
                 return ResponseEntity.ok(true);
             }
-            return ResponseEntity.ok(false);
         } catch (Exception e) {
-            return ResponseEntity.ok(false);
+            boolean isGoogleIdToken = validateGoogleIdToken(token);
+            if (isGoogleIdToken) {
+                return ResponseEntity.ok(true);
+            }
+            log.error("JWT Verification Failed: {}", e.getMessage());
         }
+
+        return ResponseEntity.ok(false);
     }
 
+
+    public boolean validateGoogleIdToken(String idToken) {
+        try {
+            String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken;
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                String email = (String) response.getBody().get("email");
+                if (email != null) {
+                    log.info(">>> Google ID Token is valid for email: " + email);
+                    return true;
+                }
+            }
+
+        } catch (Exception e) {
+            log.warn(">>> Google ID Token validation failed: " + e.getMessage());
+        }
+        return false;
+    }
+
+
+    public boolean validateGoogleAccessToken(String accessToken) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String url = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + accessToken;
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                String email = (String) response.getBody().get("email");
+                if (email != null) {
+                    log.info(">>> Google Access Token is valid for email: " + email);
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            log.warn(">>> Google Access Token validation failed: " + e.getMessage());
+        }
+        return false;
+    }
+
+
+//    @PostMapping("/introspect")
+//    public ResponseEntity<Boolean> introspect(@RequestBody TokenIntrospectionRequest token) {
+//
+//        try {
+//            if (token.getToken().startsWith("ya29.")) {
+//                return ResponseEntity.ok(true);
+//            }
+//            Jwt jwt = securityUtil.checkValidJWTAccessToken(token.getToken());
+//            String email = jwt.getSubject();
+//            User user = userService.handleGetUserByUserName(email);
+//            if (user != null && user.getStatus().equals(StatusEnum.ACTIVATED)) {
+//                return ResponseEntity.ok(true);
+//            }
+//            return ResponseEntity.ok(false);
+//        } catch (Exception e) {
+//            return ResponseEntity.ok(false);
+//        }
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<ResLoginDTO> login(@Valid @RequestBody ReqLoginDTO reqLoginDTO) throws Exception {
@@ -270,6 +349,15 @@ public class AuthController {
         UserActiveEvent userActiveEvent = new UserActiveEvent(user.getName(), user.getEmail(), activeToken);
         userActiveEventKafkaTemplate.send(USER_ACTIVE_TOPIC, userActiveEvent);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/create-new-user-google")
+    @ApiMessage("Create new user by google")
+    public ResponseEntity<ResCreateUserDTO> createNewUserByGoogle(@RequestBody ReqUserGoogleDto reqUserGoogleDto) {
+        User newUser = userService.saveUserByGoogle(reqUserGoogleDto);
+        ResCreateUserDTO resCreateUserDTO = userMapper.toDto(newUser);
+        log.info("User with id {} has been created", resCreateUserDTO.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(resCreateUserDTO);
     }
 
 }

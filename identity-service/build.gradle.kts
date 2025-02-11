@@ -54,6 +54,9 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+// https://mvnrepository.com/artifact/com.google.api-client/google-api-client
+//    implementation("com.google.api-client:google-api-client:2.7.0")
+    implementation("com.google.api-client:google-api-client:2.7.0")
 
 
 }

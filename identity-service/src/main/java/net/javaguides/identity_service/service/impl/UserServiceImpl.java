@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.javaguides.identity_service.domain.Role;
 import net.javaguides.identity_service.domain.User;
 
+import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
 import net.javaguides.identity_service.domain.response.ResMeta;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.repository.IRoleRepository;
@@ -16,10 +17,15 @@ import net.javaguides.identity_service.utils.constant.AuthProvider;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -165,4 +171,40 @@ public class UserServiceImpl implements IUserService {
         }
         return false;
     }
+
+    @Override
+    public User saveUserByGoogle(ReqUserGoogleDto reqUserGoogleDto) {
+        User oldUser = userRepository.findByEmail(reqUserGoogleDto.getEmail());
+        if (oldUser != null) {
+            return oldUser;
+        }
+        User user = new User();
+
+        user.setEmail(reqUserGoogleDto.getEmail());
+        user.setName(reqUserGoogleDto.getName());
+        user.setImageUrl(reqUserGoogleDto.getPicture());
+        user.setProviderId(reqUserGoogleDto.getSub());
+        user.setStatus(StatusEnum.ACTIVATED);
+        user.setProvider(AuthProvider.GOOGLE);
+        Role userRole = roleRepository.findByName("USER");
+        user.setRole(userRole);
+        return userRepository.save(user);
+
+    }
+
+
+//    @Override
+//    public boolean verifyGoogleAccessToken(String token) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        String introspectionUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token;
+//
+//        try {
+//            ResponseEntity<Map> response = restTemplate.getForEntity(introspectionUrl, Map.class);
+//            return response.getStatusCode().is2xxSuccessful();
+//        } catch (Exception e) {
+//            return false;
+//        }
+//    }
+
+
 }

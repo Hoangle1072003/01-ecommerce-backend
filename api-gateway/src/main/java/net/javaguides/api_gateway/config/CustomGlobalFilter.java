@@ -46,7 +46,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             "/identity-service/oauth2/.*",
             "/oauth2/.*",
             "/login/oauth2/code/google/.*",
+            "/identity-service/login/oauth2/code/google.*",
             "/identity-service/oauth2/authorization/google/.*",
+            "/identity-service/auth/google/signin",
             "/product-service/api/v1/products/.*",
             "/product-service/api/v1/products",
             "/product-service/api/v1/category",
@@ -57,7 +59,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             "/cart-service/api/v1/cart-items/.*",
             "/v3/api-docs/.*",
             "/swagger-ui/.*",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            ""
     };
 
 //    private final String[] endpointsMethodGet = {
@@ -79,8 +82,10 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String token1 = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         String path = exchange.getRequest().getURI().getPath();
         log.info("Request path: {}", path);
+        log.info("Request token: {}", token1);
 
 //        if (isPublicEndpoint(exchange)) {
 //            return chain.filter(exchange);

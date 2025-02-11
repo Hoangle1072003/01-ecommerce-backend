@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
 import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.domain.response.ResUserDTO;
@@ -160,11 +161,4 @@ public class UserController {
     }
 
 
-//    @GetMapping("/get-user-detail-is-null/{id}")
-//    @ApiMessage("Get user detail is null by user id")
-//    public ResponseEntity<ResCutomerOrderDetailDTO> getUserDetailIsNullByUserId(
-//            @PathVariable("id") UUID userId
-//    ) {
-//        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDetailIsNullByUserId(userId));
-//    }
 }

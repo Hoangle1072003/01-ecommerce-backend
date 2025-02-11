@@ -1,5 +1,9 @@
 package net.javaguides.identity_service.domain.request;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * File: TokenIntrospectionRequest.java
  * Author: Le Van Hoang
@@ -10,18 +14,21 @@ package net.javaguides.identity_service.domain.request;
  * Copyright © 2025 Le Van Hoang. All rights reserved.
  */
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TokenIntrospectionRequest {
     private String token;
-
-    public TokenIntrospectionRequest(String token) {
-        this.token = token;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
+//
+//    public TokenIntrospectionRequest(String token) {
+//        this.token = token;
+//    }
+//
+//    public String getToken() {
+//        return token;
+//    }
+//
+//    public void setToken(String token) {
+//        this.token = token;
+//    }
 }

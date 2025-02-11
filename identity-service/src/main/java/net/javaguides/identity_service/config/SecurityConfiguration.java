@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.identity_service.utils.SecurityUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,14 +14,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtEncoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -29,6 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
 
 /**
  * File: SecurityConfiguration.java
@@ -52,7 +50,14 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
+    @Autowired
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
+    @Autowired
+    private final OAuthenticationSuccessHandler oAuthenticationSuccessHandler;
+
+
+    private final String googlePublicKeyUrl = "https://www.googleapis.com/oauth2/v3/certs";
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
@@ -62,12 +67,16 @@ public class SecurityConfiguration {
                 "/api/v1/auth/refresh",
                 "/api/v1/auth/register",
                 "/api/v1/auth/activate",
+                "/api/v1/auth/create-new-user-google",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",
                 "/oauth2/**",
                 "/login/oauth2/code/**",
-                "/login/**"
+                "/login/**",
+                "/auth/google/**",
+                "/"
+
         };
         http
                 .csrf(csrf -> csrf.disable())
@@ -77,13 +86,11 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
                         .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/introspect").permitAll()
-                        .requestMatchers("/auth/google/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("/auth/google/signin", true)
+                        .successHandler(oAuthenticationSuccessHandler)
                 )
-//                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults())
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
@@ -110,19 +117,71 @@ public class SecurityConfiguration {
                 SecurityUtil.JWT_ALGORITHM.getName());
     }
 
+//    @Bean
+//    public JwtDecoder jwtDecoder() {
+//        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
+//                getSecretKey()).macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
+//        return token -> {
+//            try {
+//                return jwtDecoder.decode(token);
+//            } catch (Exception e) {
+//                System.out.println(">>> JWT error: " + e.getMessage());
+//                throw e;
+//            }
+//        };
+//    }
+
+
     @Bean
     public JwtDecoder jwtDecoder() {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
-                getSecretKey()).macAlgorithm(SecurityUtil.JWT_ALGORITHM).build();
+        JwtDecoder secretDecoder = jwtDecoderWithSecret();
+        JwtDecoder googleDecoder = jwtDecoderWithGooglePublicKey();
+
+        return token -> {
+            System.out.println("Decoding token: " + token);
+            if (token != null) {
+                try {
+                    System.out.println("Using Google public key decoder.");
+                    return googleDecoder.decode(token);
+                } catch (Exception e) {
+                    System.out.println(">>> Error decoding Google token: " + e.getMessage());
+                    return secretDecoder.decode(token);
+                }
+            }
+            return null;
+        };
+
+    }
+
+
+    private JwtDecoder jwtDecoderWithSecret() {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey())
+                .macAlgorithm(SecurityUtil.JWT_ALGORITHM)
+                .build();
+
         return token -> {
             try {
                 return jwtDecoder.decode(token);
             } catch (Exception e) {
-                System.out.println(">>> JWT error: " + e.getMessage());
+                System.out.println(">>> JWT error (secret): " + e.getMessage());
                 throw e;
             }
         };
     }
+
+    private JwtDecoder jwtDecoderWithGooglePublicKey() {
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(googlePublicKeyUrl).build();
+
+        return token -> {
+            try {
+                return jwtDecoder.decode(token);
+            } catch (Exception e) {
+                System.out.println(">>> JWT error (Google): " + e.getMessage());
+                throw e;
+            }
+        };
+    }
+
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

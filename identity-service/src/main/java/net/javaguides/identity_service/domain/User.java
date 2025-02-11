@@ -51,6 +51,9 @@ public class User {
     private StatusEnum status = StatusEnum.PENDING_ACTIVATION;
     @Enumerated(EnumType.STRING)
     private AuthProvider provider = AuthProvider.LOCAL;
+    @Column(name = "provider_id")
+    private String providerId;
+    private String imageUrl;
     @Column(name = "refresh_token", columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
     @Column(name = "created_by")
