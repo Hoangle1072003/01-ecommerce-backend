@@ -44,6 +44,21 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 1
+            redis-rate-limiter.burstCapacity: 2
+            redis-rate-limiter.requestedTokens: 1
+            key-resolver: "#{@userKeyResolver}"
+#        - name: SetStatus
+#          args:
+#            status: 429
+#        - name: ModifyResponseBody
+#          args:
+#            in-class: java.lang.String
+#            out-class: java.lang.String
+#            new-response-template: '{"error": "Too many requests", "status": 429}'
 
 logging:
   level:
