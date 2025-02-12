@@ -2,9 +2,12 @@ package net.javaguides.identity_service.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javaguides.event.dto.UserActiveEvent;
+import net.javaguides.event.dto.UserForgotPasswordEvent;
 import net.javaguides.identity_service.domain.Role;
 import net.javaguides.identity_service.domain.User;
 
+import net.javaguides.identity_service.domain.request.ReqResetPasswordDto;
 import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
 import net.javaguides.identity_service.domain.response.ResMeta;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
@@ -18,6 +21,7 @@ import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
@@ -47,6 +51,8 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtil securityUtil;
     private final IRoleRepository roleRepository;
+    private final KafkaTemplate<String, UserForgotPasswordEvent> userForgotPasswordEventKafkaTemplate;
+    private static final String USER_FORGOT_PASSWORD_TOPIC = "USER_FORGOT_PASSWORD_TOPIC";
 
     @Override
     public User handleUser(User user) {
@@ -209,6 +215,24 @@ public class UserServiceImpl implements IUserService {
         Role userRole = roleRepository.findByName("USER");
         user.setRole(userRole);
         return userRepository.save(user);
+    }
+
+    @Override
+    public String resetPassword(User user) {
+        String token = securityUtil.createActivationToken(user.getEmail());
+        userForgotPasswordEventKafkaTemplate.send(USER_FORGOT_PASSWORD_TOPIC, new UserForgotPasswordEvent(user.getEmail(), token));
+        return "Reset password link has been sent to your email";
+    }
+
+    @Override
+    public Void resetPasswordConfirm(ReqResetPasswordDto reqResetPasswordDto) {
+        User user = userRepository.findById(UUID.fromString(reqResetPasswordDto.getId())).orElseThrow();
+        if (reqResetPasswordDto.getPassword().equals(reqResetPasswordDto.getConfirmPassword())) {
+            user.setPassword(passwordEncoder.encode(reqResetPasswordDto.getPassword()));
+            userRepository.save(user);
+            return null;
+        }
+        return null;
     }
 
 

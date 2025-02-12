@@ -396,4 +396,36 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(resCreateUserDTO);
     }
 
+    @PostMapping("/forgot-password")
+    @ApiMessage("Forgot password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ReqEmailDto reqEmailDto) {
+        User user = userService.handleGetUserByUserName(reqEmailDto.getEmail());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Người dùng không tồn tại.");
+        }
+        String resetToken = userService.resetPassword(user);
+        return ResponseEntity.ok(resetToken);
+
+    }
+
+    @GetMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@RequestParam String token) throws Exception {
+        Jwt jwt = securityUtil.checkValidJWTAccessToken(token);
+        String email = jwt.getSubject();
+        User user = userService.handleGetUserByUserName(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, "http://localhost:3001/auth/reset-password?id=" + user.getId())
+                .build();
+    }
+
+    @PutMapping("/reset-password")
+    @ApiMessage("Reset password")
+    public ResponseEntity<Void> resetPassword(@RequestBody ReqResetPasswordDto reqResetPasswordDto) {
+        userService.resetPasswordConfirm(reqResetPasswordDto);
+        return ResponseEntity.ok().build();
+    }
 }

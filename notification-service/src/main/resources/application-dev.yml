@@ -49,5 +49,6 @@ cors-gateway:
   host: http://localhost:9191
 activation:
   link: http://localhost:9191/identity-service/api/v1/auth/activate?token=
+  reset: http://localhost:9191/identity-service/api/v1/auth/reset-password?token=
 server:
   port: 8087

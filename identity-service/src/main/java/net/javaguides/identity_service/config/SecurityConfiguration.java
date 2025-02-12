@@ -68,6 +68,8 @@ public class SecurityConfiguration {
                 "/api/v1/auth/refresh",
                 "/api/v1/auth/register",
                 "/api/v1/auth/activate",
+                "/api/v1/auth/forgot-password",
+                "/api/v1/auth/reset-password/**",
                 "/api/v1/auth/create-new-user-google",
                 "/api/v1/auth/create-new-user-github",
                 "/v3/api-docs/**",
@@ -144,7 +146,7 @@ public class SecurityConfiguration {
             System.out.println("Decoding token: " + token);
             if (token != null) {
                 try {
-                   
+
                     return googleDecoder.decode(token);
 
                 } catch (Exception e) {

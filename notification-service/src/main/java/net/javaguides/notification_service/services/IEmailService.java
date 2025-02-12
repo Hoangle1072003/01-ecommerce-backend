@@ -24,4 +24,6 @@ public interface IEmailService {
     void sendOrderConfirmationEmail(String name, String to, ResUserDTO resUserDTO, ResCartByIdDto resCartByIdDto, ResOrderByIdDto resOrderByIdDto, ResCartItemByIdDto resCartItemByIdDto);
 
     void sendAccountActivationEmail(UserActiveEvent userActiveEvent);
+
+    void sendForgotPasswordEmail(String email, String token);
 }

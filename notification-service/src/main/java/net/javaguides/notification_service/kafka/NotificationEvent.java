@@ -3,6 +3,7 @@ package net.javaguides.notification_service.kafka;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
 import net.javaguides.event.dto.UserActiveEvent;
+import net.javaguides.event.dto.UserForgotPasswordEvent;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -69,6 +70,17 @@ public class NotificationEvent {
             emailService.sendAccountActivationEmail(userActiveEvent);
         } catch (Exception e) {
             System.err.println("Error handling user active event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @KafkaListener(topics = "USER_FORGOT_PASSWORD_TOPIC")
+    public void listenUserForgotPasswordEvent(UserForgotPasswordEvent userForgotPasswordEvent) {
+        try {
+            System.out.println("Received user forgot password event: " + userForgotPasswordEvent);
+            emailService.sendForgotPasswordEmail(userForgotPasswordEvent.getEmail(), userForgotPasswordEvent.getToken());
+        } catch (Exception e) {
+            System.err.println("Error handling user forgot password event: " + e.getMessage());
             e.printStackTrace();
         }
     }

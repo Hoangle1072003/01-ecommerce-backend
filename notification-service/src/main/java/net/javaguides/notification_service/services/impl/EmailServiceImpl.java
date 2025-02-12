@@ -43,9 +43,12 @@ public class EmailServiceImpl implements IEmailService {
     public static final String EMAIL_TEMPLATE = "email-thanks";
     private static final String EMAIL_ORDER_CONFIRMATION_TEMPLATE = "email-bill";
     public static final String EMAIL_ACCOUNT_ACTIVATION_TEMPLATE = "email-account-activation";
+    private static final String EMAIL_TEMPLATE_FORGOT_PASSWORD = "email-forgot-password";
 
     @Value("${activation.link}")
     private String linkActivation;
+    @Value("${activation.reset}")
+    private String linkReset;
 
     @Override
     public void sendSimpleMailMessage(String name, String to) {
@@ -137,4 +140,28 @@ public class EmailServiceImpl implements IEmailService {
         }
     }
 
+    @Override
+    public void sendForgotPasswordEmail(String email, String token) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            var messageHelper = new MimeMessageHelper(mimeMessage, true, UTF_8_ENCODING);
+
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(email);
+            messageHelper.setSubject("Quên Mật Khẩu");
+
+            String resetLink = linkReset + token;
+            Context context = new Context();
+
+            context.setVariable("email", email);
+            context.setVariable("token", token);
+            context.setVariable("resetLink", resetLink);
+            String content = templateEngine.process(EMAIL_TEMPLATE_FORGOT_PASSWORD, context);
+
+            messageHelper.setText(content, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailException e) {
+            e.printStackTrace();
+        }
+    }
 }
