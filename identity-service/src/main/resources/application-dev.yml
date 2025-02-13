@@ -14,12 +14,12 @@ spring:
         access-token-validity-in-seconds: 86400
         access-token-active-in-seconds: 300
         refresh-token-validity-in-seconds: 86400
-  #    oauth2:
-  #      client:
-  #        registration:
-  #          google:
-  #            client-id: 1234
-  #            client-secret: 1234
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 1234
+            client-secret: 1234
   kafka:
     bootstrap-servers: localhost:9094
     producer:

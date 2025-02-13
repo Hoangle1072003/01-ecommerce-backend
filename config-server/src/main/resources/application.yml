@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: CONFIG-SERVER
+  cloud:
+    config:
+      server:
+        git:
+          uri: ${CONFIG_SERVER_URI}
+          clone-on-start: true
+          default-label: main
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
+server:
+  port: ${CONFIG_SERVER_PORT}
