@@ -12,7 +12,14 @@ spring:
         # openssl rand -base64 64
         base64-secret: ${SPRING_SECURITY_JWT_SECRET}
         access-token-validity-in-seconds: ${SPRING_SECURITY_JWT_EXPIRATION}
+        access-token-active-in-seconds: ${SPRING_SECURITY_ACTIVE}
         refresh-token-validity-in-seconds: ${SPRING_SECURITY_JWT_EXPIRATION}
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 1234
+            client-secret: 1234
   api:
     version: /api/v1
   boot:
@@ -43,10 +50,22 @@ eureka:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
         include: "*"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+#cors-gateway:
+#  host: http://localhost:9191
 server:
   port: ${IDENTITY_SERVICE_PORT}
+  forward-headers-strategy: framework
 

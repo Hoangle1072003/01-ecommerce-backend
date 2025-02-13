@@ -53,6 +53,40 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     networks:
       - backend
+  zipkin:
+    image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
+    environment:
+      - STORAGE_TYPE=mem
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to increase heap size
+      # - JAVA_OPTS=-Xms128m -Xmx128m -XX:+ExitOnOutOfMemoryError
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9411:9411
+    # Uncomment to enable debug logging
+    # command: --logging.level.zipkin2=DEBUG
+    networks:
+      - backend
+
+  redis:
+    image: docker.io/bitnami/redis:7.4
+    restart: always
+    container_name: redis
+    ports:
+      - '${REDIS_PORT}:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+      - REDIS_PORT_NUMBER=6379
+      - REDIS_BIND=0.0.0.0
+
 
   identity-service:
     image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-c073d300b9c4285ca84377b355efa13719f0b77b'
@@ -71,6 +105,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
       - SPRING_SECURITY_JWT_EXPIRATION=${SPRING_SECURITY_JWT_EXPIRATION}
+      - SPRING_SECURITY_ACTIVE=${SPRING_SECURITY_ACTIVE}
     networks:
       - backend
 
@@ -83,6 +118,7 @@ services:
       - EUREKA_CLIENT_SERVICE_URL= ${EUREKA_CLIENT_SERVICE_URL}
       - CART_SERVICE_PORT=${CART_SERVICE_PORT}
       - MONGO_URL=${MONGO_URL}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
     networks:
       - backend
 
@@ -102,6 +138,7 @@ services:
       - PRODUCT_MONGO_DB_NAME=${PRODUCT_MONGO_DB_NAME}
       - MONGO_URL=${MONGO_URL}
       - PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
     depends_on:
       - kafka
       - service-registry
@@ -118,6 +155,7 @@ services:
       - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT}
       - MONGO_URL=${MONGO_URL}
       - KAFKA_DEFAULT_HOST=${KAFKA_DEFAULT_HOST}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
     networks:
       - backend
 
@@ -138,6 +176,7 @@ services:
       - VN_PAY_VERSION=${VN_PAY_VERSION}
       - VN_PAY_COMMAND=${VN_PAY_COMMAND}
       - VN_PAY_ORDER_TYPE=${VN_PAY_ORDER_TYPE}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
     networks:
       - backend
 
@@ -155,6 +194,26 @@ services:
       - MAIL_USERNAME=${MAIL_USERNAME}
       - MAIL_PASSWORD=${MAIL_PASSWORD}
       - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
+    networks:
+      - backend
+
+  chat-service:
+    image: 'ashleynguci1072003/01-ecommerce-backend-chat-service:chat-service-c073d300b9c4285ca84377b355efa13719f0b77b'
+    container_name: ${CHAT_SERVICE_HOST}
+    ports:
+      - '${CHAT_SERVICE_PORT}:8088'
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL=${EUREKA_CLIENT_SERVICE_URL}
+      - CHAT_SERVICE_PORT=${CHAT_SERVICE_PORT}
+      - RABBITMQ_DEFAULT_HOST=${RABBITMQ_DEFAULT_HOST}
+      - RABBITMQ_DEFAULT_PORT=${RABBITMQ_DEFAULT_PORT}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
+      - CHAT_SERVICE_PORT=${CHAT_SERVICE_PORT}
+      - KAFKA_DEFAULT_HOST=${KAFKA_DEFAULT_HOST}
+      - GEMINI_API_URL=${GEMINI_API_URL}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     networks:
       - backend
 
@@ -199,9 +258,11 @@ services:
       - payment-service
       - notification-service
       - cart-service
+      - chat-service
 
 volumes:
   mysql_data:
+  redis_data:
 
 networks:
   backend:

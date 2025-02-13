@@ -2,14 +2,14 @@ spring:
   application:
     name: CHAT-SERVICE
   rabbitmq:
-    host: ${RABBITMQ_DEFAULT_HOST}
-    port: ${RABBITMQ_DEFAULT_PORT}
-    username: ${RABBITMQ_DEFAULT_USER}
-    password: ${RABBITMQ_DEFAULT_PASS}
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
     boot:
       message: Hello , I am a chat service
   kafka:
-    bootstrap-servers: ${KAFKA_DEFAULT_HOST}:9092
+    bootstrap-servers: localhost:9094
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -25,11 +25,11 @@ spring:
     authentication:
       jwt:
         # openssl rand -base64 64
-        base64-secret: ${SPRING_SECURITY_JWT_SECRET}
+        base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
+      defaultZone: http://localhost:8761/eureka
 management:
   endpoints:
     web:
@@ -37,7 +37,7 @@ management:
         include: "*"
 gemini:
   api:
-    url: ${GEMINI_API_URL}
-    key: ${GEMINI_API_KEY}
+    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="
+    key: "AIzaSyB69Xf3IG4kIpY49VDGnkOyxOqV7Zdt1GU"
 server:
-  port: ${CHAT_SERVICE_PORT}
+  port: 8088

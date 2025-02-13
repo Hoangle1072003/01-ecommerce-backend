@@ -40,5 +40,13 @@ eureka:
   client:
     service-url:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+activation:
+  link: http://api-gateway:9191/identity-service/api/v1/auth/activate?token=
+  reset: http://api-gateway:9191/identity-service/api/v1/auth/reset-password?token=
 server:
   port: ${NOTIFICATION_SERVICE_PORT}

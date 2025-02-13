@@ -115,7 +115,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         log.info("Sending token to introspect: {}", token);
         return webClientBuilder.build()
                 .post()
-                .uri("http://localhost:8082/api/v1/auth/introspect")
+                .uri("http://identity-service:8082/api/v1/auth/introspect")
                 .bodyValue(new RequestTokenIntrospection(token))
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                 .retrieve()
