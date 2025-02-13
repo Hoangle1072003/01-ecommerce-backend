@@ -73,6 +73,7 @@ public class SecurityConfiguration {
                 "/api/v1/auth/activate",
                 "/api/v1/auth/forgot-password",
                 "/api/v1/auth/reset-password/**",
+                "/api/v1/auth/resend-activation",
                 "/api/v1/auth/create-new-user-google",
                 "/api/v1/auth/create-new-user-github",
                 "/v3/api-docs/**",

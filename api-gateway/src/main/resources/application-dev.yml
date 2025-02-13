@@ -5,7 +5,10 @@ spring:
     message: Hello , API-GATEWAY from dev
   main:
     allow-circular-references: true
-
+  data:
+    redis:
+      host: localhost
+      port: 6379
   cloud:
     gateway:
       httpclient:
