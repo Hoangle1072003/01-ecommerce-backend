@@ -89,7 +89,7 @@ services:
 
 
   identity-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${IDENTITY_SERVICE_HOST}
     ports:
       - '${IDENTITY_SERVICE_PORT}:8082'
@@ -110,7 +110,7 @@ services:
       - backend
 
   cart-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${CART_SERVICE_HOST}
     ports:
       - '${CART_SERVICE_PORT}:8084'
@@ -124,7 +124,7 @@ services:
       - backend
 
   product-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${PRODUCT_SERVICE_HOST}
     ports:
       - '${PRODUCT_SERVICE_PORT}:8083'
@@ -147,7 +147,7 @@ services:
       - backend
 
   order-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${ORDER_SERVICE_HOST}
     ports:
       - '${ORDER_SERVICE_PORT}:8085'
@@ -161,7 +161,7 @@ services:
       - backend
 
   payment-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${PAYMENT_SERVICE_HOST}
     ports:
       - '${PAYMENT_SERVICE_PORT}:8086'
@@ -182,7 +182,7 @@ services:
       - backend
 
   notification-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${NOTIFICATION_SERVICE_HOST}
     ports:
       - '${NOTIFICATION_SERVICE_PORT}:8087'
@@ -199,7 +199,7 @@ services:
       - backend
 
   chat-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-chat-service:chat-service-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-chat-service:chat-service-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${CHAT_SERVICE_HOST}
     ports:
       - '${CHAT_SERVICE_PORT}:8088'
@@ -219,7 +219,7 @@ services:
       - backend
 
   config-server:
-    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${CONFIG_SERVER_HOST}
     ports:
       - '${CONFIG_SERVER_PORT}:8888'
@@ -231,7 +231,7 @@ services:
       - backend
 
   service-registry:
-    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${SERVICE_REGISTRY_HOST}
     ports:
       - '${SERVICE_REGISTRY_PORT}:8761'
@@ -241,7 +241,7 @@ services:
       - backend
 
   api-gateway:
-    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-545b246999309634da1bb04a1346ddd5bff6a30f'
+    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-c7a644ca57729a6bb786be25c80b122f21d931ca'
     container_name: ${API_GATEWAY_HOST}
     ports:
       - '${API_GATEWAY_PORT}:9191'
