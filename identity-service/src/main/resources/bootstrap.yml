@@ -1,5 +1,0 @@
-spring:
-  profiles:
-    active: ${SPRING_PROFILE_ACTIVE:dev}
-  config:
-    import: optional:${SPRING_CONFIG_SERVER_URL:http://localhost:8888}
