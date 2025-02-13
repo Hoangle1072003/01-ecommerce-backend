@@ -4,7 +4,7 @@ spring:
   boot:
     message: Hello , SERVICE-REGISTRY from staging
 server:
-  port: ${SERVICE_REGISTRY_PORT}
+  port: ${SERVICE_REGISTRY_PORT:8761}
   forward-headers-strategy: framework
 eureka:
   client:
