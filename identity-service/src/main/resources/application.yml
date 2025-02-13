@@ -14,12 +14,12 @@ spring:
         access-token-validity-in-seconds: ${SPRING_SECURITY_JWT_EXPIRATION}
         access-token-active-in-seconds: ${SPRING_SECURITY_ACTIVE}
         refresh-token-validity-in-seconds: ${SPRING_SECURITY_JWT_EXPIRATION}
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: 1234
-            client-secret: 1234
+  #    oauth2:
+  #      client:
+  #        registration:
+  #          google:
+  #            client-id: 1234
+  #            client-secret: 1234
   api:
     version: /api/v1
   boot:
