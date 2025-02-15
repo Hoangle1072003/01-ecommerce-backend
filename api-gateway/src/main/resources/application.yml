@@ -30,6 +30,9 @@ spring:
             allowedOrigins:
               - "http://localhost:3000"
               - "http://localhost:3001"
+              - "http://0.0.0.0:3000"
+              - "http://0.0.0.0:3001"
+              - "http://next-client-hot:3000"
             allowedMethods:
               - GET
               - POST
@@ -67,4 +70,3 @@ management:
 
 server:
   port: ${API_GATEWAY_PORT}
-  forward-headers-strategy: framework
