@@ -1,45 +1,45 @@
-#name: Build and Deploy Services
-#
-#on:
-#  push:
-#    branches:
-#      - staging
-#
-#jobs:
-#  build:
-#    runs-on: ubuntu-latest
-#    #    runs-on: self-hosted
-#    strategy:
-#      matrix:
-#        service: [ identity-service, api-gateway, config-server, service-registry, product-service, cart-service, notification-service, order-service, payment-service, notification-service, chat-service ]
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v4
-#
-#      - name: Set up Docker
-#        uses: docker/setup-buildx-action@v2
-#
-#      - name: Install dependencies
-#        run: |
-#          sudo apt-get update && sudo apt-get install -y curl
-#          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.36.0/pack-v0.36.0-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack
-#
-#      - name: Log in to Docker Hub
-#        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-#
-#      - name: Build and Push ${{ matrix.service }}
-#        run: |
-#          echo "Building ${{ matrix.service }} with Buildpacks..."
-#          cd ${{ matrix.service }}
-#          pack build integrationninjas/${{ matrix.service }}:${{ github.sha }} --path . --builder paketobuildpacks/builder:base --tag integrationninjas/${{ matrix.service }}:${{ github.sha }}
-#          docker images
-#          docker tag integrationninjas/${{ matrix.service }}:${{ github.sha }} ashleynguci1072003/01-ecommerce-backend-${{ matrix.service }}:${{ matrix.service }}-${{ github.sha }}
-#          docker push ashleynguci1072003/01-ecommerce-backend-${{ matrix.service }}:${{ matrix.service }}-${{ github.sha }}
-#
-#  deploy:
-#    needs: build
-#    runs-on: ubuntu-latest
-#    #    runs-on: self-hosted
-#    steps:
-#      - name: Deploy identity-service
-#        run: echo "Deploying identity-service..."
+name: Build and Deploy Services
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    #    runs-on: self-hosted
+    strategy:
+      matrix:
+        service: [ identity-service, api-gateway, config-server, service-registry, product-service, cart-service, notification-service, order-service, payment-service, notification-service, chat-service ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y curl
+          curl -sSL "https://github.com/buildpacks/pack/releases/download/v0.36.0/pack-v0.36.0-linux.tgz" | sudo tar -C /usr/local/bin/ --no-same-owner -xzv pack
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push ${{ matrix.service }}
+        run: |
+          echo "Building ${{ matrix.service }} with Buildpacks..."
+          cd ${{ matrix.service }}
+          pack build integrationninjas/${{ matrix.service }}:${{ github.sha }} --path . --builder paketobuildpacks/builder:base --tag integrationninjas/${{ matrix.service }}:${{ github.sha }}
+          docker images
+          docker tag integrationninjas/${{ matrix.service }}:${{ github.sha }} ashleynguci1072003/01-ecommerce-backend-${{ matrix.service }}:${{ matrix.service }}-${{ github.sha }}
+          docker push ashleynguci1072003/01-ecommerce-backend-${{ matrix.service }}:${{ matrix.service }}-${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    #    runs-on: self-hosted
+    steps:
+      - name: Deploy identity-service
+        run: echo "Deploying identity-service..."
