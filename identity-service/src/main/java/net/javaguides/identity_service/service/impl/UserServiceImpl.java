@@ -8,9 +8,12 @@ import net.javaguides.identity_service.domain.Role;
 import net.javaguides.identity_service.domain.User;
 
 import net.javaguides.identity_service.domain.request.ReqResetPasswordDto;
+import net.javaguides.identity_service.domain.request.ReqUpdateUserDto;
 import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
 import net.javaguides.identity_service.domain.response.ResMeta;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
+import net.javaguides.identity_service.domain.response.ResUpdateUserDto;
+import net.javaguides.identity_service.mapper.IUserMapper;
 import net.javaguides.identity_service.repository.IRoleRepository;
 import net.javaguides.identity_service.repository.IUserRepository;
 import net.javaguides.identity_service.service.IRoleService;
@@ -51,6 +54,7 @@ public class UserServiceImpl implements IUserService {
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtil securityUtil;
     private final IRoleRepository roleRepository;
+    private final IUserMapper userMapper;
     private final KafkaTemplate<String, UserForgotPasswordEvent> userForgotPasswordEventKafkaTemplate;
     private static final String USER_FORGOT_PASSWORD_TOPIC = "USER_FORGOT_PASSWORD_TOPIC";
 
@@ -235,19 +239,12 @@ public class UserServiceImpl implements IUserService {
         return null;
     }
 
-
-//    @Override
-//    public boolean verifyGoogleAccessToken(String token) {
-//        RestTemplate restTemplate = new RestTemplate();
-//        String introspectionUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + token;
-//
-//        try {
-//            ResponseEntity<Map> response = restTemplate.getForEntity(introspectionUrl, Map.class);
-//            return response.getStatusCode().is2xxSuccessful();
-//        } catch (Exception e) {
-//            return false;
-//        }
-//    }
-
-
+    @Override
+    public ResUpdateUserDto updateUserClient(ReqUpdateUserDto reqUpdateUserDto) {
+        User user = userRepository.findById(reqUpdateUserDto.getId()).orElseThrow();
+        user.setName(reqUpdateUserDto.getName());
+        user.setAddress(reqUpdateUserDto.getAddress());
+        user.setGender(reqUpdateUserDto.getGender());
+        return userMapper.convertToResUpdateUserDto(userRepository.save(user));
+    }
 }
