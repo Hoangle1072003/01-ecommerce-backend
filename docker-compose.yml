@@ -264,22 +264,6 @@ services:
       - notification-service
       - cart-service
       - chat-service
-
-  nextjs-app:
-    image: ashleynguci1072003/nextjs-client-app:2dd4767bea7ee0760939f4f4749f451c4e2e42f0
-    ports:
-      - "3000:3000"
-    networks:
-      - backend
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-      - AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
-      - AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - AUTH_SECRET=${AUTH_SECRET}
-    restart: always
-
 volumes:
   mysql_data:
   redis_data:
