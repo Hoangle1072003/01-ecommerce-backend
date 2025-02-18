@@ -2,36 +2,37 @@ package net.javaguides.identity_service.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
-import com.nimbusds.openid.connect.sdk.claims.ClaimsSet;
 import lombok.RequiredArgsConstructor;
+import net.javaguides.identity_service.controller.AuthController;
 import net.javaguides.identity_service.utils.SecurityUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.access.BearerTokenAccessDeniedHandler;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 
 
 /**
@@ -83,6 +84,7 @@ public class SecurityConfiguration {
                 "/login/oauth2/code/**",
                 "/login/**",
                 "/auth/google/**",
+//                "/api/v1/user/**",
                 "/"
 
         };
@@ -92,7 +94,7 @@ public class SecurityConfiguration {
                         .requestMatchers(whiteList).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/user/**").permitAll()
                         .requestMatchers("/api/v1/roles/**").hasRole("ADMIN")
-                        .requestMatchers("/api/v1/user/**").hasRole("ADMIN")
+                        .requestMatchers("/api/v1/user/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/introspect").permitAll()
                         .anyRequest().authenticated()
                 )
@@ -150,9 +152,7 @@ public class SecurityConfiguration {
             System.out.println("Decoding token: " + token);
             if (token != null) {
                 try {
-
                     return googleDecoder.decode(token);
-
                 } catch (Exception e) {
                     System.out.println(">>> Error decoding Google token: " + e.getMessage());
                     return secretDecoder.decode(token);
@@ -160,7 +160,6 @@ public class SecurityConfiguration {
             }
             return null;
         };
-
     }
 
 
@@ -201,8 +200,42 @@ public class SecurityConfiguration {
 
         jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            boolean isGoogle = validateGoogleIdToken(jwt.getTokenValue());
+            if (isGoogle) {
+                return extractGoogleAuthorities();
+            } else {
+                return jwtGrantedAuthoritiesConverter.convert(jwt);
+            }
+        });
         return jwtAuthenticationConverter;
     }
+
+    private Collection<GrantedAuthority> extractGoogleAuthorities() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        return authorities;
+    }
+
+    public boolean validateGoogleIdToken(String idToken) {
+        try {
+            String url = "https://oauth2.googleapis.com/tokeninfo?id_token=" + idToken;
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+
+            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
+                String email = (String) response.getBody().get("email");
+                if (email != null) {
+                    System.out.println(">>> Google ID Token is valid for email: " + email);
+                    return true;
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println(">>> Error validating Google ID Token: " + e.getMessage());
+        }
+        return false;
+    }
+
 
 }

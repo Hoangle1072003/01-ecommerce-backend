@@ -401,7 +401,16 @@ public class AuthController {
     public ResponseEntity<String> forgotPassword(@RequestBody ReqEmailDto reqEmailDto) {
         User user = userService.handleGetUserByUserName(reqEmailDto.getEmail());
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Người dùng không tồn tại.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Người dùng không tồn tại.");
+        }
+        if (user.getStatus().equals(StatusEnum.PENDING_ACTIVATION)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn chưa được kích hoạt.");
+        }
+        if (user.getStatus().equals(StatusEnum.DEACTIVATED)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn đã bị vô hiệu hóa.");
+        }
+        if (user.getStatus().equals(StatusEnum.SUSPENDED)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Tài khoản của bạn đã bị tạm ngưng.");
         }
         String resetToken = userService.resetPassword(user);
         return ResponseEntity.ok(resetToken);

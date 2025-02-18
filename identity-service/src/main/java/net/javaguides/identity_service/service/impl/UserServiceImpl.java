@@ -9,10 +9,12 @@ import net.javaguides.identity_service.domain.User;
 
 import net.javaguides.identity_service.domain.request.ReqResetPasswordDto;
 import net.javaguides.identity_service.domain.request.ReqUpdateUserDto;
+import net.javaguides.identity_service.domain.request.ReqUpdateUserPhoneDto;
 import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
 import net.javaguides.identity_service.domain.response.ResMeta;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.domain.response.ResUpdateUserDto;
+import net.javaguides.identity_service.domain.response.ResUpdateUserPhoneDto;
 import net.javaguides.identity_service.mapper.IUserMapper;
 import net.javaguides.identity_service.repository.IRoleRepository;
 import net.javaguides.identity_service.repository.IUserRepository;
@@ -185,7 +187,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User saveUserByGoogle(ReqUserGoogleDto reqUserGoogleDto) {
         User oldUser = userRepository.findByEmail(reqUserGoogleDto.getEmail());
-        if (oldUser != null) {
+        if (oldUser != null && oldUser.getProvider().equals(AuthProvider.LOCAL)) {
             return oldUser;
         }
         User user = new User();
@@ -246,5 +248,12 @@ public class UserServiceImpl implements IUserService {
         user.setAddress(reqUpdateUserDto.getAddress());
         user.setGender(reqUpdateUserDto.getGender());
         return userMapper.convertToResUpdateUserDto(userRepository.save(user));
+    }
+
+    @Override
+    public ResUpdateUserPhoneDto updateUserPhone(ReqUpdateUserPhoneDto reqUpdateUserPhoneDto) {
+        User user = userRepository.findById(reqUpdateUserPhoneDto.getId()).orElseThrow();
+        user.setPhone(reqUpdateUserPhoneDto.getPhone());
+        return userMapper.convertToResUpdateUserPhoneDto(userRepository.save(user));
     }
 }
