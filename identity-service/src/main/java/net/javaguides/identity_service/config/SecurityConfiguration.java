@@ -152,9 +152,7 @@ public class SecurityConfiguration {
             System.out.println("Decoding token: " + token);
             if (token != null) {
                 try {
-
                     return googleDecoder.decode(token);
-
                 } catch (Exception e) {
                     System.out.println(">>> Error decoding Google token: " + e.getMessage());
                     return secretDecoder.decode(token);
@@ -162,7 +160,6 @@ public class SecurityConfiguration {
             }
             return null;
         };
-
     }
 
 
