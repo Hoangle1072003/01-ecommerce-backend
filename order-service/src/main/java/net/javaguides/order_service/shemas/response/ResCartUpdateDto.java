@@ -4,17 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.javaguides.order_service.utils.constants.CartStatusEnum;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.Instant;
 import java.util.UUID;
 
 /**
- * File: ResCartClientDto.java
+ * File: ResCartUpdateDto.java
  * Author: Le Van Hoang
- * Date: 25/01/2025
- * Time: 17:05
+ * Date: 07/02/2025
+ * Time: 21:53
  * Version: 1.0
  * <p>
  * Copyright © 2025 Le Van Hoang. All rights reserved.
@@ -23,7 +21,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResCartClientDto {
+public class ResCartUpdateDto {
     private String id;
     private UUID userId;
     private CartStatusEnum status;

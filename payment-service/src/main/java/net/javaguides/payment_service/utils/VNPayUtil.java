@@ -10,10 +10,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-import java.util.Random;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,13 +19,14 @@ import java.util.stream.Collectors;
  * Date: 25/01/2025
  * Time: 21:29
  * Version: 1.1
- *
+ * <p>
  * Copyright © 2025 Le Van Hoang. All rights reserved.
  */
 
 public class VNPayUtil {
     @Value("${payment.vnPay.secretKey}")
     private static String secretKeys;
+
     /**
      * Generate HMAC SHA512 hash from key and data
      *
@@ -56,7 +54,6 @@ public class VNPayUtil {
             throw new RuntimeException("Error while generating HMAC SHA512", ex);
         }
     }
-
 
 
     /**
@@ -117,9 +114,10 @@ public class VNPayUtil {
     public static String getExpireTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT+7"));
-        Date expireTime = new Date(System.currentTimeMillis() + 15 * 60 * 1000); // Add 15 minutes
+        Date expireTime = new Date(System.currentTimeMillis() + 2 * 60 * 1000); // 2 minutes from now
         return sdf.format(expireTime);
     }
+
     public static boolean verifySecureHash(Map<String, String> params, String secureHash) throws NoSuchAlgorithmException {
         String secretKey = secretKeys;
         StringBuilder data = new StringBuilder();
@@ -136,5 +134,6 @@ public class VNPayUtil {
 
         return calculatedHash.equals(secureHash.toUpperCase());
     }
+
 
 }

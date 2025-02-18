@@ -1,8 +1,6 @@
 package net.javaguides.cart_service.service;
 
-import net.javaguides.cart_service.schema.response.ResCartItemDeleteDto;
-import net.javaguides.cart_service.schema.response.ResCartItemDto;
-import net.javaguides.cart_service.schema.response.ResGetCartItemDto;
+import net.javaguides.cart_service.schema.response.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +18,13 @@ import java.util.UUID;
 public interface ICartItemService {
     ResCartItemDto getCartItemByUserId(UUID id) throws Exception;
 
+    ResCartItemDto getCartItemByIdAndStatus(UUID id) throws Exception;
+
     Void deleteCartItem(ResCartItemDeleteDto resCartItemDelete) throws Exception;
 
     List<ResGetCartItemDto> getCartItemByCartId(String id) throws Exception;
+
+    ResUpdateCartItemDto updateCartItemQuantity(UUID userId, String productId, String variantId, int quantity) throws Exception;
+
+    List<ResGetCartItemDto> getCartItemByCartIdAndDeletedAtIsNull(String id) throws Exception;
 }

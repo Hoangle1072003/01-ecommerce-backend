@@ -1,10 +1,15 @@
 package net.javaguides.order_service.services.httpClient;
 
-import net.javaguides.order_service.shemas.response.ResCartClientDto;
+
+import net.javaguides.order_service.shemas.response.Cart;
 import net.javaguides.event.dto.CartItemClientEvent;
+import net.javaguides.order_service.shemas.response.ResCartUpdateDto;
+import net.javaguides.order_service.shemas.response.ResGetCartItemDto;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.util.List;
 
@@ -21,8 +26,14 @@ import java.util.List;
 @FeignClient(name = "CART-SERVICE")
 public interface ICartServiceClient {
     @GetMapping("/api/v1/cart/{id}")
-    ResCartClientDto getCartById(@PathVariable String id);
+    Cart getCartById(@PathVariable String id);
 
     @GetMapping("/api/v1/cart-item/cart/{id}")
     List<CartItemClientEvent> getCartItemByCartId(@PathVariable("id") String id);
+
+    @GetMapping("/api/v1/cart-item/cart/deleted-at-is-null/{id}")
+    List<ResGetCartItemDto> getCartItemByCartIdAndDeletedAtIsNull(@PathVariable("id") String id) throws Exception;
+
+    @PutMapping("/api/v1/cart/update-status-cart-completed/{id}")
+    ResCartUpdateDto updateStatusCartCompleted(@PathVariable String id);
 }

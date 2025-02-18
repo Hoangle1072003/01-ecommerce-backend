@@ -53,9 +53,43 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     networks:
       - backend
+  zipkin:
+    image: ghcr.io/openzipkin/zipkin-slim:${TAG:-latest}
+    container_name: zipkin
+    # Environment settings are defined here https://github.com/openzipkin/zipkin/blob/master/zipkin-server/README.md#environment-variables
+    environment:
+      - STORAGE_TYPE=mem
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to increase heap size
+      # - JAVA_OPTS=-Xms128m -Xmx128m -XX:+ExitOnOutOfMemoryError
+    ports:
+      # Port used for the Zipkin UI and HTTP Api
+      - 9411:9411
+    # Uncomment to enable debug logging
+    # command: --logging.level.zipkin2=DEBUG
+    networks:
+      - backend
+
+  redis:
+    image: docker.io/bitnami/redis:7.4
+    restart: always
+    container_name: redis
+    ports:
+      - '${REDIS_PORT}:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+      - REDIS_PORT_NUMBER=6379
+      - REDIS_BIND=0.0.0.0
+
 
   identity-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-identity-service:identity-service-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${IDENTITY_SERVICE_HOST}
     ports:
       - '${IDENTITY_SERVICE_PORT}:8082'
@@ -71,11 +105,14 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
       - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
       - SPRING_SECURITY_JWT_EXPIRATION=${SPRING_SECURITY_JWT_EXPIRATION}
+      - SPRING_SECURITY_ACTIVE=${SPRING_SECURITY_ACTIVE}
+      - KAFKA_DEFAULT_HOST=${KAFKA_DEFAULT_HOST}
+      - GOOGLE_TEST=1234
     networks:
       - backend
 
   cart-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-cart-service:cart-service-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${CART_SERVICE_HOST}
     ports:
       - '${CART_SERVICE_PORT}:8084'
@@ -83,11 +120,13 @@ services:
       - EUREKA_CLIENT_SERVICE_URL= ${EUREKA_CLIENT_SERVICE_URL}
       - CART_SERVICE_PORT=${CART_SERVICE_PORT}
       - MONGO_URL=${MONGO_URL}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
+      - KAFKA_DEFAULT_HOST=${KAFKA_DEFAULT_HOST}
     networks:
       - backend
 
   product-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-product-service:product-service-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${PRODUCT_SERVICE_HOST}
     ports:
       - '${PRODUCT_SERVICE_PORT}:8083'
@@ -102,6 +141,7 @@ services:
       - PRODUCT_MONGO_DB_NAME=${PRODUCT_MONGO_DB_NAME}
       - MONGO_URL=${MONGO_URL}
       - PRODUCT_SERVICE_PORT=${PRODUCT_SERVICE_PORT}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
     depends_on:
       - kafka
       - service-registry
@@ -109,7 +149,7 @@ services:
       - backend
 
   order-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-order-service:order-service-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${ORDER_SERVICE_HOST}
     ports:
       - '${ORDER_SERVICE_PORT}:8085'
@@ -118,11 +158,12 @@ services:
       - ORDER_SERVICE_PORT=${ORDER_SERVICE_PORT}
       - MONGO_URL=${MONGO_URL}
       - KAFKA_DEFAULT_HOST=${KAFKA_DEFAULT_HOST}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
     networks:
       - backend
 
   payment-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-payment-service:payment-service-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${PAYMENT_SERVICE_HOST}
     ports:
       - '${PAYMENT_SERVICE_PORT}:8086'
@@ -138,11 +179,12 @@ services:
       - VN_PAY_VERSION=${VN_PAY_VERSION}
       - VN_PAY_COMMAND=${VN_PAY_COMMAND}
       - VN_PAY_ORDER_TYPE=${VN_PAY_ORDER_TYPE}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
     networks:
       - backend
 
   notification-service:
-    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-notification-service:notification-service-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${NOTIFICATION_SERVICE_HOST}
     ports:
       - '${NOTIFICATION_SERVICE_PORT}:8087'
@@ -158,20 +200,40 @@ services:
     networks:
       - backend
 
+  chat-service:
+    image: 'ashleynguci1072003/01-ecommerce-backend-chat-service:chat-service-d254656f42430985da27afe60f2e3ac49ea3fb7c'
+    container_name: ${CHAT_SERVICE_HOST}
+    ports:
+      - '${CHAT_SERVICE_PORT}:8088'
+    environment:
+      - EUREKA_CLIENT_SERVICE_URL=${EUREKA_CLIENT_SERVICE_URL}
+      - CHAT_SERVICE_PORT=${CHAT_SERVICE_PORT}
+      - RABBITMQ_DEFAULT_HOST=${RABBITMQ_DEFAULT_HOST}
+      - RABBITMQ_DEFAULT_PORT=${RABBITMQ_DEFAULT_PORT}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+      - SPRING_SECURITY_JWT_SECRET=${SPRING_SECURITY_JWT_SECRET}
+      - CHAT_SERVICE_PORT=${CHAT_SERVICE_PORT}
+      - KAFKA_DEFAULT_HOST=${KAFKA_DEFAULT_HOST}
+      - GEMINI_API_URL=${GEMINI_API_URL}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    networks:
+      - backend
+
   config-server:
-    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-config-server:config-server-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${CONFIG_SERVER_HOST}
     ports:
       - '${CONFIG_SERVER_PORT}:8888'
     environment:
       - CONFIG_SERVER_PORT=${CONFIG_SERVER_PORT}
-      - EUREKA_CLIENT_SERVICE_URL=${EUREKA_CLIENT_SERVICE_URL}
+      - EUREKA_CLIENT_SERVICE_URL=http://service-registry:8761/eureka/
       - CONFIG_SERVER_URI=${CONFIG_SERVER_URI}
     networks:
       - backend
 
   service-registry:
-    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-service-registry:service-registry-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${SERVICE_REGISTRY_HOST}
     ports:
       - '${SERVICE_REGISTRY_PORT}:8761'
@@ -181,13 +243,15 @@ services:
       - backend
 
   api-gateway:
-    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-c073d300b9c4285ca84377b355efa13719f0b77b'
+    image: 'ashleynguci1072003/01-ecommerce-backend-api-gateway:api-gateway-d254656f42430985da27afe60f2e3ac49ea3fb7c'
     container_name: ${API_GATEWAY_HOST}
     ports:
       - '${API_GATEWAY_PORT}:9191'
     environment:
       - EUREKA_CLIENT_SERVICE_URL=${EUREKA_CLIENT_SERVICE_URL}
       - API_GATEWAY_PORT=${API_GATEWAY_PORT}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     networks:
       - backend
     depends_on:
@@ -199,9 +263,11 @@ services:
       - payment-service
       - notification-service
       - cart-service
+      - chat-service
 
 volumes:
   mysql_data:
+  redis_data:
 
 networks:
   backend:

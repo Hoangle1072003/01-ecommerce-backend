@@ -4,7 +4,9 @@ import net.javaguides.payment_service.schemas.Payment;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * File: IPaymentRepository.java
@@ -19,4 +21,8 @@ import java.util.Optional;
 @Repository
 public interface IPaymentRepository extends MongoRepository<Payment, String> {
     Optional<Payment> findByOrderId(String orderId);
+
+    List<Payment> findByUserId(String userId);
+
+    Payment findByVnpTxnRef(String vnpTxnRef);
 }

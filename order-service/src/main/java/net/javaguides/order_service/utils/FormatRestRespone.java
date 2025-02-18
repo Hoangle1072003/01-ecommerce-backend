@@ -1,6 +1,8 @@
 package net.javaguides.order_service.utils;
+
 import jakarta.servlet.http.HttpServletResponse;
 import net.javaguides.order_service.shemas.response.RestResponse;
+import net.javaguides.order_service.utils.annotation.ApiMessage;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
@@ -8,6 +10,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+
 /**
  * File: FormatRestRespone.java
  * Author: Le Van Hoang
@@ -35,11 +38,17 @@ public class FormatRestRespone implements ResponseBodyAdvice {
         if (body instanceof String) {
             return body;
         }
+        String path = request.getURI().getPath();
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
+            return body;
+        }
         if (status >= 400) {
             return body;
         } else {
             restResponse.setData(body);
-            restResponse.setMessage("CALL API SUCCESS");
+            ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
+            restResponse.setMessage(apiMessage != null ? apiMessage.value() : "CALL API SUCCESS");
+
         }
         return restResponse;
     }

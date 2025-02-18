@@ -3,7 +3,10 @@ package net.javaguides.identity_service.utils;
 import com.nimbusds.jose.util.Base64;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.javaguides.identity_service.domain.User;
 import net.javaguides.identity_service.domain.response.ResLoginDTO;
+import net.javaguides.identity_service.service.IUserService;
+import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -41,6 +44,9 @@ public class SecurityUtil {
     @Value("${spring.security.authentication.jwt.access-token-validity-in-seconds}")
     private Long accessTokenExpiration;
 
+    @Value("${spring.security.authentication.jwt.access-token-active-in-seconds}")
+    private Long accessTokenActiveExpiration;
+
     @Value("${spring.security.authentication.jwt.refresh-token-validity-in-seconds}")
     private Long refreshTokenExpiration;
 
@@ -57,8 +63,6 @@ public class SecurityUtil {
         Instant now = Instant.now();
         Instant validity = now.plus(accessTokenExpiration, ChronoUnit.SECONDS);
 
-
-
         // @formatter:off
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
@@ -66,6 +70,21 @@ public class SecurityUtil {
                 .subject(email)
                 .claim("user", userInsideToken)
                 .claim("roles", Collections.singletonList(resLoginDTO.getUser().getRole().getName()))
+                .build();
+        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,
+                claims)).getTokenValue();
+    }
+
+    public String createActivationToken(String email) {
+        Instant now = Instant.now();
+        Instant validity = now.plus(accessTokenActiveExpiration, ChronoUnit.SECONDS);
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuedAt(now)
+                .expiresAt(validity)
+                .subject(email)
+                .claim("active", true)
                 .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,
@@ -116,11 +135,13 @@ public class SecurityUtil {
         return null;
     }
 
-    public Jwt checkValidJWTAccessToken(String token) {
+    public Jwt checkValidJWTAccessToken(String token)throws Exception {
         JwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(
                 getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
         try {
             log.info(">>> Access Token is valid");
+            String email = jwtDecoder.decode(token).getSubject();
+            log.info(">>> Email: " + email);
             return jwtDecoder.decode(token);
         } catch (Exception e) {
             log.error(">>> Access Token Error: " + e.getMessage());
@@ -148,4 +169,10 @@ public class SecurityUtil {
         return new SecretKeySpec(keyBytes, 0, keyBytes.length,
                 JWT_ALGORITHM.getName());
     }
+
+    public String extractEmailFromToken(String token)throws Exception {
+        Jwt jwt = checkValidJWTAccessToken(token);
+        return jwt.getSubject();
+    }
+
 }

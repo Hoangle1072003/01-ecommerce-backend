@@ -1,9 +1,17 @@
 package net.javaguides.order_service.repositories;
 
 import net.javaguides.order_service.shemas.Order;
+import net.javaguides.order_service.shemas.response.ResPaymentMethod;
+import net.javaguides.order_service.utils.constants.OrderStatusEnum;
+import net.javaguides.order_service.utils.constants.PaymentMethod;
 import net.javaguides.order_service.utils.constants.PaymentStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * File: IOrderRepository.java
@@ -18,4 +26,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IOrderRepository extends MongoRepository<Order, String> {
     Order findByUserIdAndCartId(String userId, String cartId);
+
+    Page<Order> findAllByUserId(String userId, Pageable pageable);
+
+    Page<Order> findAllByUserIdAndPaymentStatus(String userId, Pageable pageable, PaymentStatus paymentStatus);
+
+    Page<Order> findAllByUserIdAndPaymentStatusAndOrderStatusEnum(String userId, Pageable pageable, PaymentStatus paymentStatus, OrderStatusEnum orderStatusEnum);
+
+    Page<Order> findAllByUserIdAndPaymentStatusInAndOrderStatusEnumNot(
+            String userId, List<PaymentStatus> paymentStatuses, OrderStatusEnum excludedStatus, Pageable pageable);
+
+
+    Page<Order> findAllByUserIdAndPaymentStatusInAndOrderStatusEnum(
+            String userId, PaymentStatus paymentStatuses, OrderStatusEnum orderStatusEnum, Pageable pageable);
+
+    Order findOrderByCartId(String cartId);
+
 }

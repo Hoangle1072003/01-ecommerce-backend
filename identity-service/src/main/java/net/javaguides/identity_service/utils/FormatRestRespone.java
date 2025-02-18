@@ -30,10 +30,18 @@ public class FormatRestRespone implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
+        if (body instanceof org.springframework.hateoas.RepresentationModel) {
+            return body;
+        }
         int status = servletResponse.getStatus();
+        
         RestResponse<Object> restResponse = new RestResponse<>();
         restResponse.setStatusCode(status);
         if (body instanceof String) {
+            return body;
+        }
+        String path = request.getURI().getPath();
+        if (path.startsWith("/v3/api-docs") || path.startsWith("/swagger-ui")) {
             return body;
         }
         if (status >= 400) {
@@ -42,7 +50,6 @@ public class FormatRestRespone implements ResponseBodyAdvice {
             restResponse.setData(body);
             ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
             restResponse.setMessage(apiMessage != null ? apiMessage.value() : "CALL API SUCCESS");
-
         }
         return restResponse;
     }

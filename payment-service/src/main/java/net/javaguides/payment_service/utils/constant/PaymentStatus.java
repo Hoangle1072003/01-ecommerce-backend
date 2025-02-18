@@ -11,5 +11,5 @@ package net.javaguides.payment_service.utils.constant;
  */
 
 public enum PaymentStatus {
-    PENDING, SUCCESS, FAILED, REFUNDED
+    PENDING, SUCCESS, FAILED, REFUNDED, EXPIRED, CANCELLED
 }

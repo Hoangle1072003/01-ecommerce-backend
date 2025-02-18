@@ -2,6 +2,8 @@ package net.javaguides.notification_service.kafka;
 
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.PaymentEvent;
+import net.javaguides.event.dto.UserActiveEvent;
+import net.javaguides.event.dto.UserForgotPasswordEvent;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -49,7 +51,7 @@ public class NotificationEvent {
             ResCartByIdDto cart = cartServiceClient.getCartById(cartId);
             System.out.println("Received payment success event for User : " + user);
             System.out.println("Received payment success event for Cart : " + cart);
-            ResCartItemByIdDto cartItem = cartServiceClient.getCartItemByUserId(userId);
+            ResCartItemByIdDto cartItem = cartServiceClient.getCartItemByIdAndStatus(userId);
             System.out.println("Received payment success event for CartItem : " + cartItem);
             System.out.println("User email: " + userEmail);
             System.out.println("User name: " + userName);
@@ -60,4 +62,27 @@ public class NotificationEvent {
             e.printStackTrace();
         }
     }
+
+    @KafkaListener(topics = "USER_ACTIVE_ACCOUNT")
+    public void listenUserActiveEvent(UserActiveEvent userActiveEvent) {
+        try {
+            System.out.println("Received user active event: " + userActiveEvent);
+            emailService.sendAccountActivationEmail(userActiveEvent);
+        } catch (Exception e) {
+            System.err.println("Error handling user active event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @KafkaListener(topics = "USER_FORGOT_PASSWORD_TOPIC")
+    public void listenUserForgotPasswordEvent(UserForgotPasswordEvent userForgotPasswordEvent) {
+        try {
+            System.out.println("Received user forgot password event: " + userForgotPasswordEvent);
+            emailService.sendForgotPasswordEmail(userForgotPasswordEvent.getEmail(), userForgotPasswordEvent.getToken());
+        } catch (Exception e) {
+            System.err.println("Error handling user forgot password event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

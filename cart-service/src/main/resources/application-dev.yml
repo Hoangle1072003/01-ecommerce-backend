@@ -8,11 +8,23 @@ spring:
   #    password: guest
   boot:
     message: Hello , Welcome to Cart Service
+  security:
+    authentication:
+      jwt:
+        # openssl rand -base64 64
+        base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
   kafka:
     bootstrap-servers: localhost:9094
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: cart-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: '*'
 
   data:
     mongodb:
@@ -22,6 +34,15 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+# cors:
+
+cors-gateway:
+  host: http://localhost:9191
 server:
   port: 8084
 

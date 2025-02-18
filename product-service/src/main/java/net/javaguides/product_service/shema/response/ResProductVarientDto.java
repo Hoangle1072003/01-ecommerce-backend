@@ -18,9 +18,9 @@ import java.util.List;
 
 @Data
 public class ResProductVarientDto {
-         String id;
-         String name;
-         List<VarientDto> varients;
+    String id;
+    String name;
+    List<VarientDto> varients;
 
     @Data
     public static class VarientDto {
@@ -31,5 +31,4 @@ public class ResProductVarientDto {
         private Long stock;
         private boolean available;
     }
-
 }

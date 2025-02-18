@@ -1,7 +1,13 @@
 package net.javaguides.identity_service.service;
 
 import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.domain.request.ReqResetPasswordDto;
+import net.javaguides.identity_service.domain.request.ReqUpdateUserDto;
+import net.javaguides.identity_service.domain.request.ReqUpdateUserPhoneDto;
+import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
+import net.javaguides.identity_service.domain.response.ResUpdateUserDto;
+import net.javaguides.identity_service.domain.response.ResUpdateUserPhoneDto;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Pageable;
 
@@ -43,4 +49,18 @@ public interface IUserService {
     User getUserByRefreshToken(String token, String email);
 
     List<User> findByNameOrActive(String name, StatusEnum status, UUID roleId);
+
+    boolean activateUserByEmail(String email);
+
+    User saveUserByGoogle(ReqUserGoogleDto reqUserGoogleDto);
+
+    User saveUserByGithub(ReqUserGoogleDto reqUserGoogleDto);
+
+    String resetPassword(User user);
+
+    Void resetPasswordConfirm(ReqResetPasswordDto reqResetPasswordDto);
+
+    ResUpdateUserDto updateUserClient(ReqUpdateUserDto reqUpdateUserDto);
+
+    ResUpdateUserPhoneDto updateUserPhone(ReqUpdateUserPhoneDto reqUpdateUserPhoneDto);
 }

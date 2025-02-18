@@ -2,9 +2,11 @@ package net.javaguides.order_service.mappers;
 
 import net.javaguides.order_service.shemas.Order;
 import net.javaguides.order_service.shemas.request.ReqCreateOrderDto;
-import net.javaguides.order_service.shemas.response.ResCreateOrderDto;
-import net.javaguides.order_service.shemas.response.ResOrderByIdDto;
+import net.javaguides.order_service.shemas.response.*;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+import java.util.List;
 
 /**
  * File: IOrderMapper.java
@@ -23,6 +25,15 @@ public interface IOrderMapper {
     Order toOrder(ReqCreateOrderDto reqCreateOrderDto);
 
     ResCreateOrderDto toResCreateOrderDto(Order order);
-    
+
     ResOrderByIdDto toResOrderByIdDto(Order order);
+
+    List<ResPaymentMethod> toResPaymentMethod(List<Order> order);
+
+    @Mapping(source = "order.userId", target = "userId")
+    @Mapping(source = "order.id", target = "id")
+    @Mapping(source = "order.cartId", target = "cart.id")
+    @Mapping(source = "order.orderStatusEnum", target = "orderStatus")
+    @Mapping(target = "cart", source = "cart")
+    ResOrderByUserIdDto toResOrderByUserIdDto(Order order, Cart cart);
 }

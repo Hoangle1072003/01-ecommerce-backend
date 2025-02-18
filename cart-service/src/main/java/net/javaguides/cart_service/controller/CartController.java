@@ -3,10 +3,15 @@ package net.javaguides.cart_service.controller;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.cart_service.schema.Cart;
 import net.javaguides.cart_service.schema.request.ReqCartDto;
+import net.javaguides.cart_service.schema.request.ReqUpdateCart;
+import net.javaguides.cart_service.schema.response.ResCartByUser;
+import net.javaguides.cart_service.schema.response.ResCartUpdateDto;
 import net.javaguides.cart_service.service.ICartService;
 import net.javaguides.cart_service.utils.annotation.ApiMessage;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 /**
  * File: CartController.java
@@ -26,7 +31,7 @@ public class CartController {
 
     @PostMapping()
     @ApiMessage("Create new cart")
-    public ResponseEntity<Cart> createCart(@RequestBody ReqCartDto reqCartDto)  {
+    public ResponseEntity<Cart> createCart(@RequestBody ReqCartDto reqCartDto) throws Exception {
         return ResponseEntity.ok(cartService.save(reqCartDto));
     }
 
@@ -36,4 +41,21 @@ public class CartController {
         return ResponseEntity.ok(cartService.findById(id));
     }
 
+    @GetMapping("/user/{id}")
+    @ApiMessage("Get cart by user id")
+    public ResponseEntity<ResCartByUser> getCartByUserId(@PathVariable UUID id) {
+        return ResponseEntity.ok(cartService.findByUserId(id));
+    }
+
+    @PutMapping()
+    @ApiMessage("Update cart status")
+    public ResponseEntity<ResCartUpdateDto> updateCartStatus(@RequestBody ReqUpdateCart reqCartUpdateDto) {
+        return ResponseEntity.ok(cartService.updateCartStatus(reqCartUpdateDto.getId()));
+    }
+
+    @PutMapping("/update-status-cart-completed/{id}")
+    @ApiMessage("Update status cart completed")
+    public ResponseEntity<ResCartUpdateDto> updateStatusCartCompleted(@PathVariable String id) {
+        return ResponseEntity.ok(cartService.updateStatusCartCompleted(id));
+    }
 }

@@ -12,16 +12,35 @@ spring:
         # openssl rand -base64 64
         base64-secret: YTwQoI5e3OjbPsvbRgXFdbGAz3ML2jTezUQTD0CO82VOl/ZrzSyJvQ5b6t1YyS9bqiT4jA1bny2MhHn4RNcu9A==
         access-token-validity-in-seconds: 86400
+        access-token-active-in-seconds: 300
         refresh-token-validity-in-seconds: 86400
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 1234
+            client-secret: 1234
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: identity-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      auto-offset-reset: earliest
+      properties:
+        spring.json.trusted.packages: '*'
   api:
     version: /api/v1
   boot:
-    message: Hello , IDENTITY-SERVICE
+    message: Hello , IDENTITY-SERVICE cua dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://sql12.freesqldatabase.com:3306/sql12760287
-    username: sql12760287
-    password: fF756YjrfP
+    url: jdbc:mysql://682-q.h.filess.io:3307/identitydb1_bellexist
+    username: identitydb1_bellexist
+    password: e8fc86bdce9062eae1bb6c418194705bb0cb9eb6
   jpa:
     hibernate:
       ddl-auto: update
@@ -44,10 +63,21 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 management:
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
         include: "*"
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+cors-gateway:
+  host: http://localhost:9191
 server:
   port: 8082
+  forward-headers-strategy: framework
 

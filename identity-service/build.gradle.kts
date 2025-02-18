@@ -2,6 +2,7 @@ plugins {
     java
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.diffplug.eclipse.apt") version "3.37.2"
 }
 
 group = "net.javaguides"
@@ -47,7 +48,16 @@ dependencies {
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     implementation("net.datafaker:datafaker:2.4.2")
     implementation("org.apache.poi:poi-ooxml:5.2.3")
-
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4")
+    implementation("org.springframework.data:spring-data-rest-webmvc:4.4.2")
+    implementation("org.springframework.kafka:spring-kafka")
+    testImplementation("org.springframework.kafka:spring-kafka-test")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("com.google.api-client:google-api-client:2.7.0")
+    implementation("io.micrometer:micrometer-tracing-bridge-brave")
+    implementation("io.zipkin.reporter2:zipkin-reporter-brave")
+    testImplementation("io.github.openfeign:feign-micrometer:13.5")
 }
 
 dependencyManagement {

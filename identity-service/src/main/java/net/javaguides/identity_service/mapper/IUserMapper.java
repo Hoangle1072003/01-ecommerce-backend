@@ -1,7 +1,10 @@
 package net.javaguides.identity_service.mapper;
 
 import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.domain.request.ReqUpdateUserDto;
 import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
+import net.javaguides.identity_service.domain.response.ResUpdateUserDto;
+import net.javaguides.identity_service.domain.response.ResUpdateUserPhoneDto;
 import net.javaguides.identity_service.domain.response.ResUserDTO;
 import org.mapstruct.*;
 
@@ -27,6 +30,10 @@ public interface IUserMapper {
     User toEntity(ResUserDTO resUserDto);
 
     ResUserDTO toDto1(User user);
+
+    ResUpdateUserDto convertToResUpdateUserDto(User user);
+
+    ResUpdateUserPhoneDto convertToResUpdateUserPhoneDto(User user);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     User partialUpdate(ResUserDTO resUserDto, @MappingTarget User user);

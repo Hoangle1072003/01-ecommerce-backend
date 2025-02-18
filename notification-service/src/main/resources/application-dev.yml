@@ -40,5 +40,15 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+cors-gateway:
+  host: http://localhost:9191
+activation:
+  link: http://localhost:9191/identity-service/api/v1/auth/activate?token=
+  reset: http://localhost:9191/identity-service/api/v1/auth/reset-password?token=
 server:
   port: 8087

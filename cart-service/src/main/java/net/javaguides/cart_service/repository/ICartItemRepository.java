@@ -26,4 +26,6 @@ public interface ICartItemRepository extends MongoRepository<CartItem, String> {
     List<CartItem> findByCartId(String cartId);
 
     List<CartItem> findCartItemByCartId(String cartId);
+
+    List<CartItem> findCartItemByCartIdAndDeletedAtIsNull(String cartId);
 }

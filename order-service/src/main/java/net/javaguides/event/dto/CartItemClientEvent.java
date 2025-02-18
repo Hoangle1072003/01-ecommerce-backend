@@ -3,6 +3,7 @@ package net.javaguides.event.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.javaguides.order_service.shemas.response.ResProductVarientDto;
 
 /**
  * File: CartItemClientEvent.java
@@ -24,4 +25,5 @@ public class CartItemClientEvent {
     private String variantId;
     private int quantity;
     private Double price;
+    private ResProductVarientDto productVariant;
 }

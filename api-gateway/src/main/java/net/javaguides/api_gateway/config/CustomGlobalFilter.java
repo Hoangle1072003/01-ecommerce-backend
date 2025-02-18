@@ -43,6 +43,12 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     private final WebClient.Builder webClientBuilder;
     private final String[] publicEndpoints = {
             "/identity-service/api/v1/auth/.*",
+            "/identity-service/oauth2/.*",
+            "/oauth2/.*",
+            "/login/oauth2/code/google/.*",
+            "/identity-service/login/oauth2/code/google.*",
+            "/identity-service/oauth2/authorization/google/.*",
+            "/identity-service/auth/google/signin",
             "/product-service/api/v1/products/.*",
             "/product-service/api/v1/products",
             "/product-service/api/v1/category",
@@ -50,6 +56,12 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             "/payment-service/api/v1/payment/vn-pay-callback",
             "/notification-service/api/v1/.*",
             "/identity-service/api/v1/user/.*",
+            "/cart-service/api/v1/cart/.*",
+            "/cart-service/api/v1/cart-items/.*",
+            "/v3/api-docs/.*",
+            "/swagger-ui/.*",
+            "/swagger-ui.html",
+            ""
     };
 
 //    private final String[] endpointsMethodGet = {
@@ -71,8 +83,10 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String token1 = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         String path = exchange.getRequest().getURI().getPath();
         log.info("Request path: {}", path);
+        log.info("Request token: {}", token1);
 
 //        if (isPublicEndpoint(exchange)) {
 //            return chain.filter(exchange);
@@ -158,5 +172,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
 
         return response.writeWith(
                 Mono.just(response.bufferFactory().wrap(body.getBytes())));
+
     }
 }

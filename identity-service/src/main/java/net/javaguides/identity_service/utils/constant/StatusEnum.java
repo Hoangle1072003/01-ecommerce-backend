@@ -11,5 +11,5 @@ package net.javaguides.identity_service.utils.constant;
  */
 
 public enum StatusEnum {
-    ACTIVATED, DEACTIVATED, SUSPENDED
+    ACTIVATED, DEACTIVATED, SUSPENDED, PENDING_ACTIVATION
 }

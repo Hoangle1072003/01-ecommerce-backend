@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: CHAT-SERVICE
+  rabbitmq:
+    host: ${RABBITMQ_DEFAULT_HOST}
+    port: ${RABBITMQ_DEFAULT_PORT}
+    username: ${RABBITMQ_DEFAULT_USER}
+    password: ${RABBITMQ_DEFAULT_PASS}
+    boot:
+      message: Hello , I am a chat service
+  kafka:
+    bootstrap-servers: ${KAFKA_DEFAULT_HOST}:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: product-group
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: '*'
+  security:
+    authentication:
+      jwt:
+        # openssl rand -base64 64
+        base64-secret: ${SPRING_SECURITY_JWT_SECRET}
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+gemini:
+  api:
+    url: ${GEMINI_API_URL}
+    key: ${GEMINI_API_KEY}
+server:
+  port: ${CHAT_SERVICE_PORT}

@@ -35,7 +35,7 @@ spring:
     authentication:
       jwt:
         # openssl rand -base64 64
-        base64-secret: ZnrZWEcOiEHMQjUnLbs3eAvprDpEvX9sEl/6XqfiRMi6WGfXH5c+aObAPgfn6xcMe7l9G8oQz4y2o/g8gS1Rqw==
+        base64-secret: ${SPRING_SECURITY_JWT_SECRET}
 eureka:
   client:
     service-url:
@@ -45,8 +45,16 @@ management:
     web:
       exposure:
         include: "*"
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+#cors-gateway:
+#  host: http://localhost:9191
 server:
   port: ${PRODUCT_SERVICE_PORT}
+  forward-headers-strategy: framework
 
 
 # password nosql: 8OWQ2rzxntvKxflL

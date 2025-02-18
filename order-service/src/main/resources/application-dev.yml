@@ -7,6 +7,9 @@ spring:
     mongodb:
       uri: "mongodb+srv://root:8OWQ2rzxntvKxflL@cluster0.hjsak.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
       database: order-service
+    web:
+      pageable:
+        one-indexed-parameters: true
   security:
     authentication:
       jwt:
@@ -29,6 +32,13 @@ eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+cors-gateway:
+  host: http://localhost:9191
 server:
   port: 8085
 

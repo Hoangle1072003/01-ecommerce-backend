@@ -4,9 +4,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.identity_service.domain.User;
-import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
-import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
-import net.javaguides.identity_service.domain.response.ResUserDTO;
+import net.javaguides.identity_service.domain.request.ReqUpdateUserDto;
+import net.javaguides.identity_service.domain.request.ReqUpdateUserPhoneDto;
+import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
+import net.javaguides.identity_service.domain.response.*;
 import net.javaguides.identity_service.mapper.IUserMapper;
 import net.javaguides.identity_service.service.IExcelService;
 import net.javaguides.identity_service.service.IUserService;
@@ -159,12 +160,15 @@ public class UserController {
         }
     }
 
+    @PutMapping("/update-user-client")
+    @ApiMessage("Update user")
+    public ResponseEntity<ResUpdateUserDto> updateUserClient(@RequestBody ReqUpdateUserDto reqUpdateUserDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserClient(reqUpdateUserDto));
+    }
 
-//    @GetMapping("/get-user-detail-is-null/{id}")
-//    @ApiMessage("Get user detail is null by user id")
-//    public ResponseEntity<ResCutomerOrderDetailDTO> getUserDetailIsNullByUserId(
-//            @PathVariable("id") UUID userId
-//    ) {
-//        return ResponseEntity.status(HttpStatus.OK).body(userService.getUserDetailIsNullByUserId(userId));
-//    }
+    @PutMapping("/update-user-phone")
+    @ApiMessage("Update user phone")
+    public ResponseEntity<ResUpdateUserPhoneDto> updateUserPhone(@RequestBody ReqUpdateUserPhoneDto reqUpdateUserPhoneDto) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserPhone(reqUpdateUserPhoneDto));
+    }
 }

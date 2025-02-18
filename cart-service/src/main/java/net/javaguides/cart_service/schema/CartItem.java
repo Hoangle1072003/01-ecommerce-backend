@@ -1,5 +1,6 @@
 package net.javaguides.cart_service.schema;
 
+import com.mongodb.lang.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * File: CartItem.java
@@ -38,4 +40,6 @@ public class CartItem extends AbstractMappedEntity implements Serializable {
     private String variantId;
     private int quantity;
     private Double price;
+    @Nullable
+    private Instant deletedAt;
 }
