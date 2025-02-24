@@ -51,8 +51,8 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     testImplementation("org.springframework.kafka:spring-kafka-test")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-//    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
-//    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.4")
 }
 dependencyManagement {
     imports {

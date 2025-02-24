@@ -26,6 +26,8 @@ public interface IOrderService {
 
     List<ResPaymentMethod> getAllPaymentMethod();
 
+    List<ResAllOrderByUserIdDto> getAllOrdersByUserIdClient(String userId);
+
     ResResultPaginationDTO getAllOrdersByUserId(String userId, Pageable pageable);
 
     ResResultPaginationDTO getAllOrdersByUserIdWating(String userId, Pageable pageable);

@@ -17,5 +17,5 @@ public class RestResponse<T> {
     private String error;
     private Object message;
     private T data;
-
+    private String author = "Industrial University of Ho Chi Minh City - Developed by Le Van Hoang & Vo Cong Tuan Anh";
 }

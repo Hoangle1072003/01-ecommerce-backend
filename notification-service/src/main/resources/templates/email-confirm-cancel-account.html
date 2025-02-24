@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận yêu cầu xóa tài khoản</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #007bff;
+        }
+
+        p {
+            font-size: 16px;
+            color: #333333;
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .otp-box {
+            font-size: 22px;
+            font-weight: bold;
+            color: #007bff;
+            background: #eef5ff;
+            padding: 12px;
+            border: 2px dashed #007bff;
+            display: inline-block;
+            margin: 20px auto;
+            border-radius: 6px;
+        }
+
+        .footer {
+            font-size: 14px;
+            color: #777777;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #dddddd;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <img src="https://salt.tikicdn.com/ts/upload/0e/07/78/ee828743c9afa9792cf20d75995e134e.png" alt="Logo" class="logo">
+
+    <h2>Xác nhận yêu cầu xóa tài khoản</h2>
+    <p>Chào <b th:text="${email}">clientassist.office@gmail.com</b>,</p>
+    <p>Chúng tôi đã nhận được yêu cầu xóa tài khoản của bạn với lý do:</p>
+    <p><b th:text="${reason}">Tôi không còn sử dụng dịch vụ này</b></p>
+    <p>Để xác nhận, vui lòng nhập mã OTP dưới đây (mã có hiệu lực trong <b>5 phút</b>):</p>
+
+    <div class="otp-box" th:text="${otp}">395928</div>
+
+    <p>Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email hoặc liên hệ ngay với bộ phận hỗ trợ.</p>
+    <p>Trân trọng,</p>
+    <p><b>Đội ngũ Hỗ trợ Khách hàng</b></p>
+
+    <div class="footer">
+        <p>&copy; 2025 Công ty của bạn. Mọi quyền được bảo lưu.</p>
+    </div>
+</div>
+</body>
+</html>

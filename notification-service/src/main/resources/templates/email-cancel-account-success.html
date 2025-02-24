@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Báo Hủy Tài Khoản</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #f0ad4e;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-top: 20px;
+        }
+
+        .highlight {
+            color: #d9534f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>📢 Thông Báo Hủy Tài Khoản</h2>
+    </div>
+    <div class="content">
+        <p>Xin chào,</p>
+        <p>Tài khoản <span class="highlight" th:text="${email}">email@example.com</span>
+            đã được hủy thành công vào lúc <span class="highlight" th:text="${timestamp}">01/01/2024 12:00:00</span>.
+        </p>
+        <p><b>Lý do hủy tài khoản:</b> <span th:text="${reason}">Không muốn sử dụng nữa</span></p>
+        <p>Nếu bạn không yêu cầu hủy tài khoản hoặc có bất kỳ câu hỏi nào, vui lòng liên hệ với bộ phận hỗ trợ của chúng
+            tôi.</p>
+    </div>
+    <div class="footer">
+        <p>&copy; 2024 Công Ty Của Bạn. Mọi quyền được bảo lưu.</p>
+    </div>
+</div>
+</body>
+</html>

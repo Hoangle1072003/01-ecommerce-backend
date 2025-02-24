@@ -4,6 +4,9 @@ import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.event.dto.UserActiveEvent;
+import net.javaguides.event.dto.UserActiveSuspendEvent;
+import net.javaguides.event.dto.UserCancelAccountEvent;
+import net.javaguides.event.dto.UserCancelAccountSuccessEvent;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -44,6 +47,10 @@ public class EmailServiceImpl implements IEmailService {
     private static final String EMAIL_ORDER_CONFIRMATION_TEMPLATE = "email-bill";
     public static final String EMAIL_ACCOUNT_ACTIVATION_TEMPLATE = "email-account-activation";
     private static final String EMAIL_TEMPLATE_FORGOT_PASSWORD = "email-forgot-password";
+    private static final String EMAIL_TEMPLATE_REGISTER = "email-registration";
+    private static final String EMAIL_TEMPLATE_CANCEL_ACCOUNT = "email-confirm-cancel-account";
+    private static final String EMAIL_TEMPLATE_CANCEL_ACCOUNT_SUCCESS = "email-cancel-account-success";
+    private static final String EMAIL_TEMPLATE_ACTIVE_ACCOUNT_SUSPEND = "email-active-account-suspend";
 
     @Value("${activation.link}")
     private String linkActivation;
@@ -157,6 +164,97 @@ public class EmailServiceImpl implements IEmailService {
             context.setVariable("token", token);
             context.setVariable("resetLink", resetLink);
             String content = templateEngine.process(EMAIL_TEMPLATE_FORGOT_PASSWORD, context);
+
+            messageHelper.setText(content, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendThankYouEmailRegister(String name, String to) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+            var messageHelper = new MimeMessageHelper(mimeMessage, true, UTF_8_ENCODING);
+
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(to);
+            messageHelper.setSubject("Cảm Ơn Bạn Đã Đăng Ký");
+
+            Context context = new Context();
+            context.setVariable("name", name);
+            String content = templateEngine.process(EMAIL_TEMPLATE_REGISTER, context);
+
+            messageHelper.setText(content, true);
+
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendCancelAccountEmail(UserCancelAccountEvent userCancelAccountEvent) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            var messageHelper = new MimeMessageHelper(mimeMessage, true, UTF_8_ENCODING);
+
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(userCancelAccountEvent.getEmail());
+            messageHelper.setSubject("Hủy Tài Khoản");
+
+            Context context = new Context();
+            context.setVariable("email", userCancelAccountEvent.getEmail());
+            context.setVariable("reason", userCancelAccountEvent.getReason());
+            context.setVariable("otp", userCancelAccountEvent.getOtp());
+            String content = templateEngine.process(EMAIL_TEMPLATE_CANCEL_ACCOUNT, context);
+
+            messageHelper.setText(content, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendCancelAccountSuccessEmail(UserCancelAccountSuccessEvent userCancelAccountSuccessEvent) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            var messageHelper = new MimeMessageHelper(mimeMessage, true, UTF_8_ENCODING);
+
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(userCancelAccountSuccessEvent.getEmail());
+            messageHelper.setSubject("Hủy Tài Khoản Thành Công");
+
+            Context context = new Context();
+            context.setVariable("email", userCancelAccountSuccessEvent.getEmail());
+            context.setVariable("reason", userCancelAccountSuccessEvent.getReason());
+            context.setVariable("timestamp", userCancelAccountSuccessEvent.getTimestamp());
+            String content = templateEngine.process(EMAIL_TEMPLATE_CANCEL_ACCOUNT_SUCCESS, context);
+
+            messageHelper.setText(content, true);
+            javaMailSender.send(mimeMessage);
+        } catch (MessagingException | MailException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendActiveAccountSuccessEmail(UserActiveSuspendEvent userActiveSuspendEvent) {
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            var messageHelper = new MimeMessageHelper(mimeMessage, true, UTF_8_ENCODING);
+
+            messageHelper.setFrom(fromEmail);
+            messageHelper.setTo(userActiveSuspendEvent.getEmail());
+            messageHelper.setSubject("Kích Hoạt Tài Khoản Thành Công");
+
+            Context context = new Context();
+            context.setVariable("email", userActiveSuspendEvent.getEmail());
+            context.setVariable("otp", userActiveSuspendEvent.getOtp());
+            String content = templateEngine.process(EMAIL_TEMPLATE_ACTIVE_ACCOUNT_SUSPEND, context);
 
             messageHelper.setText(content, true);
             javaMailSender.send(mimeMessage);

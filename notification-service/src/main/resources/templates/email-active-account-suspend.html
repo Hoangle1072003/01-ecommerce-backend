@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kích Hoạt Tài Khoản</title>
+</head>
+<body>
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 8px;">
+    <h2 style="color: #d9534f; text-align: center;">Kich Hoạt Tài Khoản 🚀</h2>
+    </h2>
+    <p>Chào <span th:text="${email}"></span>,</p>
+    <p>Tài khoản của bạn đã bị tạm khóa do vi phạm quy tắc hoặc hoạt động đáng ngờ.</p>
+    <p>Để kích hoạt lại tài khoản, vui lòng nhập mã OTP sau:</p>
+
+    <div style="text-align: center; font-size: 24px; font-weight: bold; color: #d9534f; padding: 10px; border: 2px dashed #d9534f; display: inline-block; margin: 10px 0;">
+        <span th:text="${otp}"></span>
+    </div>
+
+    <p>Mã OTP này chỉ có hiệu lực trong vòng <strong>5 phút</strong>. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ
+        qua email này.</p>
+
+    <p style="margin-top: 20px;">Trân trọng,<br><strong>Đội ngũ hỗ trợ</strong></p>
+</div>
+</body>
+</html>
