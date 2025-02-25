@@ -46,6 +46,14 @@ public class OrderController {
         return ResponseEntity.ok(orderService.getAllPaymentMethod());
     }
 
+
+    @GetMapping("/get-all-orders-by-user-id-client")
+    @ApiMessage("Get all orders by user id client")
+    public ResponseEntity<List<ResAllOrderByUserIdDto>> getAllOrdersByUserIdClient(@RequestParam String userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(orderService.getAllOrdersByUserIdClient(userId));
+    }
+
+
     @GetMapping("/get-all-orders")
     @ApiMessage("Get all orders by user id")
     public ResponseEntity<ResResultPaginationDTO> getAllOrdersByUserId(@RequestParam String userId,

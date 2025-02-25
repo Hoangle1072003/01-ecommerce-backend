@@ -1,6 +1,9 @@
 package net.javaguides.notification_service.services;
 
 import net.javaguides.event.dto.UserActiveEvent;
+import net.javaguides.event.dto.UserActiveSuspendEvent;
+import net.javaguides.event.dto.UserCancelAccountEvent;
+import net.javaguides.event.dto.UserCancelAccountSuccessEvent;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -26,4 +29,12 @@ public interface IEmailService {
     void sendAccountActivationEmail(UserActiveEvent userActiveEvent);
 
     void sendForgotPasswordEmail(String email, String token);
+
+    void sendThankYouEmailRegister(String name, String to);
+
+    void sendCancelAccountEmail(UserCancelAccountEvent userCancelAccountEvent);
+
+    void sendCancelAccountSuccessEmail(UserCancelAccountSuccessEvent userCancelAccountSuccessEvent);
+
+    void sendActiveAccountSuccessEmail(UserActiveSuspendEvent userActiveSuspendEvent);
 }

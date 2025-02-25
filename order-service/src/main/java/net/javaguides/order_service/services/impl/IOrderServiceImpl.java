@@ -123,6 +123,13 @@ public class IOrderServiceImpl implements IOrderService {
     }
 
     @Override
+    public List<ResAllOrderByUserIdDto> getAllOrdersByUserIdClient(String userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream().map(orderMapper::toResAllOrderByUserIdDto).collect(Collectors.toList());
+    }
+
+
+    @Override
     public ResResultPaginationDTO getAllOrdersByUserId(String userId, Pageable pageable) {
         Page<Order> orders = orderRepository.findAllByUserId(userId, pageable);
 

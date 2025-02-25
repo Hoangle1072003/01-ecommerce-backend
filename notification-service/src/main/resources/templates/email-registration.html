@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Chào mừng bạn đến với E-Commerce</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: auto;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <img src="https://salt.tikicdn.com/ts/upload/0e/07/78/ee828743c9afa9792cf20d75995e134e.png" alt="Logo" class="logo">
+    <h1>Chào mừng <span th:text="${name}"></span>!</h1>
+    <p>Chúng tôi rất vui mừng chào đón bạn đến với <strong>E-Commerce</strong>!</p>
+    <p>Với tài khoản của bạn, bạn có thể trải nghiệm hàng ngàn sản phẩm chất lượng, những ưu đãi hấp dẫn và dịch vụ
+        khách hàng tận tâm.</p>
+    <p>Hãy bắt đầu hành trình mua sắm của bạn ngay hôm nay và tận hưởng những lợi ích độc quyền dành cho thành viên.</p>
+    <p>Nếu bạn có bất kỳ thắc mắc hoặc cần hỗ trợ, vui lòng liên hệ với chúng tôi.</p>
+    <p>Trân trọng,<br/><strong>Đội ngũ hỗ trợ E-Commerce</strong></p>
+</div>
+</body>
+</html>

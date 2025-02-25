@@ -1,10 +1,7 @@
 package net.javaguides.identity_service.service;
 
 import net.javaguides.identity_service.domain.User;
-import net.javaguides.identity_service.domain.request.ReqResetPasswordDto;
-import net.javaguides.identity_service.domain.request.ReqUpdateUserDto;
-import net.javaguides.identity_service.domain.request.ReqUpdateUserPhoneDto;
-import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
+import net.javaguides.identity_service.domain.request.*;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.domain.response.ResUpdateUserDto;
 import net.javaguides.identity_service.domain.response.ResUpdateUserPhoneDto;
@@ -63,4 +60,14 @@ public interface IUserService {
     ResUpdateUserDto updateUserClient(ReqUpdateUserDto reqUpdateUserDto);
 
     ResUpdateUserPhoneDto updateUserPhone(ReqUpdateUserPhoneDto reqUpdateUserPhoneDto);
+
+    Void cancelAccount(ReqCancelAccountDto reqCancelAccountDto);
+
+    Void cancelAccountOTP(ReqCancelDto reqCancelDto);
+
+    Void suspendAccount(ReqSuspendAccountDto reqSuspendAccountDto);
+
+    Void activeAccountSuspend(ReqActiveAccountSuspendDto reqSuspendDto);
+
+    Void activeAccountSuspendOTP(ReqActiveAccountSuspendOTPDto reqActiveAccountSuspendOTPDto);
 }

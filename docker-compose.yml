@@ -108,6 +108,8 @@ services:
       - SPRING_SECURITY_ACTIVE=${SPRING_SECURITY_ACTIVE}
       - KAFKA_DEFAULT_HOST=${KAFKA_DEFAULT_HOST}
       - GOOGLE_TEST=1234
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
     networks:
       - backend
 

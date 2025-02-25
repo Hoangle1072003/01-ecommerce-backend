@@ -56,4 +56,21 @@ public class GlobalException {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(res);
     }
 
+    @ExceptionHandler(AccountDeletedException.class)
+    public ResponseEntity<RestResponse<Object>> handleAccountDeletedException(AccountDeletedException ex) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.GONE.value());
+        res.setMessage(ex.getMessage());
+        res.setError("Account Deleted");
+        return ResponseEntity.status(HttpStatus.GONE).body(res);
+    }
+
+    @ExceptionHandler(AccountNotSuspendException.class)
+    public ResponseEntity<RestResponse<Object>> handleAccountNotSuspendException(AccountNotSuspendException ex) {
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.LOCKED.value());
+        res.setMessage(ex.getMessage());
+        res.setError("Account Not Suspend");
+        return ResponseEntity.status(HttpStatus.LOCKED).body(res);
+    }
 }

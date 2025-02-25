@@ -6,6 +6,12 @@ spring:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
+  data:
+    redis:
+      host: redis-18010.c252.ap-southeast-1-1.ec2.redns.redis-cloud.com
+      port: 18010
+      username: default
+      password: 0G38tMY3P787fXGyQxjONZUjMPSQSzKy
   security:
     authentication:
       jwt:
@@ -80,4 +86,7 @@ cors-gateway:
 server:
   port: 8082
   forward-headers-strategy: framework
+
+
+#  docker exec -it redis redis-cli
 

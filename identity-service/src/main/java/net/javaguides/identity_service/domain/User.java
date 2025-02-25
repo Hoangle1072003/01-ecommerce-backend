@@ -56,6 +56,9 @@ public class User {
     private String imageUrl;
     @Column(name = "refresh_token", columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted = false;
+    private String reason;
     @Column(name = "created_by")
     private String createdBy;
     @Column(name = "updated_by")
