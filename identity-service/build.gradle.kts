@@ -58,6 +58,7 @@ dependencies {
     implementation("io.micrometer:micrometer-tracing-bridge-brave")
     implementation("io.zipkin.reporter2:zipkin-reporter-brave")
     testImplementation("io.github.openfeign:feign-micrometer:13.5")
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
 }
 
 dependencyManagement {

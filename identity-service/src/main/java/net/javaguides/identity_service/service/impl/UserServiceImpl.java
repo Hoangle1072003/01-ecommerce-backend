@@ -1,30 +1,29 @@
 package net.javaguides.identity_service.service.impl;
 
+import jakarta.persistence.criteria.From;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.javaguides.event.dto.UserActiveEvent;
-import net.javaguides.event.dto.UserForgotPasswordEvent;
+import net.javaguides.event.dto.*;
 import net.javaguides.identity_service.domain.Role;
 import net.javaguides.identity_service.domain.User;
 
-import net.javaguides.identity_service.domain.request.ReqResetPasswordDto;
-import net.javaguides.identity_service.domain.request.ReqUpdateUserDto;
-import net.javaguides.identity_service.domain.request.ReqUpdateUserPhoneDto;
-import net.javaguides.identity_service.domain.request.ReqUserGoogleDto;
-import net.javaguides.identity_service.domain.response.ResMeta;
-import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
-import net.javaguides.identity_service.domain.response.ResUpdateUserDto;
-import net.javaguides.identity_service.domain.response.ResUpdateUserPhoneDto;
+import net.javaguides.identity_service.domain.request.*;
+import net.javaguides.identity_service.domain.response.*;
 import net.javaguides.identity_service.mapper.IUserMapper;
 import net.javaguides.identity_service.repository.IRoleRepository;
 import net.javaguides.identity_service.repository.IUserRepository;
+import net.javaguides.identity_service.service.IOTPService;
 import net.javaguides.identity_service.service.IRoleService;
 import net.javaguides.identity_service.service.IUserService;
+import net.javaguides.identity_service.service.httpClient.ICartServiceClient;
+import net.javaguides.identity_service.service.httpClient.IOrderServiceClient;
 import net.javaguides.identity_service.utils.SecurityUtil;
 import net.javaguides.identity_service.utils.constant.AuthProvider;
+import net.javaguides.identity_service.utils.constant.CartStatusEnum;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,10 +31,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * File: UserServiceImpl.java
@@ -57,8 +58,18 @@ public class UserServiceImpl implements IUserService {
     private final SecurityUtil securityUtil;
     private final IRoleRepository roleRepository;
     private final IUserMapper userMapper;
+    private final IOTPService otpService;
+    private final ICartServiceClient cartServiceClient;
+    private final IOrderServiceClient orderServiceClient;
+    private final StringRedisTemplate redisTemplate;
     private final KafkaTemplate<String, UserForgotPasswordEvent> userForgotPasswordEventKafkaTemplate;
+    private final KafkaTemplate<String, UserCancelAccountEvent> userCancelAccountEventKafkaTemplate;
+    private final KafkaTemplate<String, UserCancelAccountSuccessEvent> userCancelAccountSuccessEventKafkaTemplate;
+    private final KafkaTemplate<String, UserActiveSuspendEvent> userActiveSuspendEventKafkaTemplate;
     private static final String USER_FORGOT_PASSWORD_TOPIC = "USER_FORGOT_PASSWORD_TOPIC";
+    private static final String USER_CANCEL_ACCOUNT_TOPIC = "USER_CANCEL_ACCOUNT_TOPIC";
+    private static final String USER_CANCEL_ACCOUNT_SUCCESS_TOPIC = "USER_CANCEL_ACCOUNT_SUCCESS_TOPIC";
+    private static final String USER_ACTIVE_SUSPEND_TOPIC = "USER_ACTIVE_SUSPEND_TOPIC";
 
     @Override
     public User handleUser(User user) {
@@ -255,5 +266,119 @@ public class UserServiceImpl implements IUserService {
         User user = userRepository.findById(reqUpdateUserPhoneDto.getId()).orElseThrow();
         user.setPhone(reqUpdateUserPhoneDto.getPhone());
         return userMapper.convertToResUpdateUserPhoneDto(userRepository.save(user));
+    }
+
+    public Void cancelAccount(ReqCancelAccountDto reqCancelAccountDto) {
+        User user = userRepository.findByEmail(reqCancelAccountDto.getEmail());
+        if (user == null) {
+            throw new RuntimeException("User không tồn tại.");
+        }
+
+        ResCartByUser resCartByUser = cartServiceClient.getCartByUserId(user.getId());
+        List<ResAllOrderByUserIdDto> resAllOrderByUserIdDto = orderServiceClient.getAllOrdersByUserIdClient(user.getId().toString());
+
+        System.out.println("resCartByUser: " + resCartByUser);
+        System.out.println("resAllOrderByUserIdDto: " + resAllOrderByUserIdDto);
+
+        boolean hasActiveCart = resCartByUser != null && CartStatusEnum.ACTIVE.equals(resCartByUser.getStatus());
+        boolean hasActiveOrder = resAllOrderByUserIdDto != null && resAllOrderByUserIdDto.stream()
+                .anyMatch(order -> StatusEnum.ACTIVATED.equals(order.getOrderStatusEnum()));
+
+        if (hasActiveCart || hasActiveOrder) {
+            throw new RuntimeException("Không thể hủy tài khoản vì bạn còn hàng trong giỏ hoặc đơn hàng đang hoạt động.");
+        }
+
+        String redisKey = "otp:user:" + user.getEmail();
+        String existingOtp = redisTemplate.opsForValue().get(redisKey);
+
+        if (existingOtp != null) {
+            throw new RuntimeException("Bạn đã yêu cầu OTP trước đó. Vui lòng kiểm tra email hoặc thử lại sau.");
+        }
+
+        String otp = otpService.generateOtp(user.getEmail());
+
+        userCancelAccountEventKafkaTemplate.send(USER_CANCEL_ACCOUNT_TOPIC,
+                new UserCancelAccountEvent(user.getEmail(), reqCancelAccountDto.getReason(), otp));
+
+        return null;
+    }
+
+
+    @Override
+    public Void cancelAccountOTP(ReqCancelDto reqCancelDto) {
+        User user = userRepository.findByEmail(reqCancelDto.getEmail());
+        if (user == null) {
+            throw new RuntimeException("User không tồn tại.");
+        }
+
+        String redisKey = "otp:user:" + user.getEmail();
+        String existingOtp = redisTemplate.opsForValue().get(redisKey);
+        String redisOtp = redisTemplate.opsForValue().get(redisKey);
+
+        if (existingOtp == null) {
+            throw new RuntimeException("OTP không tồn tại hoặc đã hết hạn.");
+        }
+
+        boolean isOtpValid = otpService.verifyOtp(user.getEmail(), redisOtp);
+        if (!isOtpValid) {
+            throw new RuntimeException("OTP không hợp lệ.");
+        }
+
+        user.setIsDeleted(true);
+        user.setStatus(StatusEnum.DEACTIVATED);
+        user.setReason(reqCancelDto.getReason());
+        redisTemplate.delete(redisKey);
+        userRepository.save(user);
+
+        userCancelAccountSuccessEventKafkaTemplate.send(USER_CANCEL_ACCOUNT_SUCCESS_TOPIC,
+                new UserCancelAccountSuccessEvent(LocalDateTime.now(), user.getEmail(), reqCancelDto.getReason()));
+        return null;
+    }
+
+    @Override
+    public Void suspendAccount(ReqSuspendAccountDto reqSuspendAccountDto) {
+        User user = userRepository.findByEmail(reqSuspendAccountDto.getEmail());
+        if (user == null) {
+            throw new RuntimeException("User không tồn tại.");
+        }
+        if (!passwordEncoder.matches(reqSuspendAccountDto.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Mật khẩu không chính xác.");
+        }
+        user.setStatus(StatusEnum.SUSPENDED);
+        userRepository.save(user);
+        return null;
+    }
+
+    @Override
+    public Void activeAccountSuspend(ReqActiveAccountSuspendDto reqSuspendDto) {
+        User user = userRepository.findByEmail(reqSuspendDto.getEmail());
+        if (user == null) {
+            throw new RuntimeException("User không tồn tại.");
+        }
+        String otp = otpService.generateOtp(user.getEmail());
+        userActiveSuspendEventKafkaTemplate.send(USER_ACTIVE_SUSPEND_TOPIC,
+                new UserActiveSuspendEvent(user.getEmail(), otp));
+        return null;
+    }
+
+    @Override
+    public Void activeAccountSuspendOTP(ReqActiveAccountSuspendOTPDto reqActiveAccountSuspendOTPDto) {
+        User user = userRepository.findByEmail(reqActiveAccountSuspendOTPDto.getEmail());
+        if (user == null) {
+            throw new RuntimeException("User không tồn tại.");
+        }
+        String redisKey = "otp:user:" + user.getEmail();
+        String existingOtp = redisTemplate.opsForValue().get(redisKey);
+        if (existingOtp == null) {
+            throw new RuntimeException("OTP không tồn tại hoặc đã hết hạn.");
+        }
+        boolean isOtpValid = otpService.verifyOtp(user.getEmail(), existingOtp);
+        if (!isOtpValid) {
+            throw new RuntimeException("OTP không hợp lệ.");
+        }
+        user.setStatus(StatusEnum.ACTIVATED);
+        userRepository.save(user);
+        redisTemplate.delete(redisKey);
+        return null;
     }
 }

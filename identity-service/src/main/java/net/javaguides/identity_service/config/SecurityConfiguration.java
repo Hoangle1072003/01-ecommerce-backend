@@ -75,6 +75,8 @@ public class SecurityConfiguration {
                 "/api/v1/auth/forgot-password",
                 "/api/v1/auth/reset-password/**",
                 "/api/v1/auth/resend-activation",
+                "/api/v1/auth/send-active-account-suspend",
+                "/api/v1/auth/active-account-suspend",
                 "/api/v1/auth/create-new-user-google",
                 "/api/v1/auth/create-new-user-github",
                 "/v3/api-docs/**",
@@ -105,9 +107,7 @@ public class SecurityConfiguration {
                         .jwt(jwt -> jwt.decoder(jwtDecoder()))
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
                 )
-
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(new BearerTokenAuthenticationEntryPoint())
-                        .accessDeniedHandler(new BearerTokenAccessDeniedHandler())
+                .exceptionHandling(exceptionHandling -> exceptionHandling
                         .accessDeniedHandler(customAccessDeniedHandler)
                 )
                 .formLogin(form -> form.disable())

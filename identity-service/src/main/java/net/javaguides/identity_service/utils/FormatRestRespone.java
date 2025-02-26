@@ -30,11 +30,12 @@ public class FormatRestRespone implements ResponseBodyAdvice {
     @Override
     public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
         HttpServletResponse servletResponse = ((ServletServerHttpResponse) response).getServletResponse();
+        response.getHeaders().add("X-Author", "Industrial University of Ho Chi Minh City - Developed by Le Van Hoang & Vo Cong Tuan Anh");
         if (body instanceof org.springframework.hateoas.RepresentationModel) {
             return body;
         }
         int status = servletResponse.getStatus();
-        
+
         RestResponse<Object> restResponse = new RestResponse<>();
         restResponse.setStatusCode(status);
         if (body instanceof String) {
@@ -48,6 +49,7 @@ public class FormatRestRespone implements ResponseBodyAdvice {
             return body;
         } else {
             restResponse.setData(body);
+            restResponse.setAuthor("Industrial University of Ho Chi Minh City - Developed by Le Van Hoang & Vo Cong Tuan Anh");
             ApiMessage apiMessage = returnType.getMethodAnnotation(ApiMessage.class);
             restResponse.setMessage(apiMessage != null ? apiMessage.value() : "CALL API SUCCESS");
         }

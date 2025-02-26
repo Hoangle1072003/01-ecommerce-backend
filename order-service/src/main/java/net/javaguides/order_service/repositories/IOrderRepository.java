@@ -42,4 +42,5 @@ public interface IOrderRepository extends MongoRepository<Order, String> {
 
     Order findOrderByCartId(String cartId);
 
+    List<Order> findByUserId(String userId);
 }

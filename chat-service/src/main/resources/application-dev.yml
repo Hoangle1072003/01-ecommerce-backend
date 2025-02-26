@@ -35,6 +35,11 @@ management:
     web:
       exposure:
         include: "*"
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
 gemini:
   api:
     url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="

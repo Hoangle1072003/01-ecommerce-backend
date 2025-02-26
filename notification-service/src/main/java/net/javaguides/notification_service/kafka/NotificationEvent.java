@@ -1,9 +1,7 @@
 package net.javaguides.notification_service.kafka;
 
 import lombok.RequiredArgsConstructor;
-import net.javaguides.event.dto.PaymentEvent;
-import net.javaguides.event.dto.UserActiveEvent;
-import net.javaguides.event.dto.UserForgotPasswordEvent;
+import net.javaguides.event.dto.*;
 import net.javaguides.notification_service.dto.response.ResCartByIdDto;
 import net.javaguides.notification_service.dto.response.ResCartItemByIdDto;
 import net.javaguides.notification_service.dto.response.ResOrderByIdDto;
@@ -67,6 +65,7 @@ public class NotificationEvent {
     public void listenUserActiveEvent(UserActiveEvent userActiveEvent) {
         try {
             System.out.println("Received user active event: " + userActiveEvent);
+            emailService.sendThankYouEmailRegister(userActiveEvent.getName(), userActiveEvent.getEmail());
             emailService.sendAccountActivationEmail(userActiveEvent);
         } catch (Exception e) {
             System.err.println("Error handling user active event: " + e.getMessage());
@@ -85,4 +84,36 @@ public class NotificationEvent {
         }
     }
 
+    @KafkaListener(topics = "USER_CANCEL_ACCOUNT_TOPIC")
+    public void listenUserCancelAccountEvent(UserCancelAccountEvent userCancelAccountEvent) {
+        try {
+            System.out.println("Received user cancel account event: " + userCancelAccountEvent);
+            emailService.sendCancelAccountEmail(userCancelAccountEvent);
+        } catch (Exception e) {
+            System.err.println("Error handling user cancel account event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @KafkaListener(topics = "USER_CANCEL_ACCOUNT_SUCCESS_TOPIC")
+    public void listenUserCancelAccountSuccessEvent(UserCancelAccountSuccessEvent userCancelAccountSuccessEvent) {
+        try {
+            System.out.println("Received user cancel account success event: " + userCancelAccountSuccessEvent);
+            emailService.sendCancelAccountSuccessEmail(userCancelAccountSuccessEvent);
+        } catch (Exception e) {
+            System.err.println("Error handling user cancel account success event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @KafkaListener(topics = "USER_ACTIVE_SUSPEND_TOPIC")
+    public void listenUserActiveSuspendEvent(UserActiveSuspendEvent userActiveSuspendEvent) {
+        try {
+            System.out.println("Received user active suspend event: " + userActiveSuspendEvent);
+            emailService.sendActiveAccountSuccessEmail(userActiveSuspendEvent);
+        } catch (Exception e) {
+            System.err.println("Error handling user active suspend event: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

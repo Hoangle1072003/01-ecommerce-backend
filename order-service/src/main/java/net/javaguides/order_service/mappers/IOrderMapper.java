@@ -36,4 +36,6 @@ public interface IOrderMapper {
     @Mapping(source = "order.orderStatusEnum", target = "orderStatus")
     @Mapping(target = "cart", source = "cart")
     ResOrderByUserIdDto toResOrderByUserIdDto(Order order, Cart cart);
+
+    ResAllOrderByUserIdDto toResAllOrderByUserIdDto(Order order);
 }

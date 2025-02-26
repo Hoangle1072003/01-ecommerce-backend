@@ -1,17 +1,12 @@
 package net.javaguides.identity_service.controller;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
-import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.JsonGenerator;
-import com.google.api.client.json.JsonParser;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.javaguides.event.dto.UserActiveEvent;
+import net.javaguides.event.dto.UserActiveSuspendEvent;
 import net.javaguides.identity_service.domain.User;
 import net.javaguides.identity_service.domain.request.*;
 import net.javaguides.identity_service.domain.response.ResCreateUserDTO;
@@ -23,10 +18,11 @@ import net.javaguides.identity_service.service.IUserService;
 import net.javaguides.identity_service.utils.SecurityUtil;
 import net.javaguides.identity_service.utils.annotation.ApiMessage;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
+import net.javaguides.identity_service.utils.error.AccountDeletedException;
 import net.javaguides.identity_service.utils.error.AccountNotActivatedException;
+import net.javaguides.identity_service.utils.error.AccountNotSuspendException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -38,9 +34,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 
@@ -69,7 +62,9 @@ public class AuthController {
     private Long refreshTokenExpiration;
 
     private final KafkaTemplate<String, UserActiveEvent> userActiveEventKafkaTemplate;
+    private final KafkaTemplate<String, UserActiveSuspendEvent> userRegisterEventKafkaTemplate;
     private static final String USER_ACTIVE_TOPIC = "USER_ACTIVE_ACCOUNT";
+    private static final String USER_REGISTER_TOPIC = "USER_REGISTER_ACCOUNT";
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String CLIENT_ID;
@@ -199,7 +194,17 @@ public class AuthController {
         ResLoginDTO res = new ResLoginDTO();
         User currentUserDB = userService.handleGetUserByUserName(reqLoginDTO.getUsername());
 
-        if (currentUserDB != null && currentUserDB.getStatus().equals(StatusEnum.ACTIVATED)) {
+        if (currentUserDB != null) {
+            if (currentUserDB.getIsDeleted()) {
+                throw new AccountDeletedException("User account has been deleted");
+            }
+            if (currentUserDB.getStatus().equals(StatusEnum.SUSPENDED)) {
+                throw new AccountNotSuspendException("User account is suspended");
+            }
+            if (!currentUserDB.getStatus().equals(StatusEnum.ACTIVATED)) {
+                throw new AccountNotActivatedException("User account is not activated");
+            }
+
             ResLoginDTO.UserLogin user = new ResLoginDTO.UserLogin(
                     currentUserDB.getId(),
                     currentUserDB.getName(),
@@ -208,9 +213,8 @@ public class AuthController {
                     currentUserDB.getRole()
             );
             res.setUser(user);
-        } else {
-            throw new AccountNotActivatedException("User is not activated");
         }
+
 
         String access_token = securityUtil.createAccessToken(authentication.getName(), res);
 
@@ -342,6 +346,7 @@ public class AuthController {
 
     @GetMapping("/activate")
     public ResponseEntity<String> activateAccount(@RequestParam("token") String token) {
+        HttpServletResponse response = null;
         try {
             String email = securityUtil.extractEmailFromToken(token);
 
@@ -437,4 +442,40 @@ public class AuthController {
         userService.resetPasswordConfirm(reqResetPasswordDto);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/send-otp-cancel-account")
+    @ApiMessage("Cancel account")
+    public ResponseEntity<Void> sendOTPCanCelAccount(@RequestBody ReqCancelAccountDto reqCancelAccountDto) {
+        userService.cancelAccount(reqCancelAccountDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/cancel-account")
+    @ApiMessage("Cancel account success")
+    public ResponseEntity<Void> cancelAccount(@RequestBody ReqCancelDto reqCancelDto) {
+        userService.cancelAccountOTP(reqCancelDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/suspend-account")
+    @ApiMessage("Suspend account success")
+    public ResponseEntity<Void> suspendAccount(@RequestBody ReqSuspendAccountDto reqSuspendAccountDto) {
+        userService.suspendAccount(reqSuspendAccountDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/send-active-account-suspend")
+    @ApiMessage("Send active account suspend success")
+    public ResponseEntity<Void> sendActiveAccountSuspend(@RequestBody ReqActiveAccountSuspendDto reqActiveAccountSuspendDto) {
+        userService.activeAccountSuspend(reqActiveAccountSuspendDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/active-account-suspend")
+    @ApiMessage("Active account suspend success")
+    public ResponseEntity<Void> activeAccountSuspend(@RequestBody ReqActiveAccountSuspendOTPDto reqActiveAccountSuspendDto) {
+        userService.activeAccountSuspendOTP(reqActiveAccountSuspendDto);
+        return ResponseEntity.ok().build();
+    }
+
 }
