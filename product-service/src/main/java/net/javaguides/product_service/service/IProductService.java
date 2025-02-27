@@ -1,7 +1,10 @@
 package net.javaguides.product_service.service;
 
 import net.javaguides.product_service.shema.Product;
+import net.javaguides.product_service.shema.response.ResProductDto;
+import net.javaguides.product_service.shema.response.ResProductRecentlyDto;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,4 +23,8 @@ public interface IProductService {
     Product findProductVarientById(String id);
 
     void updateProductStock(String productId, String variantId, int quantity);
+
+    void saveRecentlyViewedProduct(String userId, Optional<Product> product);
+
+    List<ResProductRecentlyDto> getRecentlyViewedProducts(String userId);
 }

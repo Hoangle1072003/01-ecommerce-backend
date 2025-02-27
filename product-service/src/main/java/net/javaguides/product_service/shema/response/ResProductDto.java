@@ -1,5 +1,6 @@
 package net.javaguides.product_service.shema.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Value;
 
 import java.io.Serializable;
