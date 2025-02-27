@@ -143,6 +143,7 @@ public class ProductController {
             @RequestParam(required = false) Double maxPrice
     ) {
         ResProductPage result;
+
         if (minPrice != null && maxPrice != null) {
             result = productService.productByPrice(pageNumber, pageSize, sortBy, dir, minPrice, maxPrice);
         } else {
@@ -151,15 +152,15 @@ public class ProductController {
 
         return ResponseEntity.ok(result);
     }
+    @GetMapping("/search")
+    public ResponseEntity<ResProductPage> searchProducts(
+            @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
+            @RequestParam(value = "price", required = false) Double price,
+            @RequestParam(defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize) {
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") String id) throws Exception {
-        if (id == null)
-        {
-            throw new Exception("id invalid");
-        }
-        productService.deleteProduct(id);
-        return ResponseEntity.status(HttpStatus.OK).body("Product with id" +""+ id +""+ "has been deleted");
+        ResProductPage result = productService.searchProducts(keyword, price, pageNumber, pageSize);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/varient/{id}")

@@ -20,4 +20,11 @@ public interface IProductRepository extends MongoRepository<Product, String> {
     @Query("{ 'varients.price' : { $gte: ?0, $lte: ?1 } }")
     Page<Product> findByPriceProductBetween(Double minPrice, Double maxPrice, Pageable pageable);
     boolean existsByCode(String code);
+
+    @Query("{ $or: [ "
+            + "{ 'name' : { $regex: ?0, $options: 'i' } }, "
+            + "{ 'brand' : { $regex: ?0, $options: 'i' } }, "
+            + "{ 'varients.price' : { $eq: ?1 } } "
+            + "] }")
+    Page<Product> searchProductsByKeywordWithPagination(String keyword, Double price, Pageable pageable);
 }

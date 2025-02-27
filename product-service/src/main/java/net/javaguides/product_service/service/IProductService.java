@@ -29,4 +29,5 @@ public interface IProductService {
     ResProductPage productByPrice(Integer pageNumber, Integer pageSize, String sortBy, String dir, Double minPrice, Double maxPrice);
     Product create(ResProductDetailsDto request);
     void deleteProduct(String id);
+    ResProductPage searchProducts(String keyword, Double price, Integer pageNumber, Integer pageSize);
 }

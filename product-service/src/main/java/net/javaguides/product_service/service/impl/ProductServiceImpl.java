@@ -72,12 +72,29 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ResProductPage getAllProductWithPageAndSorting(Integer pageNumber, Integer pageSize, String sortBy, String dir) {
-        // Tạo phân trang và sắp xếp
         Sort sort = dir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        // Lấy dữ liệu phân trang
         Page<Product> productPage = productRepository.findAll(pageable);
+        return new ResProductPage(
+                new ArrayList<>(productPage.getContent()),
+                pageNumber,
+                pageSize,
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
+        );
+    }
+
+    @Override
+    public ResProductPage searchProducts(String keyword, Double price, Integer pageNumber, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<Product> productPage;
+        if (price != null) {
+            productPage = productRepository.searchProductsByKeywordWithPagination(keyword, price, pageable);
+        } else {
+            productPage = productRepository.searchProductsByKeywordWithPagination(keyword, null, pageable);
+        }
         return new ResProductPage(
                 new ArrayList<>(productPage.getContent()),
                 pageNumber,
@@ -91,10 +108,7 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public ResProductPage productByPrice(Integer pageNumber, Integer pageSize, String sortBy, String dir, Double minPrice, Double maxPrice) {
-        // Tạo phân trang và sắp xếp
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(dir.equalsIgnoreCase("asc") ? Sort.Order.asc(sortBy) : Sort.Order.desc(sortBy)));
-
-        // Tạo truy vấn lọc theo giá
         Query query = new Query(Criteria.where("varients.price").gte(minPrice).lte(maxPrice));
         query.with(pageable);
         List<Product> products = mongoTemplate.find(query, Product.class);
