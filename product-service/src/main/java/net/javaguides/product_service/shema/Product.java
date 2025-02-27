@@ -29,7 +29,6 @@ public class Product extends AbstractMappedEntity {
     @Id
     private String id;
 
-
     private String code;
 
     private String name;

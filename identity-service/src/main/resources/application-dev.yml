@@ -44,9 +44,9 @@ spring:
     message: Hello , IDENTITY-SERVICE cua dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://682-q.h.filess.io:3307/identitydb1_bellexist
-    username: identitydb1_bellexist
-    password: e8fc86bdce9062eae1bb6c418194705bb0cb9eb6
+    url: jdbc:mysql://localhost:3306/identitydb
+    username: root
+    password: sapassword
   jpa:
     hibernate:
       ddl-auto: update
