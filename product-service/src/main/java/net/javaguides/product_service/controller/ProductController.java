@@ -165,6 +165,4 @@ public class ProductController {
         List<ResProductRecentlyDto> products = productService.getRecentlyViewedProducts(userId);
         return ResponseEntity.ok(products);
     }
-
-
 }
