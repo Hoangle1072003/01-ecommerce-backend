@@ -7,33 +7,14 @@ import net.javaguides.product_service.repository.IProductRepository;
 import net.javaguides.product_service.service.IExcelService;
 import net.javaguides.product_service.service.IProductService;
 import net.javaguides.product_service.shema.Product;
-import net.javaguides.product_service.shema.response.ResProductDetailsDto;
-import net.javaguides.product_service.shema.response.ResProductDto;
-<<<<<<< HEAD
-import net.javaguides.product_service.shema.response.ResProductPage;
-import net.javaguides.product_service.shema.response.ResProductVarientDto;
-import net.javaguides.product_service.utils.constant.AppConstants;
-=======
-import net.javaguides.product_service.shema.response.ResProductRecentlyDto;
-import net.javaguides.product_service.shema.response.ResProductVarientDto;
+import net.javaguides.product_service.shema.response.*;
 import net.javaguides.product_service.utils.annotation.ApiMessage;
->>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.HttpHeaders;
+import net.javaguides.product_service.utils.constant.AppConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -125,10 +106,6 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không thể tải lên tệp: " + file.getOriginalFilename() + "!");
         }
     }
-<<<<<<< HEAD
-    @GetMapping("/{id}")
-    public ResponseEntity<ResProductDetailsDto> getProduct(@PathVariable String id) {
-=======
 
 
     @GetMapping("/{userId}/{id}")
@@ -143,7 +120,6 @@ public class ProductController {
             userId = null;
         }
 
->>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
         Optional<Product> productOptional = productService.findById(id);
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
@@ -159,7 +135,6 @@ public class ProductController {
         return ResponseEntity.notFound().build();
     }
 
-<<<<<<< HEAD
     @GetMapping("/category")
     public ResponseEntity<List<Product>> getProductsByCategory(@RequestParam String categoryID) {
         {
@@ -196,8 +171,6 @@ public class ProductController {
         ResProductPage result = productService.searchProducts(keyword, price, pageNumber, pageSize);
         return ResponseEntity.ok(result);
     }
-=======
->>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
 
     @GetMapping("/varient/{id}")
     public ResponseEntity<ResProductVarientDto> getProductVarient(@PathVariable String id) {

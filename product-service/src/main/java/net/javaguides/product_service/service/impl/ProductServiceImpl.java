@@ -7,9 +7,11 @@ import net.javaguides.product_service.mapper.IProductMapper;
 import net.javaguides.product_service.repository.IProductRepository;
 import net.javaguides.product_service.service.IProductService;
 import net.javaguides.product_service.shema.Product;
-<<<<<<< HEAD
+
 import net.javaguides.product_service.shema.response.ResProductDetailsDto;
+import net.javaguides.product_service.shema.response.ResProductDto;
 import net.javaguides.product_service.shema.response.ResProductPage;
+import net.javaguides.product_service.shema.response.ResProductRecentlyDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,12 +19,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-=======
-import net.javaguides.product_service.shema.response.ResProductDto;
-import net.javaguides.product_service.shema.response.ResProductRecentlyDto;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -32,27 +28,20 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
->>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements IProductService {
     private final IProductRepository productRepository;
-<<<<<<< HEAD
     private final MongoTemplate mongoTemplate;
-=======
     private final StringRedisTemplate redisTemplate;
     private static final int MAX_RECENT_PRODUCTS = 10;
     private static final long TTL_IN_SECONDS = 7 * 24 * 60 * 60;
     private final IProductMapper productMapper;
     private final ObjectMapper objectMapper;
->>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
 
     @Override
     public Optional<Product> findById(String id) {
@@ -141,6 +130,7 @@ public class ProductServiceImpl implements IProductService {
         List<Product> productList = new ArrayList<>(products);
         return new ResProductPage(productList, pageNumber, pageSize, total, (int) Math.ceil((double) total / pageSize), total <= pageNumber * pageSize);
     }
+
 
     @Override
     public Product create(ResProductDetailsDto dto) {
