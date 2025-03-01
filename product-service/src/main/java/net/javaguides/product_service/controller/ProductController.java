@@ -9,10 +9,17 @@ import net.javaguides.product_service.service.IProductService;
 import net.javaguides.product_service.shema.Product;
 import net.javaguides.product_service.shema.response.ResProductDetailsDto;
 import net.javaguides.product_service.shema.response.ResProductDto;
+<<<<<<< HEAD
 import net.javaguides.product_service.shema.response.ResProductPage;
 import net.javaguides.product_service.shema.response.ResProductVarientDto;
 import net.javaguides.product_service.utils.constant.AppConstants;
+=======
+import net.javaguides.product_service.shema.response.ResProductRecentlyDto;
+import net.javaguides.product_service.shema.response.ResProductVarientDto;
+import net.javaguides.product_service.utils.annotation.ApiMessage;
+>>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +30,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +57,7 @@ public class ProductController {
     private final IProductMapper productMapper;
     private final IProductService productService;
     private final IExcelService excelService;
+
 
     @GetMapping()
     public ResponseEntity<List<ResProductDto>> getProducts() {
@@ -115,17 +125,41 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Không thể tải lên tệp: " + file.getOriginalFilename() + "!");
         }
     }
+<<<<<<< HEAD
     @GetMapping("/{id}")
     public ResponseEntity<ResProductDetailsDto> getProduct(@PathVariable String id) {
+=======
+
+
+    @GetMapping("/{userId}/{id}")
+    public ResponseEntity<ResProductDetailsDto> getProduct(
+            @PathVariable(required = false) String userId,
+            @PathVariable String id) {
+
+        if (userId != null && !userId.equals("null")) {
+            System.out.println("UserID: [" + userId + "]");
+        } else {
+            System.out.println("UserID is missing!");
+            userId = null;
+        }
+
+>>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
         Optional<Product> productOptional = productService.findById(id);
         if (productOptional.isPresent()) {
             Product product = productOptional.get();
             ResProductDetailsDto resProductDetailsDto = productMapper.toResProductDetailsDto(product);
+
+            if (userId != null) {
+                productService.saveRecentlyViewedProduct(userId, productOptional);
+            }
+
             return ResponseEntity.ok(resProductDetailsDto);
         }
+
         return ResponseEntity.notFound().build();
     }
 
+<<<<<<< HEAD
     @GetMapping("/category")
     public ResponseEntity<List<Product>> getProductsByCategory(@RequestParam String categoryID) {
         {
@@ -162,6 +196,8 @@ public class ProductController {
         ResProductPage result = productService.searchProducts(keyword, price, pageNumber, pageSize);
         return ResponseEntity.ok(result);
     }
+=======
+>>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
 
     @GetMapping("/varient/{id}")
     public ResponseEntity<ResProductVarientDto> getProductVarient(@PathVariable String id) {
@@ -189,6 +225,13 @@ public class ProductController {
             return ResponseEntity.ok(resProductVarientDto);
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/recently-viewed/{userId}")
+    @ApiMessage("Get recently viewed products")
+    public ResponseEntity<List<ResProductRecentlyDto>> getRecentlyViewedProducts(@PathVariable String userId) {
+        List<ResProductRecentlyDto> products = productService.getRecentlyViewedProducts(userId);
+        return ResponseEntity.ok(products);
     }
 
 

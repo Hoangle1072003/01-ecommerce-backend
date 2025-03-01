@@ -1,8 +1,13 @@
 package net.javaguides.product_service.service;
 
 import net.javaguides.product_service.shema.Product;
+<<<<<<< HEAD
 import net.javaguides.product_service.shema.response.ResProductDetailsDto;
 import net.javaguides.product_service.shema.response.ResProductPage;
+=======
+import net.javaguides.product_service.shema.response.ResProductDto;
+import net.javaguides.product_service.shema.response.ResProductRecentlyDto;
+>>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +28,7 @@ public interface IProductService {
     Product findProductVarientById(String id);
 
     void updateProductStock(String productId, String variantId, int quantity);
+<<<<<<< HEAD
     List<Product> getProductsByCategory(String categoryID);
     ResProductPage getAllProductWithPageAndSorting(Integer pageNumber, Integer pageSize,
                                                    String sortBy, String dir);
@@ -30,4 +36,10 @@ public interface IProductService {
     Product create(ResProductDetailsDto request);
     void deleteProduct(String id);
     ResProductPage searchProducts(String keyword, Double price, Integer pageNumber, Integer pageSize);
+=======
+
+    void saveRecentlyViewedProduct(String userId, Optional<Product> product);
+
+    List<ResProductRecentlyDto> getRecentlyViewedProducts(String userId);
+>>>>>>> 06360374641f4396b6829b3a5d11830cf1587668
 }

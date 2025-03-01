@@ -3,6 +3,7 @@ package net.javaguides.product_service.mapper;
 import net.javaguides.product_service.shema.Product;
 import net.javaguides.product_service.shema.response.ResProductDetailsDto;
 import net.javaguides.product_service.shema.response.ResProductDto;
+import net.javaguides.product_service.shema.response.ResProductRecentlyDto;
 import net.javaguides.product_service.shema.response.ResProductVarientDto;
 import org.mapstruct.*;
 
@@ -24,5 +25,10 @@ public interface IProductMapper {
 
 
     ResProductVarientDto toResProductVarientDto(Product productVarient);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "varients", source = "varients")
+    ResProductRecentlyDto toResProductRecentlyDto(Product product);
 
 }
