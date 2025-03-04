@@ -17,6 +17,7 @@ import net.javaguides.identity_service.mapper.IUserMapper;
 import net.javaguides.identity_service.service.IUserService;
 import net.javaguides.identity_service.utils.SecurityUtil;
 import net.javaguides.identity_service.utils.annotation.ApiMessage;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import net.javaguides.identity_service.utils.error.AccountDeletedException;
 import net.javaguides.identity_service.utils.error.AccountNotActivatedException;
@@ -34,8 +35,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * File: AuthController.java
@@ -60,6 +63,8 @@ public class AuthController {
     private final IUserCreateMapper userCreateMapper;
     @Value("${spring.security.authentication.jwt.refresh-token-validity-in-seconds}")
     private Long refreshTokenExpiration;
+    @Value("${spring.security.authentication.jwt.access-token-validity-in-seconds}")
+    private Long accessTokenExpiration;
 
     private final KafkaTemplate<String, UserActiveEvent> userActiveEventKafkaTemplate;
     private final KafkaTemplate<String, UserActiveSuspendEvent> userRegisterEventKafkaTemplate;
@@ -193,8 +198,8 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         ResLoginDTO res = new ResLoginDTO();
         User currentUserDB = userService.handleGetUserByUserName(reqLoginDTO.getUsername());
-
-        if (currentUserDB != null) {
+        System.out.println("currentUserDB = " + currentUserDB.getId());
+        if (currentUserDB != null && currentUserDB.getProvider().equals(AuthProvider.LOCAL)) {
             if (currentUserDB.getIsDeleted()) {
                 throw new AccountDeletedException("User account has been deleted");
             }
@@ -210,7 +215,9 @@ public class AuthController {
                     currentUserDB.getName(),
                     currentUserDB.getEmail(),
                     currentUserDB.getStatus(),
+                    currentUserDB.getProvider(),
                     currentUserDB.getRole()
+
             );
             res.setUser(user);
         }
@@ -221,9 +228,14 @@ public class AuthController {
         res.setAccessToken(access_token);
         // create refresh token
         String refresh_token = securityUtil.refreshToken(reqLoginDTO.getUsername(), res);
+//        System.out.println("refresh_token = " + refresh_token);
         // update refresh token
         userService.updateUserToken(reqLoginDTO.getUsername(), refresh_token);
+        res.setRefresh_token(refresh_token);
         // set cookie
+        long expiresAt = System.currentTimeMillis() + accessTokenExpiration * 1000;
+        long expiresAtInSec = expiresAt / 1000;
+        res.setExpires_at(expiresAtInSec);
         ResponseCookie cookie = ResponseCookie.from("refresh_token", refresh_token)
                 .httpOnly(true).path("/")
                 .secure(true)
@@ -256,21 +268,79 @@ public class AuthController {
         return ResponseEntity.ok(userGetAccount);
     }
 
-    @GetMapping("/refresh")
+//    @PostMapping("/refresh")
+//    @ApiMessage("Refresh token success")
+//    public ResponseEntity<ResLoginDTO> refreshToken(@CookieValue(name = "refresh_token", required = false) String refreshToken) throws Exception {
+//        if (refreshToken == null) {
+//            log.error(" Không nhận được refresh_token từ cookie!");
+//            return ResponseEntity.badRequest().build();
+//        }
+//        log.info("Nhận được refresh_token: " + refreshToken);
+//        Jwt decodeToken = this.securityUtil.checkVaildJWTREfreshToken(refreshToken);
+//        String email = decodeToken.getSubject();
+//        User currentUser = userService.getUserByRefreshToken(refreshToken, email);
+//        if (currentUser == null) {
+//            log.error("Refresh token is invalid");
+//            throw new Exception("Refresh token is invalid");
+//        } else if (!currentUser.getEmail().equals(email)) {
+//            log.error("Refresh token is invalid");
+//            throw new Exception("Refresh token is invalid");
+//        } else {
+//            log.info("Refresh token is valid");
+//        }
+//        ResLoginDTO res = new ResLoginDTO();
+//        User currentUserDB = userService.handleGetUserByUserName(email);
+//        if (currentUserDB != null) {
+//            ResLoginDTO.UserLogin user = new ResLoginDTO.UserLogin();
+//            user.setId(currentUserDB.getId());
+//            user.setEmail(currentUserDB.getEmail());
+//            user.setUsername(currentUserDB.getName());
+//            user.setRole(currentUserDB.getRole());
+//            res.setUser(user);
+//        }
+//        String access_token = securityUtil.createAccessToken(email, res);
+//
+//        res.setAccessToken(access_token);
+//        // create refresh token
+//        String new_refresh_token = securityUtil.refreshToken(email, res);
+//        // update refresh token
+//        userService.updateUserToken(email, new_refresh_token);
+//        // set cookie
+//        long expiresAt = System.currentTimeMillis() + accessTokenExpiration * 1000;
+//        long expiresAtInSec = expiresAt / 1000;
+//        res.setExpires_at(expiresAtInSec);
+//        res.setRefresh_token(new_refresh_token);
+//        ResponseCookie cookie = ResponseCookie.from("refresh_token", new_refresh_token)
+//                .httpOnly(true).path("/")
+//                .secure(true)
+//                .maxAge(refreshTokenExpiration)
+//                .build();
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+//                .body(res);
+//    }
+
+    @PostMapping("/refresh")
     @ApiMessage("Refresh token success")
-    public ResponseEntity<ResLoginDTO> refreshToken(@CookieValue(name = "refresh_token") String refreshToken) throws Exception {
+    public ResponseEntity<ResLoginDTO> refreshToken(@RequestBody Map<String, String> requestBody) throws Exception {
+        String refreshToken = requestBody.get("refresh_token");
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            log.error("Không nhận được refresh_token từ body!");
+            return ResponseEntity.badRequest().build();
+        }
+        log.info("Nhận được refresh_token: " + refreshToken);
+
         Jwt decodeToken = this.securityUtil.checkVaildJWTREfreshToken(refreshToken);
+        System.out.println("decodeToken = " + decodeToken);
         String email = decodeToken.getSubject();
         User currentUser = userService.getUserByRefreshToken(refreshToken, email);
-        if (currentUser == null) {
+
+        if (currentUser == null || !currentUser.getEmail().equals(email)) {
             log.error("Refresh token is invalid");
             throw new Exception("Refresh token is invalid");
-        } else if (!currentUser.getEmail().equals(email)) {
-            log.error("Refresh token is invalid");
-            throw new Exception("Refresh token is invalid");
-        } else {
-            log.info("Refresh token is valid");
         }
+        log.info("Refresh token is valid");
+
         ResLoginDTO res = new ResLoginDTO();
         User currentUserDB = userService.handleGetUserByUserName(email);
         if (currentUserDB != null) {
@@ -278,26 +348,26 @@ public class AuthController {
             user.setId(currentUserDB.getId());
             user.setEmail(currentUserDB.getEmail());
             user.setUsername(currentUserDB.getName());
+            user.setProvider(currentUserDB.getProvider());
             user.setRole(currentUserDB.getRole());
             res.setUser(user);
         }
-        String access_token = securityUtil.createAccessToken(email, res);
 
+        String access_token = securityUtil.createAccessToken(email, res);
         res.setAccessToken(access_token);
-        // create refresh token
-        String new_refresh_token = securityUtil.refreshToken(email, res);
-        // update refresh token
-        userService.updateUserToken(email, new_refresh_token);
-        // set cookie
-        ResponseCookie cookie = ResponseCookie.from("refresh_token", new_refresh_token)
-                .httpOnly(true).path("/")
-                .secure(true)
-                .maxAge(refreshTokenExpiration)
-                .build();
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(res);
+
+//        String new_refresh_token = securityUtil.refreshToken(email, res);
+//
+//        userService.updateUserToken(email, new_refresh_token);
+
+        long expiresAt = System.currentTimeMillis() + accessTokenExpiration * 1000;
+        res.setExpires_at(expiresAt / 1000);
+        res.setRefresh_token(refreshToken);
+
+
+        return ResponseEntity.ok(res);
     }
+
 
     @PostMapping("/logout")
     @ApiMessage("Logout success")
@@ -432,7 +502,7 @@ public class AuthController {
         }
 
         return ResponseEntity.status(HttpStatus.FOUND)
-                .header(HttpHeaders.LOCATION, "http://localhost:3001/auth/reset-password?id=" + user.getId())
+                .header(HttpHeaders.LOCATION, "http://localhost:3001/guest/auth/reset-password?id=" + user.getId())
                 .build();
     }
 
@@ -477,5 +547,40 @@ public class AuthController {
         userService.activeAccountSuspendOTP(reqActiveAccountSuspendDto);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/check-account-suspend")
+    @ApiMessage("Check account suspend success")
+    public ResponseEntity<?> checkAccountSuspend(@RequestBody ReqCheckAccountSuspendDto reqCheckAccountSuspendDto) {
+        Object result = userService.checkAccountSuspend(reqCheckAccountSuspendDto);
+
+        if (result instanceof User) {
+            User user = (User) result;
+            return ResponseEntity.ok(new ResLoginDTO.UserLogin(
+                    user.getId(),
+                    user.getName(),
+                    user.getEmail(),
+                    user.getStatus(),
+                    user.getProvider(),
+                    user.getRole()
+            ));
+        } else if (result instanceof List) {
+            List<User> users = (List<User>) result;
+            List<ResLoginDTO.UserLogin> userLogins = users.stream()
+                    .map(user -> new ResLoginDTO.UserLogin(
+                            user.getId(),
+                            user.getName(),
+                            user.getEmail(),
+                            user.getStatus(),
+                            user.getProvider(),
+                            user.getRole()
+                    ))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(userLogins);
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
 
 }

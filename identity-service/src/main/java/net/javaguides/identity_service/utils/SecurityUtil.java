@@ -59,6 +59,8 @@ public class SecurityUtil {
         userInsideToken.setName(resLoginDTO.getUser().getUsername());
         userInsideToken.setEmail(resLoginDTO.getUser().getEmail());
         userInsideToken.setRole(resLoginDTO.getUser().getRole().getName());
+        userInsideToken.setProvider(resLoginDTO.getUser().getProvider());
+
 
         Instant now = Instant.now();
         Instant validity = now.plus(accessTokenExpiration, ChronoUnit.SECONDS);
@@ -96,6 +98,8 @@ public class SecurityUtil {
         userInsideToken.setEmail(email);
         userInsideToken.setName(resLoginDTO.getUser().getUsername());
         userInsideToken.setEmail(resLoginDTO.getUser().getEmail());
+        userInsideToken.setRole(resLoginDTO.getUser().getRole().getName());
+        userInsideToken.setProvider(resLoginDTO.getUser().getProvider());
         Instant now = Instant.now();
         Instant validity = now.plus(refreshTokenExpiration, ChronoUnit.SECONDS);
 
@@ -105,6 +109,7 @@ public class SecurityUtil {
                 .expiresAt(validity)
                 .subject(email)
                 .claim("user", userInsideToken)
+                .claim("roles", Collections.singletonList(resLoginDTO.getUser().getRole().getName()))
                 .build();
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
         return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader,

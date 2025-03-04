@@ -1,6 +1,9 @@
 package net.javaguides.identity_service.repository;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import net.javaguides.identity_service.domain.User;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,8 +32,11 @@ public interface IUserRepository extends JpaRepository<User, UUID> {
 
     boolean existsByEmail(String email);
 
+    boolean existsByEmailAndProvider(String email, AuthProvider provider);
+
     User findByRefreshTokenAndEmail(String token, String email);
 
+    Optional<User> findByEmailAndProvider(String email, AuthProvider provider);
 
 
     public Page<User> findAllByRoleName(Pageable pageable, String roleName);
@@ -65,4 +71,6 @@ public interface IUserRepository extends JpaRepository<User, UUID> {
 
 //    @Query("SELECT o FROM Order o WHERE o.user.id = :userId ORDER BY o.createTime ASC")
 //    Page<Order> findOrdersByUserIdSortedByCreateTime(UUID userId, Pageable pageable);
+
+    List<User> findUsersByEmail(String email);
 }

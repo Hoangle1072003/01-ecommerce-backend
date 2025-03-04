@@ -3,6 +3,7 @@ package net.javaguides.identity_service.domain.request;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 
 /**
  * @author Le Van Hoang

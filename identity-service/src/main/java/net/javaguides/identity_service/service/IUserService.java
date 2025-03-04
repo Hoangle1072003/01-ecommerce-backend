@@ -5,6 +5,7 @@ import net.javaguides.identity_service.domain.request.*;
 import net.javaguides.identity_service.domain.response.ResResultPaginationDTO;
 import net.javaguides.identity_service.domain.response.ResUpdateUserDto;
 import net.javaguides.identity_service.domain.response.ResUpdateUserPhoneDto;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 import org.springframework.data.domain.Pageable;
 
@@ -41,6 +42,8 @@ public interface IUserService {
 
     User handleGetUserByUserName(String userName);
 
+    User handleGetUserByUserNameByLocal(String userName, AuthProvider authProvider);
+
     void updateUserToken(String email, String token);
 
     User getUserByRefreshToken(String token, String email);
@@ -70,4 +73,6 @@ public interface IUserService {
     Void activeAccountSuspend(ReqActiveAccountSuspendDto reqSuspendDto);
 
     Void activeAccountSuspendOTP(ReqActiveAccountSuspendOTPDto reqActiveAccountSuspendOTPDto);
+
+    Object checkAccountSuspend(ReqCheckAccountSuspendDto reqCheckAccountSuspendDto);
 }

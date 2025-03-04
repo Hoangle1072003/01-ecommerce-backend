@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * File: UserServiceImpl.java
@@ -150,7 +151,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public boolean isEmailExist(String email) {
-        return userRepository.existsByEmail(email);
+        return userRepository.existsByEmailAndProvider(email, AuthProvider.LOCAL);
     }
 
     @Override
@@ -158,9 +159,17 @@ public class UserServiceImpl implements IUserService {
         return userRepository.findById(id).orElseThrow();
     }
 
+
     @Override
     public User handleGetUserByUserName(String userName) {
-        return userRepository.findByEmail(userName);
+        User user = userRepository.findByEmailAndProvider(userName, AuthProvider.LOCAL)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user;
+    }
+
+    @Override
+    public User handleGetUserByUserNameByLocal(String userName, AuthProvider authProvider) {
+        return userRepository.findByEmailAndProvider(userName, authProvider).orElseThrow();
     }
 
     @Override
@@ -186,7 +195,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public boolean activateUserByEmail(String email) {
-        User user = userRepository.findByEmail(email);
+        User user = userRepository.findByEmailAndProvider(email, AuthProvider.LOCAL).orElse(null);
         if (user != null && user.getStatus().equals(StatusEnum.PENDING_ACTIVATION)) {
             user.setStatus(StatusEnum.ACTIVATED);
             userRepository.save(user);
@@ -198,22 +207,40 @@ public class UserServiceImpl implements IUserService {
     @Override
     public User saveUserByGoogle(ReqUserGoogleDto reqUserGoogleDto) {
         User oldUser = userRepository.findByEmail(reqUserGoogleDto.getEmail());
+
         if (oldUser != null && oldUser.getProvider().equals(AuthProvider.LOCAL)) {
-            return oldUser;
+            User newUser = new User();
+            newUser.setEmail(reqUserGoogleDto.getEmail());
+            newUser.setName(reqUserGoogleDto.getName());
+            newUser.setImageUrl(reqUserGoogleDto.getPicture());
+            newUser.setProviderId(reqUserGoogleDto.getSub());
+            newUser.setStatus(StatusEnum.ACTIVATED);
+            newUser.setProvider(AuthProvider.GOOGLE);
+
+            Role userRole = roleRepository.findByName("USER");
+            newUser.setRole(userRole);
+
+            return userRepository.save(newUser);
         }
-        User user = new User();
 
-        user.setEmail(reqUserGoogleDto.getEmail());
-        user.setName(reqUserGoogleDto.getName());
-        user.setImageUrl(reqUserGoogleDto.getPicture());
-        user.setProviderId(reqUserGoogleDto.getSub());
-        user.setStatus(StatusEnum.ACTIVATED);
-        user.setProvider(AuthProvider.GOOGLE);
-        Role userRole = roleRepository.findByName("USER");
-        user.setRole(userRole);
-        return userRepository.save(user);
+        if (oldUser == null) {
+            User user = new User();
+            user.setEmail(reqUserGoogleDto.getEmail());
+            user.setName(reqUserGoogleDto.getName());
+            user.setImageUrl(reqUserGoogleDto.getPicture());
+            user.setProviderId(reqUserGoogleDto.getSub());
+            user.setStatus(StatusEnum.ACTIVATED);
+            user.setProvider(AuthProvider.GOOGLE);
 
+            Role userRole = roleRepository.findByName("USER");
+            user.setRole(userRole);
+
+            return userRepository.save(user);
+        }
+
+        return oldUser;
     }
+
 
     @Override
     public User saveUserByGithub(ReqUserGoogleDto reqUserGoogleDto) {
@@ -269,7 +296,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     public Void cancelAccount(ReqCancelAccountDto reqCancelAccountDto) {
-        User user = userRepository.findByEmail(reqCancelAccountDto.getEmail());
+        User user = userRepository.findByEmailAndProvider(reqCancelAccountDto.getEmail(), reqCancelAccountDto.getProvider()).orElseThrow();
         if (user == null) {
             throw new RuntimeException("User không tồn tại.");
         }
@@ -306,7 +333,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Void cancelAccountOTP(ReqCancelDto reqCancelDto) {
-        User user = userRepository.findByEmail(reqCancelDto.getEmail());
+        User user = userRepository.findByEmailAndProvider(reqCancelDto.getEmail(), reqCancelDto.getProvider()).orElseThrow();
         if (user == null) {
             throw new RuntimeException("User không tồn tại.");
         }
@@ -337,7 +364,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Void suspendAccount(ReqSuspendAccountDto reqSuspendAccountDto) {
-        User user = userRepository.findByEmail(reqSuspendAccountDto.getEmail());
+        User user = userRepository.findByEmailAndProvider(reqSuspendAccountDto.getEmail(), reqSuspendAccountDto.getProvider()).orElseThrow();
         if (user == null) {
             throw new RuntimeException("User không tồn tại.");
         }
@@ -351,7 +378,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Void activeAccountSuspend(ReqActiveAccountSuspendDto reqSuspendDto) {
-        User user = userRepository.findByEmail(reqSuspendDto.getEmail());
+        User user = userRepository.findByEmailAndProvider(reqSuspendDto.getEmail(), AuthProvider.LOCAL).orElseThrow();
         if (user == null) {
             throw new RuntimeException("User không tồn tại.");
         }
@@ -363,7 +390,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public Void activeAccountSuspendOTP(ReqActiveAccountSuspendOTPDto reqActiveAccountSuspendOTPDto) {
-        User user = userRepository.findByEmail(reqActiveAccountSuspendOTPDto.getEmail());
+        User user = userRepository.findByEmailAndProvider(reqActiveAccountSuspendOTPDto.getEmail(), AuthProvider.LOCAL).orElseThrow();
         if (user == null) {
             throw new RuntimeException("User không tồn tại.");
         }
@@ -381,4 +408,24 @@ public class UserServiceImpl implements IUserService {
         redisTemplate.delete(redisKey);
         return null;
     }
+
+    @Override
+    public Object checkAccountSuspend(ReqCheckAccountSuspendDto reqCheckAccountSuspendDto) {
+        List<User> users = userRepository.findUsersByEmail(reqCheckAccountSuspendDto.getEmail());
+
+        if (users.isEmpty()) {
+            throw new RuntimeException("User không tồn tại.");
+        }
+
+        List<User> suspendedUsers = users.stream()
+                .filter(user -> user.getStatus() == StatusEnum.SUSPENDED)
+                .collect(Collectors.toList());
+
+        if (suspendedUsers.isEmpty()) {
+            throw new RuntimeException("Không có tài khoản nào bị suspend.");
+        }
+
+        return suspendedUsers.size() == 1 ? suspendedUsers.get(0) : suspendedUsers;
+    }
+
 }

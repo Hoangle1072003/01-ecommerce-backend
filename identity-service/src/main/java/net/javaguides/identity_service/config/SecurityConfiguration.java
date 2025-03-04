@@ -79,6 +79,7 @@ public class SecurityConfiguration {
                 "/api/v1/auth/active-account-suspend",
                 "/api/v1/auth/create-new-user-google",
                 "/api/v1/auth/create-new-user-github",
+                "/api/v1/auth/check-account-suspend",
                 "/v3/api-docs/**",
                 "/swagger-ui/**",
                 "/swagger-ui.html",

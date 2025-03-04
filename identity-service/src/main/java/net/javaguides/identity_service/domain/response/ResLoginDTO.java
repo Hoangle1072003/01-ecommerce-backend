@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import net.javaguides.identity_service.domain.Role;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 import net.javaguides.identity_service.utils.constant.StatusEnum;
 
 import java.util.UUID;
@@ -23,6 +24,9 @@ import java.util.UUID;
 public class ResLoginDTO {
     @JsonProperty("access_token")
     private String accessToken;
+    @JsonProperty("refresh_token")
+    private String refresh_token;
+    private long expires_at;
     private UserLogin user;
 
 
@@ -34,6 +38,7 @@ public class ResLoginDTO {
         private String username;
         private String email;
         private StatusEnum status;
+        private AuthProvider provider;
         private Role role;
     }
 
@@ -53,5 +58,6 @@ public class ResLoginDTO {
         private String email;
         private String name;
         private String role;
+        private AuthProvider provider;
     }
 }

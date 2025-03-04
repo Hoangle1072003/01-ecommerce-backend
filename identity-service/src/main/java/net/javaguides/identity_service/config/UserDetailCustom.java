@@ -3,6 +3,7 @@ package net.javaguides.identity_service.config;
 import lombok.RequiredArgsConstructor;
 import net.javaguides.identity_service.domain.User;
 import net.javaguides.identity_service.service.IUserService;
+import net.javaguides.identity_service.utils.constant.AuthProvider;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
