@@ -17,7 +17,7 @@ spring:
       jwt:
         # openssl rand -base64 64
         base64-secret: YTwQoI5e3OjbPsvbRgXFdbGAz3ML2jTezUQTD0CO82VOl/ZrzSyJvQ5b6t1YyS9bqiT4jA1bny2MhHn4RNcu9A==
-        access-token-validity-in-seconds: 300
+        access-token-validity-in-seconds: 86400
         access-token-active-in-seconds: 300
         refresh-token-validity-in-seconds: 86400
     oauth2:
